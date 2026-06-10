@@ -3,13 +3,29 @@ import pandas as pd
 from datetime import datetime, timedelta
 import os
 
-# === MODIFICA QUI LA TUA WATCHLIST (ticker Borsa Italiana, suffisso .MI) ===
+# === MODIFICA QUI LA TUA WATCHLIST ===
 TICKERS = [
-    "ENI.MI", "ISP.MI", "UCG.MI", "ENEL.MI", "G.MI",
-    "STLAM.MI", "RACE.MI", "STMMI.MI", "PRY.MI", "LDO.MI",
-]
-# ==========================================================================
+    # --- FTSE MIB (Borsa Italiana, .MI) ---
+    "A2A.MI", "AMP.MI", "AZM.MI", "BMED.MI", "BMPS.MI",
+    "BAMI.MI", "BPE.MI", "BC.MI", "BZU.MI", "CPR.MI",
+    "DIA.MI", "ENEL.MI", "ENI.MI", "RACE.MI", "FBK.MI",
+    "G.MI", "HER.MI", "IP.MI", "ISP.MI", "INW.MI",
+    "IVG.MI", "LDO.MI", "MB.MI", "MONC.MI", "NEXI.MI",
+    "PIRC.MI", "PST.MI", "PRY.MI", "REC.MI", "SPM.MI",
+    "SRG.MI", "STLAM.MI", "STMMI.MI", "TIT.MI", "TEN.MI",
+    "TRN.MI", "UCG.MI", "UNI.MI", "BPSO.MI", "LTMC.MI",
 
+    # --- CAC 40 (Euronext Paris, .PA) ---
+    "AC.PA", "AI.PA", "AIR.PA", "MT.PA", "CS.PA",
+    "BNP.PA", "EN.PA", "CAP.PA", "CA.PA", "ACA.PA",
+    "BN.PA", "DSY.PA", "EDEN.PA", "ENGI.PA", "EL.PA",
+    "ERF.PA", "RMS.PA", "KER.PA", "LR.PA", "OR.PA",
+    "MC.PA", "ML.PA", "ORA.PA", "RI.PA", "PUB.PA",
+    "RNO.PA", "SAF.PA", "SGO.PA", "SAN.PA", "SU.PA",
+    "GLE.PA", "STLAP.PA", "STMPA.PA", "TEP.PA", "HO.PA",
+    "TTE.PA", "VIE.PA", "DG.PA", "VIV.PA", "WLN.PA",
+]
+# ======================================
 MONTHS_BACK = 14
 end = datetime.today()
 start = end - timedelta(days=MONTHS_BACK * 31)
