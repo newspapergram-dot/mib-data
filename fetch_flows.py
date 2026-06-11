@@ -171,7 +171,11 @@ def short_fr():
         raw=get(url)
         try: df=pd.read_csv(io.StringIO(raw), sep=";", engine="python")
         except Exception: df=pd.read_csv(io.StringIO(raw), sep=None, engine="python")
-        df.tail(1000).to_csv("data/short_fr.csv", index=False)
+        dcol=[c for c in df.columns if "fin de publication" in c.lower() or "debut position" in c.lower()]
+        if dcol:
+            df[dcol[0]]=pd.to_datetime(df[dcol[0]], errors="coerce")
+            df=df.sort_values(dcol[0], ascending=False)
+        df.head(1000).to_csv("data/short_fr.csv", index=False)
         log(f"[SHF] ok: {min(len(df),1000)} righe ({list(df.columns)[:4]})")
     except Exception as e:
         log(f"[SHF] ERR {e}")
