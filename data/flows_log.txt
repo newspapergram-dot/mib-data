@@ -1,10 +1,12 @@
-2026-06-11T08:17:59.862771Z
-[INS] ok: 30 ticker
-[13F] Berkshire Hathaway -> EDGAR: BERKSHIRE HATHAWAY INC
-[13F] Pershing Square -> EDGAR: Pershing Square Capital Management, L.P.
-[13F] Scion Asset Mgmt -> EDGAR: Scion Asset Management, LLC
-[13F] Appaloosa -> EDGAR: Appaloosa LP
-[13F] Baupost Group -> EDGAR: BAUPOST GROUP LLC/MA
-[13F] ok: 49 posizioni
-[COT] ok: 16 righe
-[SHF] ERR unknown url type: 'None' (consultare AMF via web in analisi)
+2026-06-11T11:52:32.710028Z
+[INS] ok: 30 ticker, 0 con segnale buy
+[13F] Berkshire Hathaway -> BERKSHIRE HATHAWAY INC
+[13F] Pershing Square -> Pershing Square Capital Management, L.P.
+[13F] Scion Asset Mgmt -> Scion Asset Management, LLC
+[13F] Appaloosa -> Appaloosa LP
+[13F] Baupost Group -> BAUPOST GROUP LLC/MA
+[13F] ok: 48 posizioni aggregate
+[COT] ok: 4 righe pulite
+[SHF] risorse CSV trovate: 1
+[SHF] ok: 1000 righe (['Detenteur de la position courte nette', 'Legal Entity Identifier detenteur', 'Emetteur / issuer', 'Ratio'])
+[SHI] link file non trovato (anti-bot) -> consultare via web
