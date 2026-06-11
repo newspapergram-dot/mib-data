@@ -5,7 +5,7 @@ import os
 
 # === MODIFICA QUI LA TUA WATCHLIST ===
 TICKERS = [
-    # --- FTSE MIB (Borsa Italiana, .MI) ---
+    # --- FTSE MIB (.MI) ---
     "A2A.MI", "AMP.MI", "AZM.MI", "BMED.MI", "BMPS.MI",
     "BAMI.MI", "BPE.MI", "BC.MI", "BZU.MI", "CPR.MI",
     "DIA.MI", "ENEL.MI", "ENI.MI", "RACE.MI", "FBK.MI",
@@ -15,8 +15,8 @@ TICKERS = [
     "SRG.MI", "STLAM.MI", "STMMI.MI", "TIT.MI", "TEN.MI",
     "TRN.MI", "UCG.MI", "UNI.MI", "BPSO.MI", "LTMC.MI",
 
-    # --- CAC 40 (Euronext Paris, .PA) ---
-    "AC.PA", "AI.PA", "AIR.PA", "MT.PA", "CS.PA",
+    # --- CAC 40 (.PA) ---
+    "AC.PA", "AI.PA", "AIR.PA", "MT.AS", "CS.PA",
     "BNP.PA", "EN.PA", "CAP.PA", "CA.PA", "ACA.PA",
     "BN.PA", "DSY.PA", "EDEN.PA", "ENGI.PA", "EL.PA",
     "ERF.PA", "RMS.PA", "KER.PA", "LR.PA", "OR.PA",
@@ -24,6 +24,21 @@ TICKERS = [
     "RNO.PA", "SAF.PA", "SGO.PA", "SAN.PA", "SU.PA",
     "GLE.PA", "STLAP.PA", "STMPA.PA", "TEP.PA", "HO.PA",
     "TTE.PA", "VIE.PA", "DG.PA", "VIV.PA", "WLN.PA",
+
+    # --- USA mega/large cap liquide ---
+    "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN",
+    "META", "AVGO", "TSLA", "LLY", "JPM",
+    "V", "UNH", "XOM", "COST", "HD",
+    "PG", "JNJ", "ORCL", "BAC", "NFLX",
+    "AMD", "CRM", "KO", "CVX", "MRK",
+    "WMT", "PLTR", "GE", "CAT", "GS",
+
+    # --- Indici e regime (gratis via Yahoo) ---
+    "^GSPC", "^NDX", "^VIX", "FTSEMIB.MI", "^FCHI", "^STOXX50E",
+    
+    # --- ETF settoriali USA (proxy rotazione istituzionale) ---
+    "SPY", "XLF", "XLE", "XLK", "XLV", "XLY",
+    "XLP", "XLU", "XLI", "XLB", "XLRE", "XLC",
 ]
 # ======================================
 MONTHS_BACK = 14
