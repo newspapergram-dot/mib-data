@@ -1,0 +1,10 @@
+2026-06-11T08:17:59.862771Z
+[INS] ok: 30 ticker
+[13F] Berkshire Hathaway -> EDGAR: BERKSHIRE HATHAWAY INC
+[13F] Pershing Square -> EDGAR: Pershing Square Capital Management, L.P.
+[13F] Scion Asset Mgmt -> EDGAR: Scion Asset Management, LLC
+[13F] Appaloosa -> EDGAR: Appaloosa LP
+[13F] Baupost Group -> EDGAR: BAUPOST GROUP LLC/MA
+[13F] ok: 49 posizioni
+[COT] ok: 16 righe
+[SHF] ERR unknown url type: 'None' (consultare AMF via web in analisi)
