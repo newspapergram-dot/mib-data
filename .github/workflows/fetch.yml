@@ -25,6 +25,9 @@ jobs:
 
       - name: Run fetch script
         run: python fetch_data.py
+        
+      - name: Run flows script
+        run: python fetch_flows.py || true
 
       - name: Commit data
         run: |
