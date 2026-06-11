@@ -14,7 +14,7 @@ US_TICKERS = ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AVGO","TSLA","LLY","JP
 
 # ====== PERSONALIZZA: mid/small-cap dove l'insider buying ha vero valore ======
 # Inserisci qui i titoli su cui hai una tesi: è dove il segnale insider conta.
-INSIDER_FOCUS = ["RIG","AAL","PARA","WBD","HBI","CHK","RIOT"]
+INSIDER_FOCUS = []
 # ==============================================================================
 
 GURUS = {
