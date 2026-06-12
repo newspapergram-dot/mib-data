@@ -1,5 +1,5 @@
 ticker,group,buy_insiders,sell_insiders,discretionary_sellers,buy_value,sell_value,officer_buy,cluster_buy,signal
-AAPL,mega,0,3,1,0,87532032,False,False,0
+AAPL,mega,0,2,1,0,87110182,False,False,0
 MSFT,mega,0,3,3,0,8695681,False,False,-1
 NVDA,mega,0,3,2,0,224580213,False,False,-1
 GOOGL,mega,0,3,1,0,3949433,False,False,0
@@ -10,7 +10,7 @@ TSLA,mega,0,2,1,0,12383314,False,False,0
 LLY,mega,0,2,1,0,18631462,False,False,0
 JPM,mega,0,8,0,0,11906980,False,False,0
 V,mega,0,2,1,0,14154870,False,False,0
-UNH,mega,0,1,1,0,284000,False,False,0
+UNH,mega,0,0,0,0,0,False,False,0
 XOM,mega,0,1,1,0,276556000,False,False,0
 COST,mega,0,0,0,0,0,False,False,0
 HD,mega,0,0,0,0,0,False,False,0
