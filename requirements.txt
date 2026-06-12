@@ -1,4 +1,7 @@
 yfinance
 pandas
+numpy
 requests
 cot_reports
+scipy
+scikit-learn
