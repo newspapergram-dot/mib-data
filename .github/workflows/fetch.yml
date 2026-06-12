@@ -3,26 +3,27 @@ name: Fetch MIB EOD Data + Flows + Scores
 on:
   schedule:
     - cron: '18 17 * * 1-5'  # lun-ven 17:18 UTC = 18:18 CET
+  workflow_dispatch:
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - run: pip install -q -r requirements.txt
+      - name: Install dependencies
+        run: pip install -q -r requirements.txt
 
-      - name: Run fetch script
+      - name: Fetch EOD prices
         run: python fetch_data.py
 
-      - name: Run flows script
+      - name: Fetch institutional flows
         run: python fetch_flows.py || true
 
-      - name: Run score generator
+      - name: Generate scores (4 moduli)
         run: python score_generator.py || true
 
       - name: Commit and push
