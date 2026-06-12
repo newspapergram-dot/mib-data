@@ -28,11 +28,49 @@ jobs:
         
       - name: Run flows script
         run: python fetch_flows.py || true
+        
+      - name: Run score generator
+        run: python score_generator.py || true
 
-      - name: Commit data
+      - name: Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --quiet --staged || git commit -m "Update MIB EOD data"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+          git commit -m "EOD scores $(date +%Y-%m-%d)" || true
+          git push 
+
+name: Fetch MIB EOD Data + Flows + Scores
+
+on:
+  schedule:
+    - cron: '18 17 * * 1-5'  # lun-ven 17:18 UTC = 18:18 CET
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - run: pip install -q -r requirements.txt
+
+      - name: Run fetch script
+        run: python fetch_data.py
+
+      - name: Run flows script
+        run: python fetch_flows.py || true
+
+      - name: Run score generator
+        run: python score_generator.py || true
+
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+          git commit -m "EOD scores $(date +%Y-%m-%d)" || true
           git push
