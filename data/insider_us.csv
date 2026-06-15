@@ -3,13 +3,13 @@ AAPL,mega,0,2,1,0,87110182,False,False,0
 MSFT,mega,0,3,3,0,10508461,False,False,-1
 NVDA,mega,0,3,2,0,224580213,False,False,-1
 GOOGL,mega,0,3,1,0,3949433,False,False,0
-AMZN,mega,0,6,0,0,38476259,False,False,0
-META,mega,0,6,0,0,19147613,False,False,0
+AMZN,mega,0,6,0,0,37475519,False,False,0
+META,mega,0,6,0,0,18104457,False,False,0
 AVGO,mega,0,0,0,0,0,False,False,0
 TSLA,mega,0,2,1,0,12383314,False,False,0
 LLY,mega,0,2,1,0,18631462,False,False,0
 JPM,mega,0,8,0,0,11906980,False,False,0
-V,mega,0,2,1,0,14154870,False,False,0
+V,mega,0,1,1,0,3455665,False,False,0
 UNH,mega,0,0,0,0,0,False,False,0
 XOM,mega,0,1,1,0,276556000,False,False,0
 COST,mega,0,0,0,0,0,False,False,0
@@ -19,7 +19,7 @@ JNJ,mega,0,1,1,0,2411500,False,False,0
 ORCL,mega,0,0,0,0,0,False,False,0
 BAC,mega,1,2,2,92267,6810742,False,False,-1
 NFLX,mega,0,5,4,0,77353117,False,False,-1
-AMD,mega,0,5,2,0,151531382,False,False,-1
+AMD,mega,0,5,2,0,140569382,False,False,-1
 CRM,mega,0,0,0,0,0,False,False,0
 KO,mega,0,3,2,0,79906661,False,False,-1
 CVX,mega,0,1,1,0,109446289,False,False,0
