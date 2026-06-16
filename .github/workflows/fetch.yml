@@ -13,27 +13,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install -q -r requirements.txt
-
+      - run: pip install -q -r requirements.txt
       - name: Fetch EOD prices
         run: python fetch_data.py
-
-      - name: Fetch institutional flows
+      - name: Fetch flows
         run: python fetch_flows.py || true
-
+      - name: Macro calendar
+        run: python macro_calendar.py || true
+      - name: Earnings calendar
+        run: python earnings_calendar.py || true
+      - name: Volume quality
+        run: python volume_tools.py || true
+      - name: Pattern detection
+        run: python patterns.py || true
       - name: Generate scores
         run: python score_generator.py || true
-
+      - name: Charts
+        run: python charts.py || true
       - name: Commit and push
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add -A
-          git commit -m "EOD scores $(date +%Y-%m-%d)" || true
+          git commit -m "EOD update $(date +%Y-%m-%d)" || true
           git push
