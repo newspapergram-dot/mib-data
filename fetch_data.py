@@ -74,6 +74,7 @@ for t in TICKERS:
 
 if frames:
     out = pd.concat(frames, ignore_index=True)
+    out = out.dropna(subset=["close"]) 
     os.makedirs("data", exist_ok=True)
     out.to_csv("data/mib_data.csv", index=False)
     with open("data/last_update.txt", "w") as f:
