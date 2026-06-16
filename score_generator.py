@@ -50,7 +50,9 @@ def calculate_technical_indicators(price_series):
         macd_hist = (macd - signal_line).iloc[-1]
         
         # ADX proxy (via RSI)
-        adx_proxy = min(abs(rsi - 50) / 25 * 100, 100)
+        adx_df = adx(g["high"], g["low"], g["close"])
+        adx_val = adx_df["adx"].iloc[-1]
+        trend_up = adx_df["plus_di"].iloc[-1] > adx_df["minus_di"].iloc[-1]
         
         # Momentum 6 mesi
         mom6m = (c.iloc[-1] / c.iloc[max(0, len(c)-127)] - 1) * 100 if len(c) > 127 else 0
