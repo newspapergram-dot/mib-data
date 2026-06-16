@@ -19,7 +19,7 @@ from modules.learning import SignalClassStats
 # PARTE 1: CALCOLO INDICATORI TECNICI
 # ============================================================================
 
-def calculate_technical_indicators(g_df)::
+def calculate_technical_indicators(g_df):
     """Calcola RSI, ADX, SMA, ATR, MACD."""
     try:
         g_df = g_df.dropna(subset=["close"])
@@ -50,7 +50,7 @@ def calculate_technical_indicators(g_df)::
         signal_line = macd.ewm(span=9).mean()
         macd_hist = (macd - signal_line).iloc[-1]
         
-        # ADX proxy (via RSI)
+        # ADX reale (Wilder)
         adx_df = adx(h, l, c)
         adx_val = adx_df["adx"].iloc[-1]
         trend_up = adx_df["plus_di"].iloc[-1] > adx_df["minus_di"].iloc[-1]
