@@ -19,10 +19,13 @@ from modules.learning import SignalClassStats
 # PARTE 1: CALCOLO INDICATORI TECNICI
 # ============================================================================
 
-def calculate_technical_indicators(price_series):
+def calculate_technical_indicators(g_df)::
     """Calcola RSI, ADX, SMA, ATR, MACD."""
     try:
-        c = price_series.reset_index(drop=True)
+        g_df = g_df.dropna(subset=["close"])
+        c = g_df["close"].reset_index(drop=True)
+        h = g_df["high"].reset_index(drop=True)
+        l = g_df["low"].reset_index(drop=True)
         if len(c) < 200:
             return {}
         
@@ -48,7 +51,7 @@ def calculate_technical_indicators(price_series):
         macd_hist = (macd - signal_line).iloc[-1]
         
         # ADX proxy (via RSI)
-        adx_df = adx(g["high"], g["low"], g["close"])
+        adx_df = adx(h, l, c)
         adx_val = adx_df["adx"].iloc[-1]
         trend_up = adx_df["plus_di"].iloc[-1] > adx_df["minus_di"].iloc[-1]
         
@@ -66,7 +69,7 @@ def calculate_technical_indicators(price_series):
             "atr": round(float(atr), 3) if not np.isnan(atr) else None,
             "atr_pct": round(float(atr_pct), 2) if not np.isnan(atr_pct) else None,
             "macd_hist": round(float(macd_hist), 4) if not np.isnan(macd_hist) else None,
-            "adx": round(float(adx_proxy), 1),
+            "adx": round(float(adx_val), 1),
             "mom6m": round(float(mom6m), 1),
             "gate": bool(gate),
             "last_price": round(float(c.iloc[-1]), 3),
@@ -213,7 +216,7 @@ def generate_scores(mib_data_path="data/mib_data.csv",
                 if len(g) < 50:
                     continue
                 
-                tech_ind = calculate_technical_indicators(g["close"])
+                tech_ind = calculate_technical_indicators(g)
                 if not tech_ind or not tech_ind.get("gate"):
                     continue
                 
