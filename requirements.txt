@@ -5,3 +5,7 @@ requests
 cot_reports
 scipy
 scikit-learn
+pandas-datareader
+mplfinance
+matplotlib
+openpyxl
