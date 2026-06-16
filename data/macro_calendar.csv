@@ -1,0 +1,17 @@
+date,time,event,country,impact,forecast,previous,source,killswitch_next_2w
+2026-01-28,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-03-18,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-04-29,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-06-17,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,True
+2026-07-29,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-09-16,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-10-28,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-12-09,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
+2026-01-29,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-03-12,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-04-16,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-06-04,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-07-23,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-09-10,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-10-29,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False
+2026-12-17,14:15 CET,ECB Rate Decision,EU,high,,,ecb.europa.eu,False

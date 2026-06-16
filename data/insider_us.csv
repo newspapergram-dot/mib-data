@@ -2,7 +2,7 @@ ticker,group,buy_insiders,sell_insiders,discretionary_sellers,buy_value,sell_val
 AAPL,mega,0,2,1,0,87110182,False,False,0
 MSFT,mega,0,3,3,0,10508461,False,False,-1
 NVDA,mega,0,3,2,0,224580213,False,False,-1
-GOOGL,mega,0,3,1,0,3949433,False,False,0
+GOOGL,mega,0,3,1,0,3911591,False,False,0
 AMZN,mega,0,6,0,0,37475519,False,False,0
 META,mega,0,6,0,0,18104457,False,False,0
 AVGO,mega,1,0,0,373570,0,False,False,0
@@ -25,7 +25,7 @@ KO,mega,0,3,2,0,79906661,False,False,-1
 CVX,mega,0,1,1,0,109446289,False,False,0
 MRK,mega,0,0,0,0,0,False,False,0
 WMT,mega,0,7,2,0,517336812,False,False,-1
-PLTR,mega,0,8,5,0,128153648,False,False,-1
+PLTR,mega,0,8,5,0,128344401,False,False,-1
 GE,mega,0,0,0,0,0,False,False,0
 CAT,mega,1,7,7,219210,87642644,False,False,-1
 GS,mega,0,4,4,0,33532673,False,False,-1
