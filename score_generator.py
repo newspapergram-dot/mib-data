@@ -1,11 +1,9 @@
-from indicators import adx, rsi_wilder, macd, atr_wilder
-from patterns import detect_patterns
-
 #!/usr/bin/env python3
 """
 Score Generator Completo — Tecnico + Flow + 4 Moduli (Decay, Spillover, Ensemble, Learning).
 """
-
+from indicators import adx, rsi_wilder, macd, atr_wilder
+from patterns import detect_patterns
 import os, sys, csv
 from datetime import datetime, timedelta
 import numpy as np
