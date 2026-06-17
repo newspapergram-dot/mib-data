@@ -1,10 +1,10 @@
 ticker,group,buy_insiders,sell_insiders,discretionary_sellers,buy_value,sell_value,officer_buy,cluster_buy,signal
-AAPL,mega,0,2,1,0,87110182,False,False,0
+AAPL,mega,0,2,1,0,87144419,False,False,0
 MSFT,mega,0,3,3,0,10508461,False,False,-1
 NVDA,mega,0,3,2,0,224580213,False,False,-1
 GOOGL,mega,0,3,1,0,3911591,False,False,0
 AMZN,mega,0,6,0,0,37475519,False,False,0
-META,mega,0,6,0,0,18104457,False,False,0
+META,mega,0,6,0,0,18943257,False,False,0
 AVGO,mega,1,0,0,373570,0,False,False,0
 TSLA,mega,0,2,1,0,12383314,False,False,0
 LLY,mega,0,2,1,0,18631462,False,False,0
@@ -19,12 +19,12 @@ JNJ,mega,0,1,1,0,2411500,False,False,0
 ORCL,mega,0,0,0,0,0,False,False,0
 BAC,mega,1,2,2,92267,6810742,False,False,-1
 NFLX,mega,0,5,4,0,77353117,False,False,-1
-AMD,mega,0,5,2,0,140569382,False,False,-1
+AMD,mega,0,5,2,0,143787362,False,False,-1
 CRM,mega,0,0,0,0,0,False,False,0
 KO,mega,0,3,2,0,79906661,False,False,-1
 CVX,mega,0,1,1,0,109446289,False,False,0
 MRK,mega,0,0,0,0,0,False,False,0
-WMT,mega,0,7,2,0,517336812,False,False,-1
+WMT,mega,0,7,2,0,517502776,False,False,-1
 PLTR,mega,0,8,5,0,128344401,False,False,-1
 GE,mega,0,0,0,0,0,False,False,0
 CAT,mega,1,7,7,219210,87642644,False,False,-1

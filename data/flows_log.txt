@@ -1,4 +1,4 @@
-2026-06-17T11:40:04.077991Z
+2026-06-17T22:58:08.651687Z
 [INS] ok: 30 ticker, 0 con segnale buy
 [13F] Berkshire Hathaway -> BERKSHIRE HATHAWAY INC
 [13F] Pershing Square -> Pershing Square Capital Management, L.P.
