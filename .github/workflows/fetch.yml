@@ -32,6 +32,8 @@ jobs:
         run: python patterns.py || true
       - name: Generate scores
         run: python score_generator.py || true
+      - name: Genera report settimanale
+        run: python modules/weekly_report.py
       - name: Run backtest
         run: python backtest_v3.py || true
       - name: Charts
