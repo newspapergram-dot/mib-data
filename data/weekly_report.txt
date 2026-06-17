@@ -1,0 +1,190 @@
+================================================================
+ REPORT SETTIMANALE mib-data — 2026-06-17
+================================================================
+
+ !! KILL SWITCH MACRO ATTIVO: FOMC Rate Decision
+
+    La regola operativa sospende nuovi swing fino a finestra chiusa.
+
+
+============================================================
+ DIBATTITO: GOOGL  (score 0.318)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (373.25>365.19>309.56)
+   + Momentum 6m forte: +20.7%
+   + Pattern di continuazione: 
+   + Flow istituzionale a favore: segnale_flow 0.5
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: GE  (score 0.27)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 28 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (351.73>305.37>304.61)
+   + Momentum 6m forte: +17.3%
+   + Breakout segnalato dai pattern: breakout rialzista sopra 348.90 (vol debole 1.1x)
+   + RSI 69 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: AMZN  (score 0.266)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 31 (>25)
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Prezzo sotto SMA50 (246.00<256.16): momentum di breve negativo
+   - RSI 28 molto basso: possibile debolezza, non solo 'sconto'
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: GS  (score 0.25)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 28 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1090.67>965.35>873.04)
+   + Momentum 6m forte: +22.8%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Insider SELLING (Form 4): 4 venditori, valore 33532673
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: STMPA.PA  (score 0.227)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend FORTE confermato: ADX reale 42 (>=40, soglia validata nel backtest)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.68>50.52>30.79)
+   + Momentum 6m forte: +193.6%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: STMMI.MI  (score 0.227)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend FORTE confermato: ADX reale 42 (>=40, soglia validata nel backtest)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.69>50.52>30.80)
+   + Momentum 6m forte: +195.2%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: UNH  (score 0.208)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend FORTE confermato: ADX reale 41 (>=40, soglia validata nel backtest)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (407.65>368.93>332.65)
+   + Momentum 6m forte: +19.3%
+   + RSI 70 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: ENGI.PA  (score 0.188)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Momentum 6m forte: +24.0%
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
+   - Prezzo sotto SMA50 (26.90<27.60): momentum di breve negativo
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: LTMC.MI  (score 0.18)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (26.29>26.09>23.02)
+   + Momentum 6m forte: +20.7%
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
+
+============================================================
+ DIBATTITO: VIE.PA  (score 0.177)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.88>34.99>31.56)
+   + Momentum 6m forte: +23.1%
+   + Breakout segnalato dai pattern: breakout rialzista sopra 35.81 (vol debole 0.9x)
+   + Pattern di continuazione: 
+
+ TESI RIBASSISTA (BEAR):
+   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Trend assente/debole: ADX 13 (<20) - rischio falso segnale, fai whipsaw
+
+ VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
+ CONFIDENZA: N/A (veto)
+============================================================
+  [scheda operativa OMESSA: candidato sotto veto]
