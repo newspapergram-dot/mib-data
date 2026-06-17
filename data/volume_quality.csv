@@ -112,9 +112,9 @@ GS,True,1.0,ok
 ^GSPC,True,1.0,ok
 ^NDX,True,1.0,ok
 ^VIX,False,0.0,too_many_zero_or_nan
-FTSEMIB.MI,True,0.983,ok
-^FCHI,True,0.983,ok
-^STOXX50E,True,0.983,ok
+FTSEMIB.MI,True,1.0,ok
+^FCHI,True,1.0,ok
+^STOXX50E,True,1.0,ok
 SPY,True,1.0,ok
 XLF,True,1.0,ok
 XLE,True,1.0,ok
