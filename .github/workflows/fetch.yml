@@ -1,4 +1,4 @@
-nname: Fetch MIB EOD Data + Flows + Scores
+name: Fetch MIB EOD Data + Flows + Scores
 
 permissions:
   contents: write
