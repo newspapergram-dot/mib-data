@@ -58,9 +58,6 @@ def cmf_mfi(df_ticker, cmf_window=20, mfi_window=14):
     Ritorna: (cmf_ultimo, mfi_ultimo) -> ultimi valori validi, o (None, None)
              se la storia e' troppo corta per calcolarli.
     """
-    import pandas as pd
-    import numpy as np
-
     d = df_ticker.copy()
     if len(d) < max(cmf_window, mfi_window) + 1:
         return None, None
@@ -69,7 +66,7 @@ def cmf_mfi(df_ticker, cmf_window=20, mfi_window=14):
     rng = (d["high"] - d["low"]).replace(0, np.nan)
     mfm = ((d["close"] - d["low"]) - (d["high"] - d["close"])) / rng
     mfv = mfm * d["volume"]
-    cmf = mfv.rolling(cmf_window).sum() / d["volume"].rolling(cmf_window).sum()
+    cmf_series = mfv.rolling(cmf_window).sum() / d["volume"].rolling(cmf_window).sum()
 
     # --- MFI(14): Money Flow Index ---
     tp = (d["high"] + d["low"] + d["close"]) / 3
@@ -77,35 +74,33 @@ def cmf_mfi(df_ticker, cmf_window=20, mfi_window=14):
     neg_mf = np.where(tp.diff() < 0, tp * d["volume"], 0.0)
     pos_sum = pd.Series(pos_mf, index=d.index).rolling(mfi_window).sum()
     neg_sum = pd.Series(neg_mf, index=d.index).rolling(mfi_window).sum()
-    mfi = 100 - 100 / (1 + pos_sum / neg_sum.replace(0, np.nan))
+    mfi_series = 100 - 100 / (1 + pos_sum / neg_sum.replace(0, np.nan))
 
-    cmf_last = cmf.dropna().iloc[-1] if cmf.dropna().size else None
-    mfi_last = mfi.dropna().iloc[-1] if mfi.dropna().size else None
+    cmf_last = cmf_series.dropna().iloc[-1] if cmf_series.dropna().size else None
+    mfi_last = mfi_series.dropna().iloc[-1] if mfi_series.dropna().size else None
     return (round(float(cmf_last), 4) if cmf_last is not None else None,
             round(float(mfi_last), 2) if mfi_last is not None else None)
-    
+
+
 def volume_quality_report(px: pd.DataFrame, out_path="data/volume_quality.csv"):
     import os
     rows = []
     for tk in px["ticker"].unique():
         g = px[px["ticker"] == tk].tail(60)
         v = validate_volume(g)
-        rows.append({"ticker": tk, "volume_reliable": v["reliable"],
-                     "nonzero_frac": v["nonzero_frac"], "reason": v["reason"]})
+        cmf_val, mfi_val = cmf_mfi(g)
+        rows.append({
+            "ticker": tk,
+            "volume_reliable": v["reliable"],
+            "nonzero_frac": v["nonzero_frac"],
+            "reason": v["reason"],
+            "cmf20": cmf_val,
+            "mfi14": mfi_val,
+        })
     out = pd.DataFrame(rows)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     out.to_csv(out_path, index=False)
     print(f"[volume] {out['volume_reliable'].sum()}/{len(out)} ticker affidabili -> {out_path}")
-    cmf_val, mfi_val = cmf_mfi(df_ticker)   # df_ticker = i dati OHLCV di QUEL ticker
-
-row = {
-    "ticker": ticker,
-    "volume_reliable": reliable,      # campo che hai già
-    "nonzero_frac": nonzero_frac,     # campo che hai già
-    "reason": reason,                 # campo che hai già
-    "cmf20": cmf_val,                 # NUOVO
-    "mfi14": mfi_val,                 # NUOVO
-}
     return out
 
 
