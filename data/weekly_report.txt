@@ -44,6 +44,7 @@
    + Momentum 6m forte: +18.6%
    + Breakout segnalato dai pattern: breakout rialzista sopra 352.88 (vol debole 1.0x)
    + RSI 70 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+   + CMF(20) a +0.31: pressione di acquisto netta nell'ultimo mese
 
  TESI RIBASSISTA (BEAR):
    - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
@@ -78,9 +79,10 @@
  TESI RIBASSISTA (BEAR):
    - Prezzo sotto SMA50 (237.50<256.64): momentum di breve negativo
    - RSI 22 molto basso: possibile debolezza, non solo 'sconto'
+   - CMF(20) a -0.19: pressione di vendita netta nell'ultimo mese
 
- VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
- CONFIDENZA: MEDIA
+ VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
+ CONFIDENZA: BASSA
 ============================================================
 ==========================================================
  AMZN  |  Score: 0.261  |  CONFIDENZA: MEDIA
@@ -141,7 +143,7 @@
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   (nessun argomento ribassista ancorato a dati)
+   - MFI 39 sotto RSI 58: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: ALTA
@@ -173,7 +175,7 @@
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   (nessun argomento ribassista ancorato a dati)
+   - MFI 32 sotto RSI 58: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: ALTA
@@ -204,6 +206,7 @@
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
    - Prezzo sotto SMA50 (26.96<27.56): momentum di breve negativo
+   - MFI 44 sotto RSI 56: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
@@ -235,6 +238,7 @@
 
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 17 (<20) - rischio falso segnale, fai whipsaw
+   - CMF(20) a -0.11: pressione di vendita netta nell'ultimo mese
 
  VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
  CONFIDENZA: MEDIA
@@ -264,6 +268,7 @@
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.91>35.04>31.60)
    + Momentum 6m forte: +22.7%
    + Pattern di continuazione: descending triangle
+   + CMF(20) a +0.13: pressione di acquisto netta nell'ultimo mese
 
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 13 (<20) - rischio falso segnale, fai whipsaw
