@@ -8,7 +8,7 @@
 ============================================================
  TESI RIALZISTA (BULL):
    + Momentum 6m forte: +18.0%
-   + Pattern di continuazione: 
+   + Pattern di continuazione: descending triangle
    + Flow istituzionale a favore: segnale_flow 0.5
 
  TESI RIBASSISTA (BEAR):
@@ -42,7 +42,7 @@
    + Trend in atto: ADX 30 (>25)
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (357.03>306.74>305.02)
    + Momentum 6m forte: +18.6%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 348.90 (vol debole 1.1x)
+   + Breakout segnalato dai pattern: breakout rialzista sopra 352.88 (vol debole 1.0x)
    + RSI 70 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
 
  TESI RIBASSISTA (BEAR):
@@ -73,13 +73,14 @@
 ============================================================
  TESI RIALZISTA (BULL):
    + Trend in atto: ADX 32 (>25)
+   + Pattern di continuazione: flag/pennant ribassista
 
  TESI RIBASSISTA (BEAR):
    - Prezzo sotto SMA50 (237.50<256.64): momentum di breve negativo
    - RSI 22 molto basso: possibile debolezza, non solo 'sconto'
 
- VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
- CONFIDENZA: BASSA
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
  AMZN  |  Score: 0.261  |  CONFIDENZA: MEDIA
@@ -105,7 +106,7 @@
    + Trend in atto: ADX 29 (>25)
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1099.14>970.05>874.81)
    + Momentum 6m forte: +23.6%
-   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+   + Breakout segnalato dai pattern: breakout rialzista sopra 1098.36 (vol debole 0.9x)
 
  TESI RIBASSISTA (BEAR):
    - Insider SELLING (Form 4): 5 venditori, valore 33533148
@@ -262,8 +263,7 @@
  TESI RIALZISTA (BULL):
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.91>35.04>31.60)
    + Momentum 6m forte: +22.7%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 35.81 (vol debole 0.9x)
-   + Pattern di continuazione: 
+   + Pattern di continuazione: descending triangle
 
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 13 (<20) - rischio falso segnale, fai whipsaw
@@ -295,7 +295,7 @@
  TESI RIALZISTA (BULL):
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (79.57>70.54>67.90)
    + Momentum 6m forte: +16.4%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 75.62 (vol 1.8x)
+   + Breakout segnalato dai pattern: breakout rialzista sopra 77.91 (vol 1.4x)
    + RSI 68 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
 
  TESI RIBASSISTA (BEAR):
