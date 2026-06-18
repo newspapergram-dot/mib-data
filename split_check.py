@@ -1,3 +1,18 @@
+"""
+split_check.py — Rilevamento split azionari recenti / anomalie di prezzo.
+
+Doppio rilevatore, perche' uno split puo' manifestarsi in due modi nei dati:
+  1. SALTO ANOMALO: se la fonte NON ha aggiustato i prezzi storici, lo split
+     1:N produce un crollo improvviso (~ -1/N) in un solo giorno, non dovuto
+     al mercato. Lo rileviamo come variazione giornaliera oltre soglia.
+  2. DATA NOTA: se splits_calendar.csv (o un dict passato) contiene una data
+     di split recente per il ticker, segnaliamo comunque i dati come "da
+     verificare" anche se la fonte sembra averli aggiustati, perche' RSI/ADX
+     calcolati a cavallo dello split possono restare distorti per alcune sedute.
+
+Output per ticker: dict con flag e motivo, da usare come ESCLUSIONE prudenziale
+o come argomento BEAR nel dibattito.
+"""
 import pandas as pd
 import numpy as np
 
