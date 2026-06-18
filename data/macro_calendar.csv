@@ -2,7 +2,7 @@ date,time,event,country,impact,forecast,previous,source,killswitch_next_2w
 2026-01-28,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
 2026-03-18,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
 2026-04-29,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
-2026-06-17,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,True
+2026-06-17,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
 2026-07-29,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
 2026-09-16,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False
 2026-10-28,14:00 ET,FOMC Rate Decision,US,high,,,federalreserve.gov,False

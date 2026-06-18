@@ -1,190 +1,322 @@
 ================================================================
- REPORT SETTIMANALE mib-data — 2026-06-17
+ REPORT SETTIMANALE mib-data — 2026-06-18
 ================================================================
 
- !! KILL SWITCH MACRO ATTIVO: FOMC Rate Decision
-
-    La regola operativa sospende nuovi swing fino a finestra chiusa.
-
-
 ============================================================
- DIBATTITO: GOOGL  (score 0.318)
+ DIBATTITO: GOOGL  (score 0.31)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (373.25>365.19>309.56)
-   + Momentum 6m forte: +20.7%
+   + Momentum 6m forte: +18.0%
    + Pattern di continuazione: 
    + Flow istituzionale a favore: segnale_flow 0.5
 
  TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
+   - Trend assente/debole: ADX 20 (<20) - rischio falso segnale, fai whipsaw
+   - Prezzo sotto SMA50 (363.79<366.36): momentum di breve negativo
 
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
 ============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
+==========================================================
+ GOOGL  |  Score: 0.310  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 363.7900   Stop: 351.1301
+ Target 1: 378.7418 (R/R 1.18:1)   Target 2: 393.6935 (R/R 2.36:1)
+
+ SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
 
 ============================================================
- DIBATTITO: GE  (score 0.27)
+ DIBATTITO: GE  (score 0.276)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 28 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (351.73>305.37>304.61)
-   + Momentum 6m forte: +17.3%
+   + Trend in atto: ADX 30 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (357.03>306.74>305.02)
+   + Momentum 6m forte: +18.6%
    + Breakout segnalato dai pattern: breakout rialzista sopra 348.90 (vol debole 1.1x)
-   + RSI 69 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
-
- TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-   - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
-
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
-============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
-
-============================================================
- DIBATTITO: AMZN  (score 0.266)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 31 (>25)
-
- TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-   - Prezzo sotto SMA50 (246.00<256.16): momentum di breve negativo
-   - RSI 28 molto basso: possibile debolezza, non solo 'sconto'
-
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
-============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
-
-============================================================
- DIBATTITO: GS  (score 0.25)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 28 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1090.67>965.35>873.04)
-   + Momentum 6m forte: +22.8%
-   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
-
- TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-   - Insider SELLING (Form 4): 4 venditori, valore 33532673
-
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
-============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
-
-============================================================
- DIBATTITO: STMPA.PA  (score 0.227)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend FORTE confermato: ADX reale 42 (>=40, soglia validata nel backtest)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.68>50.52>30.79)
-   + Momentum 6m forte: +193.6%
-   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
-
- TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
-============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
-
-============================================================
- DIBATTITO: STMMI.MI  (score 0.227)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend FORTE confermato: ADX reale 42 (>=40, soglia validata nel backtest)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.69>50.52>30.80)
-   + Momentum 6m forte: +195.2%
-   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
-
- TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
-============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
-
-============================================================
- DIBATTITO: UNH  (score 0.208)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend FORTE confermato: ADX reale 41 (>=40, soglia validata nel backtest)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (407.65>368.93>332.65)
-   + Momentum 6m forte: +19.3%
    + RSI 70 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
 
  TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
    - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
 
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
 ============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
+==========================================================
+ GE  |  Score: 0.276  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 357.0300   Stop: 343.9627
+ Target 1: 371.7039 (R/R 1.12:1)   Target 2: 386.3779 (R/R 2.25:1)
+
+ SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
 
 ============================================================
- DIBATTITO: ENGI.PA  (score 0.188)
+ DIBATTITO: AMZN  (score 0.261)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 32 (>25)
+
+ TESI RIBASSISTA (BEAR):
+   - Prezzo sotto SMA50 (237.50<256.64): momentum di breve negativo
+   - RSI 22 molto basso: possibile debolezza, non solo 'sconto'
+
+ VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
+ CONFIDENZA: BASSA
+============================================================
+==========================================================
+ AMZN  |  Score: 0.261  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 237.5000   Stop: 228.0950
+ Target 1: 247.2612 (R/R 1.04:1)   Target 2: 257.0225 (R/R 2.08:1)
+
+ SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: GS  (score 0.253)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 29 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1099.14>970.05>874.81)
+   + Momentum 6m forte: +23.6%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   - Insider SELLING (Form 4): 5 venditori, valore 33533148
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
+============================================================
+==========================================================
+ GS  |  Score: 0.253  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 1099.1400   Stop: 1051.4373
+ Target 1: 1144.3147 (R/R 0.95:1)   Target 2: 1189.4893 (R/R 1.89:1)
+
+ SIZING:  0 azioni = 0EUR (0.0% portaf.)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: STMMI.MI  (score 0.226)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend FORTE confermato: ADX reale 40 (>=40, soglia validata nel backtest)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.18>51.22>31.01)
+   + Momentum 6m forte: +196.3%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   (nessun argomento ribassista ancorato a dati)
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: ALTA
+============================================================
+==========================================================
+ STMMI.MI  |  Score: 0.226  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 65.1800   Stop: 61.9210
+ Target 1: 67.8589 (R/R 0.82:1)   Target 2: 70.5378 (R/R 1.64:1)
+
+ SIZING:  3 azioni = 196EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 10EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +3EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: STMPA.PA  (score 0.225)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend FORTE confermato: ADX reale 40 (>=40, soglia validata nel backtest)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.16>51.22>31.01)
+   + Momentum 6m forte: +190.2%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   (nessun argomento ribassista ancorato a dati)
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: ALTA
+============================================================
+==========================================================
+ STMPA.PA  |  Score: 0.225  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 65.1600   Stop: 61.9020
+ Target 1: 67.8381 (R/R 0.82:1)   Target 2: 70.5162 (R/R 1.64:1)
+
+ SIZING:  3 azioni = 195EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 10EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: ENGI.PA  (score 0.187)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
    + Momentum 6m forte: +24.0%
 
  TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
    - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
-   - Prezzo sotto SMA50 (26.90<27.60): momentum di breve negativo
+   - Prezzo sotto SMA50 (26.96<27.56): momentum di breve negativo
 
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
+ VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
+ CONFIDENZA: BASSA
 ============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
+==========================================================
+ ENGI.PA  |  Score: 0.187  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 26.9600   Stop: 26.5502
+ Target 1: 28.0681 (R/R 2.7:1)   Target 2: 29.1761 (R/R 5.41:1)
+
+ SIZING:  7 azioni = 189EUR (9.4% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 3EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
 
 ============================================================
- DIBATTITO: LTMC.MI  (score 0.18)
+ DIBATTITO: LTMC.MI  (score 0.178)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (26.29>26.09>23.02)
-   + Momentum 6m forte: +20.7%
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (26.19>26.10>23.04)
+   + Momentum 6m forte: +20.4%
 
  TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
-   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
+   - Trend assente/debole: ADX 17 (<20) - rischio falso segnale, fai whipsaw
 
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
 ============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
+==========================================================
+ LTMC.MI  |  Score: 0.178  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 26.1900   Stop: 25.4986
+ Target 1: 27.2664 (R/R 1.56:1)   Target 2: 28.3428 (R/R 3.11:1)
+
+ SIZING:  7 azioni = 183EUR (9.2% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 5EUR
+
+ GUADAGNO ATTESO (netto costi 0.70%): +1.05% = +2EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
 
 ============================================================
- DIBATTITO: VIE.PA  (score 0.177)
+ DIBATTITO: VIE.PA  (score 0.176)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.88>34.99>31.56)
-   + Momentum 6m forte: +23.1%
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.91>35.04>31.60)
+   + Momentum 6m forte: +22.7%
    + Breakout segnalato dai pattern: breakout rialzista sopra 35.81 (vol debole 0.9x)
    + Pattern di continuazione: 
 
  TESI RIBASSISTA (BEAR):
-   - KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing
    - Trend assente/debole: ADX 13 (<20) - rischio falso segnale, fai whipsaw
 
- VERDETTO: ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa
- CONFIDENZA: N/A (veto)
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
 ============================================================
-  [scheda operativa OMESSA: candidato sotto veto]
+==========================================================
+ VIE.PA  |  Score: 0.176  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 35.9100   Stop: 35.1918
+ Target 1: 37.3859 (R/R 2.05:1)   Target 2: 38.8618 (R/R 4.11:1)
+
+ SIZING:  5 azioni = 180EUR (9.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 4EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+
+============================================================
+ DIBATTITO: UCG.MI  (score 0.174)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (79.57>70.54>67.90)
+   + Momentum 6m forte: +16.4%
+   + Breakout segnalato dai pattern: breakout rialzista sopra 75.62 (vol 1.8x)
+   + RSI 68 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+
+ TESI RIBASSISTA (BEAR):
+   (nessun argomento ribassista ancorato a dati)
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
+============================================================
+==========================================================
+ UCG.MI  |  Score: 0.174  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 79.5700   Stop: 76.9919
+ Target 1: 82.8403 (R/R 1.27:1)   Target 2: 86.1107 (R/R 2.54:1)
+
+ SIZING:  2 azioni = 159EUR (8.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 5EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +2EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
