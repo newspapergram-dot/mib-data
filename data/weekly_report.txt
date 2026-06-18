@@ -24,6 +24,7 @@
  Entry: 363.7900   Stop: 351.1301
  Target 1: 378.7418 (R/R 1.18:1)   Target 2: 393.6935 (R/R 2.36:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 0EUR
 
@@ -58,6 +59,7 @@
  Entry: 357.0300   Stop: 343.9627
  Target 1: 371.7039 (R/R 1.12:1)   Target 2: 386.3779 (R/R 2.25:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 0EUR
 
@@ -90,6 +92,7 @@
  Entry: 237.5000   Stop: 228.0950
  Target 1: 247.2612 (R/R 1.04:1)   Target 2: 257.0225 (R/R 2.08:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 0EUR
 
@@ -122,6 +125,7 @@
  Entry: 1099.1400   Stop: 1051.4373
  Target 1: 1144.3147 (R/R 0.95:1)   Target 2: 1189.4893 (R/R 1.89:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.)
           Rischio massimo posizione: 0EUR
 
@@ -154,6 +158,7 @@
  Entry: 65.1800   Stop: 61.9210
  Target 1: 67.8589 (R/R 0.82:1)   Target 2: 70.5378 (R/R 1.64:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  3 azioni = 196EUR (9.8% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 10EUR
 
@@ -186,6 +191,7 @@
  Entry: 65.1600   Stop: 61.9020
  Target 1: 67.8381 (R/R 0.82:1)   Target 2: 70.5162 (R/R 1.64:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  3 azioni = 195EUR (9.8% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 10EUR
 
@@ -217,6 +223,7 @@
  Entry: 26.9600   Stop: 26.5502
  Target 1: 28.0681 (R/R 2.7:1)   Target 2: 29.1761 (R/R 5.41:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  7 azioni = 189EUR (9.4% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 3EUR
 
@@ -249,6 +256,7 @@
  Entry: 26.1900   Stop: 25.4986
  Target 1: 27.2664 (R/R 1.56:1)   Target 2: 28.3428 (R/R 3.11:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  7 azioni = 183EUR (9.2% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 5EUR
 
@@ -282,6 +290,7 @@
  Entry: 35.9100   Stop: 35.1918
  Target 1: 37.3859 (R/R 2.05:1)   Target 2: 38.8618 (R/R 4.11:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  5 azioni = 180EUR (9.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 4EUR
 
@@ -315,6 +324,7 @@
  Entry: 79.5700   Stop: 76.9919
  Target 1: 82.8403 (R/R 1.27:1)   Target 2: 86.1107 (R/R 2.54:1)
 
+ Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  2 azioni = 159EUR (8.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 5EUR
 
