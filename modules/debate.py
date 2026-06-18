@@ -1,16 +1,12 @@
 """
 debate.py — Dibattito strutturato BULL vs BEAR per un candidato.
-Ispirato a TradingAgents (researcher rialzista vs ribassista), ma RICOSTRUITO
-nello spirito quantitativo di mib-data: OGNI argomento e' ancorato a un dato
-reale della pipeline. Nessun argomento senza dato a sostegno.
+Ogni argomento e' ancorato a un dato reale della pipeline. Nessun
+argomento senza dato a sostegno.
 
-Incorpora due regole proprietarie gia' apprese da Carlo:
+Incorpora regole proprietarie:
   - KILL SWITCH MACRO: earnings/FOMC/BCE entro finestra -> argomento BEAR forte
-  - COT SHORT ESTREMO (z<=-2, o <=-1 soft): RSI alto NON e' bear (squeeze regime)
-
-Input: una riga di score_output + lookup opzionali (patterns, volume, earnings,
-       insider, macro killswitch attivo, cot regime).
-Output: dict con liste bull[], bear[], un verdetto e una confidenza.
+  - COT SHORT ESTREMO (z<=-1 soft): RSI alto NON e' bear (squeeze regime)
+  - CMF(20) / MFI(14): pressione di acquisto/vendita e conferma di volume
 """
 
 def _cot_squeeze_active(cot_rows):
@@ -27,7 +23,7 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
                  insider=None, macro_killswitch=False, cot_rows=None):
     """
     row: dict con campi di score_output (ticker, score, rsi, adx, mom6m,
-         price, sma20/50/200, segnale_tecnico, segnale_flow, atr_pct...)
+         price, sma50, sma200, segnale_flow...)
     Gli altri sono dict/lookup specifici per quel ticker (o None se assente).
     """
     bull, bear = [], []
@@ -40,7 +36,7 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
     sma200 = float(row.get("sma200", 0))
     squeeze, cot_z = _cot_squeeze_active(cot_rows or [])
 
-    # ---- ARGOMENTI BULL (ognuno ancorato a un dato) ----
+    # ---- ARGOMENTI BULL ----
     if adx >= 40:
         bull.append(f"Trend FORTE confermato: ADX reale {adx:.0f} (>=40, soglia validata nel backtest)")
     elif adx >= 25:
@@ -54,7 +50,9 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
             bull.append(f"Breakout segnalato dai pattern: {patterns.get('breakout')}")
         cont = str(patterns.get("continuation","")).strip()
         if cont and cont not in ("nan","False"):
-            bull.append(f"Pattern di continuazione: {cont.split('|')[0].strip()}")
+            parts = [c.strip() for c in cont.split("|") if c.strip()]
+            if parts:
+                bull.append(f"Pattern di continuazione: {parts[0]}")
     if insider and str(insider.get("signal","")) == "1":
         bull.append("Insider buying / cluster buy rilevato (Form 4)")
     try:
@@ -62,11 +60,24 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
             bull.append(f"Flow istituzionale a favore: segnale_flow {row.get('segnale_flow')}")
     except (ValueError, TypeError):
         pass
-    # RSI alto in regime squeeze = bull (regola Carlo), non bear
     if rsi >= 65 and squeeze:
         bull.append(f"RSI {rsi:.0f} alto MA COT short estremo (z={cot_z:.1f}): in squeeze e' pro-trend, non overbought")
+    # --- NUOVO: CMF e MFI lato bull ---
+    if volume:
+        try:
+            cmf = float(volume.get("cmf20",""))
+            if cmf >= 0.10:
+                bull.append(f"CMF(20) a {cmf:+.2f}: pressione di acquisto netta nell'ultimo mese")
+        except (ValueError, TypeError):
+            pass
+        try:
+            mfi = float(volume.get("mfi14",""))
+            if mfi >= rsi + 10:
+                bull.append(f"MFI {mfi:.0f} sopra RSI {rsi:.0f}: il volume confema la forza del prezzo")
+        except (ValueError, TypeError):
+            pass
 
-    # ---- ARGOMENTI BEAR (ognuno ancorato a un dato) ----
+    # ---- ARGOMENTI BEAR ----
     if macro_killswitch:
         bear.append("KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing")
     if earnings and str(earnings.get("earnings_within_N","")) in ("True","1","true"):
@@ -77,7 +88,6 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
         bear.append(f"Trend assente/debole: ADX {adx:.0f} (<20) - rischio falso segnale, fai whipsaw")
     if price < sma50 and sma50 > 0:
         bear.append(f"Prezzo sotto SMA50 ({price:.2f}<{sma50:.2f}): momentum di breve negativo")
-    # RSI alto = bear SOLO se NON siamo in squeeze
     if rsi >= 70 and not squeeze:
         bear.append(f"RSI {rsi:.0f} in ipercomprato (no regime squeeze a compensare)")
     if rsi <= 30:
@@ -88,9 +98,22 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
             bear.append(f"Divergenza RSI ribassista: {patterns.get('rsi_divergence')}")
     if insider and str(insider.get("signal","")) == "-1":
         bear.append(f"Insider SELLING (Form 4): {insider.get('sell_insiders')} venditori, valore {insider.get('sell_value')}")
+    # --- NUOVO: CMF e MFI lato bear ---
+    if volume:
+        try:
+            cmf = float(volume.get("cmf20",""))
+            if cmf <= -0.10:
+                bear.append(f"CMF(20) a {cmf:+.2f}: pressione di vendita netta nell'ultimo mese")
+        except (ValueError, TypeError):
+            pass
+        try:
+            mfi = float(volume.get("mfi14",""))
+            if mfi <= rsi - 10:
+                bear.append(f"MFI {mfi:.0f} sotto RSI {rsi:.0f}: il rialzo di prezzo non e' confermato dal volume")
+        except (ValueError, TypeError):
+            pass
 
     # ---- VERDETTO ----
-    # Kill switch o earnings = veto operativo, a prescindere dal conteggio
     veto = macro_killswitch or (earnings and str(earnings.get("earnings_within_N","")) in ("True","1","true"))
     nb, nr = len(bull), len(bear)
     if veto:
