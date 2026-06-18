@@ -7,6 +7,11 @@ Trasforma un candidato dello score in una scheda operativa completa con:
   - tesi pro/contro esplicite e livello di confidenza onesto
 Parametri di edge dal backtest validato (NUOVO score, orizzonte 5gg).
 NB: calibrato su 18 settimane di solo bull market -> trattare come PRUDENZIALE.
+
+AGGIORNAMENTO: aggiunto regime_mult, il freno del regime di mercato
+(regime_filter.py). Modula sia il rischio per trade sia il cap di valore
+della posizione: x1.0 trend favorevole, x0.5 laterale, x0.0 regime ostile
+(nessuna posizione apribile).
 """
 import numpy as np
 
@@ -43,13 +48,16 @@ def confidence_level(score, ticker):
     return "BASSA"
 
 def propose(ticker, entry, atr14, score, capital,
-            risk_per_trade=0.0214, atr_mult_stop=2.0, n_positions=5):
+            risk_per_trade=0.0214, atr_mult_stop=2.0, n_positions=5,
+            regime_mult=1.0):
     """
     Genera la scheda operativa per un singolo candidato.
     entry: prezzo di ingresso previsto (es. apertura lunedi)
     atr14: ATR(14) corrente del titolo (in valuta)
     score: score NUOVO del candidato
     capital: capitale totale del portafoglio
+    regime_mult: moltiplicatore di rischio dal regime di mercato (regime_filter.py).
+                 1.0 = trend favorevole, 0.5 = laterale, 0.0 = regime ostile (stop).
     """
     cost = cost_rt_bps(ticker)
     # STOP guidato dalla STATISTICA della strategia (non da regola R/R generica):
@@ -59,20 +67,21 @@ def propose(ticker, entry, atr14, score, capital,
     stop_atr  = entry - atr_mult_stop * atr14      # stop tecnico ATR
     stop = max(stop_stat, stop_atr)                # il piu' vicino all'entry = piu' protettivo
     risk_per_share = entry - stop
-    # Target coerenti con avg_win storico (~4.1%) e estensione
+    # Target coerenti con avg_win storico troncato (~4.1%) e estensione
     t1 = entry * (1 + EDGE["avg_win_pct"]/100)
     t2 = entry * (1 + 2*EDGE["avg_win_pct"]/100)
     rr1 = (t1-entry)/risk_per_share if risk_per_share>0 else float("nan")
     rr2 = (t2-entry)/risk_per_share if risk_per_share>0 else float("nan")
 
-    # Sizing: rischio fisso per trade, capped al 10% del portafoglio
-    risk_eur = capital * risk_per_trade
-    shares = int(risk_eur / risk_per_share) if risk_per_share>0 else 0
+    # Sizing: rischio fisso per trade, MODULATO dal regime di mercato (freno).
+    # regime_mult: 1.0 trend favorevole | 0.5 laterale | 0.0 regime ostile (stop).
+    risk_eur = capital * risk_per_trade * regime_mult
+    shares = int(risk_eur / risk_per_share) if risk_per_share > 0 else 0
     pos_value = shares * entry
-    max_pos_value = capital * 0.10
+    max_pos_value = capital * 0.10 * regime_mult   # cap 10% modulato dal regime
     binding = ""
     if pos_value > max_pos_value:
-        shares = int(max_pos_value / entry)
+        shares = int(max_pos_value / entry) if entry > 0 else 0
         pos_value = shares * entry
         binding = " (capped a 10% portafoglio)"
 
@@ -89,6 +98,7 @@ def propose(ticker, entry, atr14, score, capital,
         "shares": shares, "pos_value": round(pos_value,2), "pos_pct": round(pos_value/capital*100,1),
         "risk_eur": round(shares*risk_per_share,2), "cost_pct": cost,
         "net_exp_pct": round(net_exp,2), "eur_exp": round(eur_exp,2), "binding": binding,
+        "regime_mult": regime_mult,
     }
 
 def render(p):
@@ -100,6 +110,7 @@ def render(p):
     out.append(f" Entry: {p['entry']:.4f}   Stop: {p['stop']:.4f}")
     out.append(f" Target 1: {p['t1']:.4f} (R/R {p['rr1']}:1)   Target 2: {p['t2']:.4f} (R/R {p['rr2']}:1)")
     out.append("")
+    out.append(f" Regime di mercato: moltiplicatore rischio x{p['regime_mult']}")
     out.append(f" SIZING:  {p['shares']} azioni = {p['pos_value']:.0f}EUR ({p['pos_pct']}% portaf.){p['binding']}")
     out.append(f"          Rischio massimo posizione: {p['risk_eur']:.0f}EUR")
     out.append("")
@@ -110,6 +121,8 @@ def render(p):
     out.append("         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa")
     if p['confidence']=="BASSA":
         out.append("         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip")
+    if p['regime_mult'] < 1.0:
+        out.append(f"         !! regime di mercato non pienamente favorevole: sizing ridotto a x{p['regime_mult']}")
     out.append("="*58)
     return "\n".join(out)
 
@@ -117,4 +130,4 @@ if __name__ == "__main__":
     # Demo con numeri di esempio (entry/ATR vanno presi dai dati EOD reali)
     print(render(propose("STMMI.MI", entry=30.0, atr14=0.95, score=0.43, capital=50000)))
     print()
-    print(render(propose("BPSO.MI", entry=12.5, atr14=0.40, score=0.53, capital=50000)))
+    print(render(propose("BPSO.MI", entry=12.5, atr14=0.40, score=0.53, capital=50000, regime_mult=0.5)))
