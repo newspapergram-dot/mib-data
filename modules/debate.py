@@ -20,7 +20,8 @@ def _cot_squeeze_active(cot_rows):
     return False, None
 
 def build_debate(row, patterns=None, volume=None, earnings=None,
-                 insider=None, macro_killswitch=False, cot_rows=None):
+                 insider=None, macro_killswitch=False, cot_rows=None,
+                 split_info=None):
     """
     row: dict con campi di score_output (ticker, score, rsi, adx, mom6m,
          price, sma50, sma200, segnale_flow...)
@@ -80,6 +81,8 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
     # ---- ARGOMENTI BEAR ----
     if macro_killswitch:
         bear.append("KILL SWITCH MACRO ATTIVO (FOMC/BCE entro 2 settimane): la tua regola dice NO nuovi swing")
+    if split_info and split_info.get("action") in ("exclude", "verify"):
+        bear.append(f"Split/dati sospetti ({split_info.get('reason')}): indicatori potenzialmente distorti")
     if earnings and str(earnings.get("earnings_within_N","")) in ("True","1","true"):
         bear.append(f"Earnings imminenti ({earnings.get('next_earnings_date')}): rischio gap, evita swing")
     if volume and str(volume.get("volume_reliable","")) not in ("True","true","1"):
@@ -114,7 +117,9 @@ def build_debate(row, patterns=None, volume=None, earnings=None,
             pass
 
     # ---- VERDETTO ----
-    veto = macro_killswitch or (earnings and str(earnings.get("earnings_within_N","")) in ("True","1","true"))
+    veto = (macro_killswitch
+            or (earnings and str(earnings.get("earnings_within_N","")) in ("True","1","true"))
+            or (split_info and split_info.get("action") == "exclude"))
     nb, nr = len(bull), len(bear)
     if veto:
         verdict = "ASTIENI (veto: evento macro/earnings) - rivedi a finestra chiusa"
