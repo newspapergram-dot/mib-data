@@ -78,28 +78,45 @@ def main():
 
     for row in cands:
         t = row["ticker"]
-        # --- dibattito ---
-        d = build_debate(row,
-                         patterns=patterns.get(t), volume=volume.get(t),
-                         earnings=earnings.get(t), insider=insider.get(t),
-                         macro_killswitch=killswitch, cot_rows=cot)
-        # --- fondamentali validati (USA via Finnhub, EU via yfinance + validazione) ---
+        # --- fondamentali validati PRIMA del dibattito ---
+        # (ordine invertito rispetto a prima: il dibattito ora consuma lo
+        #  screening fondamentale prodotto qui, quindi i fondamentali vanno
+        #  calcolati per primi.)
         price_now = None
         try:
             price_now = float(price_now_map.get(t)) if price_now_map.get(t) else None
         except (ValueError, TypeError):
             price_now = None
         earn_date = (earnings.get(t) or {}).get("next_earnings_date")
+        # insider net buying da insider_us.csv (SEC Form 4): signal 1=buy, -1=sell
+        insider_nb = None
+        irow = insider.get(t)
+        if irow is not None:
+            sig = str(irow.get("signal", "")).strip()
+            if sig in ("1", "1.0"):
+                insider_nb = True
+            elif sig in ("-1", "-1.0"):
+                insider_nb = False
+            # signal 0 o vuoto -> insider_nb resta None (nessun segnale netto)
         try:
-            fnd = get_fundamentals(t, price_now=price_now, earnings_date_from_pipeline=earn_date)
+            fnd = get_fundamentals(t, price_now=price_now,
+                                   earnings_date_from_pipeline=earn_date,
+                                   insider_net_buying=insider_nb)
         except Exception as e:
             fnd = {"ticker": t, "data_reliable": False,
                   "reliability_notes": f"errore recupero: {type(e).__name__}",
                   "source": None, "pe": None, "forward_pe": None, "eps": None,
                   "market_cap": None, "revenue": None, "currency": None,
                   "next_earnings": earn_date, "analyst_consensus": None,
-                  "asof_date": oggi}
+                  "asof_date": oggi, "screen": None}
         fundamentals_rows.append(fnd)
+
+        # --- dibattito (riceve lo screening fondamentale come argomenti soft) ---
+        d = build_debate(row,
+                         patterns=patterns.get(t), volume=volume.get(t),
+                         earnings=earnings.get(t), insider=insider.get(t),
+                         macro_killswitch=killswitch, cot_rows=cot,
+                         screen=fnd.get("screen"))
 
         # --- scheda operativa (solo se NON sotto veto) ---
         veto = d["confidence"] == "N/A (veto)"
@@ -148,12 +165,16 @@ def main():
                        f"({prop['pos_pct']}%){prop['binding']} &nbsp; "
                        f"<b>Rischio</b> {prop['risk_eur']:.0f}€<br>"
                        f"<b>Guadagno atteso netto</b> {prop['net_exp_pct']:+.2f}% = {prop['eur_exp']:+.0f}€</div>")
+        # riga fondamentali + sintesi screening per la card
+        fnd_line = fundamentals_summary_line(fnd)
+        if d.get("n_fund_pass") or d.get("n_fund_fail"):
+            fnd_line += f" &nbsp;|&nbsp; screening: {d.get('n_fund_pass',0)} pro / {d.get('n_fund_fail',0)} contro"
         html_cards.append(
             f"<div class='card'><h3>{t} <span class='score'>score {row.get('score')}</span> "
             f"<span class='verdict {d['confidence'].split()[0].lower()}'>{d['verdict'].split(' - ')[0]}</span></h3>"
             f"<div class='cols'><div class='bull'><h4>BULL</h4><ul>{bull_li}</ul></div>"
             f"<div class='bear'><h4>BEAR</h4><ul>{bear_li}</ul></div></div>"
-            f"<p class='fnd'>{fundamentals_summary_line(fnd)}</p>{op_html}</div>"
+            f"<p class='fnd'>{fnd_line}</p>{op_html}</div>"
         )
 
     # --- scrittura TXT ---
@@ -200,12 +221,35 @@ th,td{{border:1px solid #ddd;padding:7px 9px;text-align:left}} th{{background:#f
         fnd_path = os.path.join(DATA_DIR, "fundamentals.csv")
         fieldnames = ["ticker","source","pe","forward_pe","eps","market_cap","revenue",
                      "currency","next_earnings","data_reliable","reliability_notes",
-                     "analyst_consensus","asof_date"]
+                     "analyst_consensus","asof_date",
+                     # --- screening quality/value (9 criteri) ---
+                     "is_financial","screen_pass","screen_total",
+                     "peg","eps_growth_5y","net_margin","ocf_margin","current_ratio",
+                     "cash_to_lt_debt","insider_net_buying","insider_ownership",
+                     "pass_pe_lt_20","pass_peg_lt_1","pass_eps_up_5y","pass_net_margin_10",
+                     "pass_ocf_margin_30","pass_current_ratio_1","pass_cash_ltdebt_15",
+                     "pass_insider_buying","pass_insider_own_10"]
+        # mappa criterio -> chiave colonna pass_*
+        _pass_keys = {
+            "pe_lt_20":"pass_pe_lt_20", "peg_lt_1":"pass_peg_lt_1",
+            "eps_up_5y":"pass_eps_up_5y", "net_margin_10":"pass_net_margin_10",
+            "ocf_margin_30":"pass_ocf_margin_30", "current_ratio_1":"pass_current_ratio_1",
+            "cash_ltdebt_15":"pass_cash_ltdebt_15", "insider_buying":"pass_insider_buying",
+            "insider_own_10":"pass_insider_own_10",
+        }
         with open(fnd_path, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=fieldnames)
             w.writeheader()
             for fnd in fundamentals_rows:
-                w.writerow({k: fnd.get(k) for k in fieldnames})
+                base = {k: fnd.get(k) for k in fieldnames if k not in _pass_keys.values()
+                        and k not in ("analyst_consensus",)}
+                base["analyst_consensus"] = (str(fnd.get("analyst_consensus"))
+                                             if fnd.get("analyst_consensus") else "")
+                sc = fnd.get("screen") or {}
+                for crit, col in _pass_keys.items():
+                    c = sc.get(crit)
+                    base[col] = "" if (not c or c.get("pass") is None) else c.get("pass")
+                w.writerow(base)
         print(f"Fondamentali scritti: {fnd_path} ({len(fundamentals_rows)} ticker)")
 
     print(f"Report generato: {DATA_DIR}/weekly_report.html e weekly_report.txt ({len(cands)} candidati)")
