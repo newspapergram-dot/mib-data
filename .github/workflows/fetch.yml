@@ -34,6 +34,10 @@ jobs:
         run: python split_check.py
       - name: Classificazione regime di mercato
         run: python regime_filter.py
+      - name: Recupero fondamentali USA/EU validati
+        env:
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+        run: python fundamentals.py
       - name: Generate scores
         run: python score_generator.py || true
       - name: Genera report settimanale
