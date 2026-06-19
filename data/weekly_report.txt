@@ -1,9 +1,9 @@
 ================================================================
- REPORT SETTIMANALE mib-data — 2026-06-18
+ REPORT SETTIMANALE mib-data — 2026-06-19
 ================================================================
 
 ============================================================
- DIBATTITO: GOOGL  (score 0.31)
+ DIBATTITO: GOOGL  (score 0.306)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
@@ -19,7 +19,7 @@
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- GOOGL  |  Score: 0.310  |  CONFIDENZA: MEDIA
+ GOOGL  |  Score: 0.306  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 363.7900   Stop: 351.1301
  Target 1: 378.7418 (R/R 1.18:1)   Target 2: 393.6935 (R/R 2.36:1)
@@ -36,7 +36,7 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: GE  (score 0.276)
+ DIBATTITO: GE  (score 0.263)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
@@ -54,7 +54,7 @@
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- GE  |  Score: 0.276  |  CONFIDENZA: MEDIA
+ GE  |  Score: 0.263  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 357.0300   Stop: 343.9627
  Target 1: 371.7039 (R/R 1.12:1)   Target 2: 386.3779 (R/R 2.25:1)
@@ -71,7 +71,40 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: AMZN  (score 0.261)
+ DIBATTITO: SPM.MI  (score 0.257)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (4.38>4.37>3.16)
+   + Momentum 6m forte: +88.3%
+   + MFI 77 sopra RSI 59: il volume confema la forza del prezzo
+
+ TESI RIBASSISTA (BEAR):
+   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
+   - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
+
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
+============================================================
+==========================================================
+ SPM.MI  |  Score: 0.257  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 4.3830   Stop: 4.1639
+ Target 1: 4.5631 (R/R 0.82:1)   Target 2: 4.7433 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  45 azioni = 197EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 10EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: AMZN  (score 0.255)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
@@ -87,7 +120,7 @@
  CONFIDENZA: BASSA
 ============================================================
 ==========================================================
- AMZN  |  Score: 0.261  |  CONFIDENZA: MEDIA
+ AMZN  |  Score: 0.255  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 237.5000   Stop: 228.0950
  Target 1: 247.2612 (R/R 1.04:1)   Target 2: 257.0225 (R/R 2.08:1)
@@ -104,7 +137,7 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: GS  (score 0.253)
+ DIBATTITO: GS  (score 0.239)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
@@ -120,7 +153,7 @@
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- GS  |  Score: 0.253  |  CONFIDENZA: MEDIA
+ GS  |  Score: 0.239  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 1099.1400   Stop: 1051.4373
  Target 1: 1144.3147 (R/R 0.95:1)   Target 2: 1189.4893 (R/R 1.89:1)
@@ -137,32 +170,32 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: STMMI.MI  (score 0.226)
+ DIBATTITO: STMPA.PA  (score 0.224)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Trend FORTE confermato: ADX reale 40 (>=40, soglia validata nel backtest)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.18>51.22>31.01)
-   + Momentum 6m forte: +196.3%
+   + Trend in atto: ADX 39 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (67.89>51.93>31.24)
+   + Momentum 6m forte: +208.0%
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   - MFI 39 sotto RSI 58: il rialzo di prezzo non e' confermato dal volume
+   - MFI 32 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: ALTA
+ CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- STMMI.MI  |  Score: 0.226  |  CONFIDENZA: MEDIA
+ STMPA.PA  |  Score: 0.224  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 65.1800   Stop: 61.9210
- Target 1: 67.8589 (R/R 0.82:1)   Target 2: 70.5378 (R/R 1.64:1)
+ Entry: 67.8900   Stop: 64.4955
+ Target 1: 70.6803 (R/R 0.82:1)   Target 2: 73.4706 (R/R 1.64:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  3 azioni = 196EUR (9.8% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 10EUR
+ SIZING:  2 azioni = 136EUR (6.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 7EUR
 
- GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +3EUR
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
 
  PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
  CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
@@ -170,32 +203,32 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: STMPA.PA  (score 0.225)
+ DIBATTITO: STMMI.MI  (score 0.224)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Trend FORTE confermato: ADX reale 40 (>=40, soglia validata nel backtest)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (65.16>51.22>31.01)
-   + Momentum 6m forte: +190.2%
+   + Trend in atto: ADX 39 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (67.91>51.93>31.24)
+   + Momentum 6m forte: +203.7%
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   - MFI 32 sotto RSI 58: il rialzo di prezzo non e' confermato dal volume
+   - MFI 39 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: ALTA
+ CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- STMPA.PA  |  Score: 0.225  |  CONFIDENZA: MEDIA
+ STMMI.MI  |  Score: 0.224  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 65.1600   Stop: 61.9020
- Target 1: 67.8381 (R/R 0.82:1)   Target 2: 70.5162 (R/R 1.64:1)
+ Entry: 67.9100   Stop: 64.5145
+ Target 1: 70.7011 (R/R 0.82:1)   Target 2: 73.4922 (R/R 1.64:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  3 azioni = 195EUR (9.8% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 10EUR
+ SIZING:  2 azioni = 136EUR (6.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 7EUR
 
- GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +2EUR
 
  PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
  CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
@@ -203,28 +236,61 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: ENGI.PA  (score 0.187)
+ DIBATTITO: LR.PA  (score 0.187)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Momentum 6m forte: +24.0%
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (152.25>148.60>139.65)
+   + Momentum 6m forte: +21.5%
 
  TESI RIBASSISTA (BEAR):
-   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
-   - Prezzo sotto SMA50 (26.96<27.56): momentum di breve negativo
+   - CMF(20) a -0.21: pressione di vendita netta nell'ultimo mese
+   - MFI 45 sotto RSI 56: il rialzo di prezzo non e' confermato dal volume
+
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
+============================================================
+==========================================================
+ LR.PA  |  Score: 0.187  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 152.2500   Stop: 146.8604
+ Target 1: 158.5075 (R/R 1.16:1)   Target 2: 164.7649 (R/R 2.32:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  1 azioni = 152EUR (7.6% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 5EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+
+============================================================
+ DIBATTITO: ENGI.PA  (score 0.185)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Momentum 6m forte: +23.3%
+
+ TESI RIBASSISTA (BEAR):
+   - Trend assente/debole: ADX 17 (<20) - rischio falso segnale, fai whipsaw
+   - Prezzo sotto SMA50 (26.80<27.52): momentum di breve negativo
    - MFI 44 sotto RSI 56: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
 ============================================================
 ==========================================================
- ENGI.PA  |  Score: 0.187  |  CONFIDENZA: BASSA
+ ENGI.PA  |  Score: 0.185  |  CONFIDENZA: BASSA
 ==========================================================
- Entry: 26.9600   Stop: 26.5502
- Target 1: 28.0681 (R/R 2.7:1)   Target 2: 29.1761 (R/R 5.41:1)
+ Entry: 26.8000   Stop: 26.3873
+ Target 1: 27.9015 (R/R 2.67:1)   Target 2: 29.0030 (R/R 5.34:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  7 azioni = 189EUR (9.4% portaf.) (capped a 10% portafoglio)
+ SIZING:  7 azioni = 188EUR (9.4% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 3EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
@@ -236,81 +302,14 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: LTMC.MI  (score 0.178)
+ DIBATTITO: UCG.MI  (score 0.182)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (26.19>26.10>23.04)
-   + Momentum 6m forte: +20.4%
-
- TESI RIBASSISTA (BEAR):
-   - Trend assente/debole: ADX 17 (<20) - rischio falso segnale, fai whipsaw
-   - CMF(20) a -0.11: pressione di vendita netta nell'ultimo mese
-
- VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
- CONFIDENZA: MEDIA
-============================================================
-==========================================================
- LTMC.MI  |  Score: 0.178  |  CONFIDENZA: BASSA
-==========================================================
- Entry: 26.1900   Stop: 25.4986
- Target 1: 27.2664 (R/R 1.56:1)   Target 2: 28.3428 (R/R 3.11:1)
-
- Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  7 azioni = 183EUR (9.2% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 5EUR
-
- GUADAGNO ATTESO (netto costi 0.70%): +1.05% = +2EUR
-
- PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
- CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
-         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
-         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
-==========================================================
-
-============================================================
- DIBATTITO: VIE.PA  (score 0.176)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (35.91>35.04>31.60)
-   + Momentum 6m forte: +22.7%
-   + Pattern di continuazione: descending triangle
-   + CMF(20) a +0.13: pressione di acquisto netta nell'ultimo mese
-
- TESI RIBASSISTA (BEAR):
-   - Trend assente/debole: ADX 13 (<20) - rischio falso segnale, fai whipsaw
-
- VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: MEDIA
-============================================================
-==========================================================
- VIE.PA  |  Score: 0.176  |  CONFIDENZA: BASSA
-==========================================================
- Entry: 35.9100   Stop: 35.1918
- Target 1: 37.3859 (R/R 2.05:1)   Target 2: 38.8618 (R/R 4.11:1)
-
- Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  5 azioni = 180EUR (9.0% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 4EUR
-
- GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
-
- PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
- CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
-         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
-         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
-==========================================================
-
-============================================================
- DIBATTITO: UCG.MI  (score 0.174)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (79.57>70.54>67.90)
-   + Momentum 6m forte: +16.4%
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (80.08>70.80>67.96)
+   + Momentum 6m forte: +18.7%
    + Breakout segnalato dai pattern: breakout rialzista sopra 77.91 (vol 1.4x)
-   + RSI 68 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+   + RSI 67 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
 
  TESI RIBASSISTA (BEAR):
    (nessun argomento ribassista ancorato a dati)
@@ -319,13 +318,13 @@
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- UCG.MI  |  Score: 0.174  |  CONFIDENZA: BASSA
+ UCG.MI  |  Score: 0.182  |  CONFIDENZA: BASSA
 ==========================================================
- Entry: 79.5700   Stop: 76.9919
- Target 1: 82.8403 (R/R 1.27:1)   Target 2: 86.1107 (R/R 2.54:1)
+ Entry: 80.0800   Stop: 77.6135
+ Target 1: 83.3713 (R/R 1.33:1)   Target 2: 86.6626 (R/R 2.67:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  2 azioni = 159EUR (8.0% portaf.) (capped a 10% portafoglio)
+ SIZING:  2 azioni = 160EUR (8.0% portaf.) (capped a 10% portafoglio)
           Rischio massimo posizione: 5EUR
 
  GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +2EUR

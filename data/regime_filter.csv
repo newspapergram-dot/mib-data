@@ -1,0 +1,4 @@
+market,index,regime,risk_mult,detail
+IT,FTSEMIB.MI,TREND_UP,1.0,"px>SMA50, px>SMA200, slope50_20g=+5.23%"
+FR,^FCHI,TREND_UP,1.0,"px>SMA50, px>SMA200, slope50_20g=+1.76%"
+US,^GSPC,TREND_UP,1.0,"px>SMA50, px>SMA200, slope50_20g=+5.12%"
