@@ -3,26 +3,26 @@
 ================================================================
 
 ============================================================
- DIBATTITO: GOOGL  (score 0.306)
+ DIBATTITO: GOOGL  (score 0.313)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Momentum 6m forte: +18.0%
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (368.03>367.37>311.10)
+   + Momentum 6m forte: +20.0%
    + Pattern di continuazione: descending triangle
    + Flow istituzionale a favore: segnale_flow 0.5
 
  TESI RIBASSISTA (BEAR):
-   - Trend assente/debole: ADX 20 (<20) - rischio falso segnale, fai whipsaw
-   - Prezzo sotto SMA50 (363.79<366.36): momentum di breve negativo
+   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
 
- VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- GOOGL  |  Score: 0.306  |  CONFIDENZA: MEDIA
+ GOOGL  |  Score: 0.313  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 363.7900   Stop: 351.1301
- Target 1: 378.7418 (R/R 1.18:1)   Target 2: 393.6935 (R/R 2.36:1)
+ Entry: 368.0300   Stop: 356.1794
+ Target 1: 383.1560 (R/R 1.28:1)   Target 2: 398.2821 (R/R 2.55:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
@@ -36,15 +36,15 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: GE  (score 0.263)
+ DIBATTITO: GE  (score 0.281)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 30 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (357.03>306.74>305.02)
-   + Momentum 6m forte: +18.6%
+   + Trend in atto: ADX 32 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (357.64>307.73>305.43)
+   + Momentum 6m forte: +19.7%
    + Breakout segnalato dai pattern: breakout rialzista sopra 352.88 (vol debole 1.0x)
-   + RSI 70 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
+   + RSI 69 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
    + CMF(20) a +0.31: pressione di acquisto netta nell'ultimo mese
 
  TESI RIBASSISTA (BEAR):
@@ -54,13 +54,46 @@
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
- GE  |  Score: 0.263  |  CONFIDENZA: MEDIA
+ GE  |  Score: 0.281  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 357.0300   Stop: 343.9627
- Target 1: 371.7039 (R/R 1.12:1)   Target 2: 386.3779 (R/R 2.25:1)
+ Entry: 357.6400   Stop: 344.9080
+ Target 1: 372.3390 (R/R 1.15:1)   Target 2: 387.0380 (R/R 2.31:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: GS  (score 0.257)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 30 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1096.56>973.87>876.64)
+   + Momentum 6m forte: +24.7%
+   + Breakout segnalato dai pattern: breakout rialzista sopra 1098.36 (vol debole 0.9x)
+
+ TESI RIBASSISTA (BEAR):
+   - Insider SELLING (Form 4): 5 venditori, valore 33533148
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
+============================================================
+==========================================================
+ GS  |  Score: 0.257  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 1096.5600   Stop: 1050.9431
+ Target 1: 1141.6286 (R/R 0.99:1)   Target 2: 1186.6972 (R/R 1.98:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  0 azioni = 0EUR (0.0% portaf.)
           Rischio massimo posizione: 0EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
@@ -77,11 +110,9 @@
  TESI RIALZISTA (BULL):
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (4.38>4.37>3.16)
    + Momentum 6m forte: +88.3%
-   + MFI 77 sopra RSI 59: il volume confema la forza del prezzo
 
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
-   - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
 
  VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
  CONFIDENZA: MEDIA
@@ -104,62 +135,29 @@
 ==========================================================
 
 ============================================================
- DIBATTITO: AMZN  (score 0.255)
+ DIBATTITO: AMZN  (score 0.224)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 32 (>25)
+   + Trend in atto: ADX 33 (>25)
    + Pattern di continuazione: flag/pennant ribassista
 
  TESI RIBASSISTA (BEAR):
-   - Prezzo sotto SMA50 (237.50<256.64): momentum di breve negativo
-   - RSI 22 molto basso: possibile debolezza, non solo 'sconto'
+   - Prezzo sotto SMA50 (244.39<257.10): momentum di breve negativo
    - CMF(20) a -0.19: pressione di vendita netta nell'ultimo mese
+   - MFI 18 sotto RSI 31: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
 ============================================================
 ==========================================================
- AMZN  |  Score: 0.255  |  CONFIDENZA: MEDIA
+ AMZN  |  Score: 0.224  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 237.5000   Stop: 228.0950
- Target 1: 247.2612 (R/R 1.04:1)   Target 2: 257.0225 (R/R 2.08:1)
+ Entry: 244.3900   Stop: 234.4678
+ Target 1: 254.4344 (R/R 1.01:1)   Target 2: 264.4789 (R/R 2.02:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 0EUR
-
- GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
-
- PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
- CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
-         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
-==========================================================
-
-============================================================
- DIBATTITO: GS  (score 0.239)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 29 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1099.14>970.05>874.81)
-   + Momentum 6m forte: +23.6%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 1098.36 (vol debole 0.9x)
-
- TESI RIBASSISTA (BEAR):
-   - Insider SELLING (Form 4): 5 venditori, valore 33533148
-
- VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: MEDIA
-============================================================
-==========================================================
- GS  |  Score: 0.239  |  CONFIDENZA: MEDIA
-==========================================================
- Entry: 1099.1400   Stop: 1051.4373
- Target 1: 1144.3147 (R/R 0.95:1)   Target 2: 1189.4893 (R/R 1.89:1)
-
- Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  0 azioni = 0EUR (0.0% portaf.)
           Rischio massimo posizione: 0EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
@@ -180,7 +178,7 @@
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   - MFI 32 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
+   - MFI 42 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
@@ -213,7 +211,7 @@
    + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
 
  TESI RIBASSISTA (BEAR):
-   - MFI 39 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
+   - MFI 45 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
@@ -244,10 +242,9 @@
    + Momentum 6m forte: +21.5%
 
  TESI RIBASSISTA (BEAR):
-   - CMF(20) a -0.21: pressione di vendita netta nell'ultimo mese
-   - MFI 45 sotto RSI 56: il rialzo di prezzo non e' confermato dal volume
+   (nessun argomento ribassista ancorato a dati)
 
- VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
 ==========================================================
@@ -278,7 +275,6 @@
  TESI RIBASSISTA (BEAR):
    - Trend assente/debole: ADX 17 (<20) - rischio falso segnale, fai whipsaw
    - Prezzo sotto SMA50 (26.80<27.52): momentum di breve negativo
-   - MFI 44 sotto RSI 56: il rialzo di prezzo non e' confermato dal volume
 
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
@@ -308,7 +304,7 @@
  TESI RIALZISTA (BULL):
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (80.08>70.80>67.96)
    + Momentum 6m forte: +18.7%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 77.91 (vol 1.4x)
+   + Breakout segnalato dai pattern: breakout rialzista sopra 79.57 (vol 1.6x)
    + RSI 67 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
 
  TESI RIBASSISTA (BEAR):

@@ -32,7 +32,7 @@ SPM.MI,True,ok,ok
 SRG.MI,True,ok,ok
 STLAM.MI,True,ok,ok
 STMMI.MI,True,ok,ok
-TIT.MI,False,split noto il 2026-06-15 (2g fa): indicatori a cavallo possibilmente distorti,verify
+TIT.MI,False,split noto il 2026-06-15 (3g fa): indicatori a cavallo possibilmente distorti,verify
 TEN.MI,True,ok,ok
 TRN.MI,True,ok,ok
 UCG.MI,True,ok,ok
