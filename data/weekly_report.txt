@@ -9,7 +9,6 @@
  TESI RIALZISTA (BULL):
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (368.03>367.37>311.10)
    + Momentum 6m forte: +20.0%
-   + Pattern di continuazione: descending triangle
    + Flow istituzionale a favore: segnale_flow 0.5
 
  TESI RIBASSISTA (BEAR):
@@ -43,9 +42,8 @@
    + Trend in atto: ADX 32 (>25)
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (357.64>307.73>305.43)
    + Momentum 6m forte: +19.7%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 352.88 (vol debole 1.0x)
    + RSI 69 alto MA COT short estremo (z=-1.1): in squeeze e' pro-trend, non overbought
-   + CMF(20) a +0.31: pressione di acquisto netta nell'ultimo mese
+   + CMF(20) a +0.18: pressione di acquisto netta nell'ultimo mese
 
  TESI RIBASSISTA (BEAR):
    - Divergenza RSI ribassista: bearish (prezzo nuovo max, RSI no)
@@ -78,7 +76,6 @@
    + Trend in atto: ADX 30 (>25)
    + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1096.56>973.87>876.64)
    + Momentum 6m forte: +24.7%
-   + Breakout segnalato dai pattern: breakout rialzista sopra 1098.36 (vol debole 0.9x)
 
  TESI RIBASSISTA (BEAR):
    - Insider SELLING (Form 4): 5 venditori, valore 33533148
@@ -140,12 +137,10 @@
 ============================================================
  TESI RIALZISTA (BULL):
    + Trend in atto: ADX 33 (>25)
-   + Pattern di continuazione: flag/pennant ribassista
 
  TESI RIBASSISTA (BEAR):
    - Prezzo sotto SMA50 (244.39<257.10): momentum di breve negativo
-   - CMF(20) a -0.19: pressione di vendita netta nell'ultimo mese
-   - MFI 18 sotto RSI 31: il rialzo di prezzo non e' confermato dal volume
+   - CMF(20) a -0.15: pressione di vendita netta nell'ultimo mese
 
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
