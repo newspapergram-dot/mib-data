@@ -3,25 +3,26 @@
 ================================================================
 
 ============================================================
- DIBATTITO: GOOGL  (score 0.313)
+ DIBATTITO: GOOGL  (score 0.306)
  [regime COT short estremo attivo -> filtro RSI ammorbidito]
 ============================================================
  TESI RIALZISTA (BULL):
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (368.03>367.37>311.10)
-   + Momentum 6m forte: +20.0%
+   + Momentum 6m forte: +18.0%
    + Flow istituzionale a favore: segnale_flow 0.5
 
  TESI RIBASSISTA (BEAR):
-   - Trend assente/debole: ADX 18 (<20) - rischio falso segnale, fai whipsaw
+   - Trend assente/debole: ADX 20 (<20) - rischio falso segnale, fai whipsaw
+   - Prezzo sotto SMA50 (363.79<366.36): momentum di breve negativo
 
- VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
  CONFIDENZA: MEDIA
 ============================================================
+  GOOGL: fondamentali NON affidabili (nessun P/E ne EPS disponibile) -> esclusi dall'analisi
 ==========================================================
- GOOGL  |  Score: 0.313  |  CONFIDENZA: MEDIA
+ GOOGL  |  Score: 0.306  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 368.0300   Stop: 356.1794
- Target 1: 383.1560 (R/R 1.28:1)   Target 2: 398.2821 (R/R 2.55:1)
+ Entry: 363.7900   Stop: 351.1301
+ Target 1: 378.7418 (R/R 1.18:1)   Target 2: 393.6935 (R/R 2.36:1)
 
  Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
@@ -51,6 +52,7 @@
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
+  GE: fondamentali NON affidabili (nessun P/E ne EPS disponibile) -> esclusi dall'analisi
 ==========================================================
  GE  |  Score: 0.281  |  CONFIDENZA: MEDIA
 ==========================================================
@@ -59,38 +61,6 @@
 
  Regime di mercato: moltiplicatore rischio x1.0
  SIZING:  0 azioni = 0EUR (0.0% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 0EUR
-
- GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
-
- PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
- CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
-         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
-==========================================================
-
-============================================================
- DIBATTITO: GS  (score 0.257)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 30 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1096.56>973.87>876.64)
-   + Momentum 6m forte: +24.7%
-
- TESI RIBASSISTA (BEAR):
-   - Insider SELLING (Form 4): 5 venditori, valore 33533148
-
- VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: MEDIA
-============================================================
-==========================================================
- GS  |  Score: 0.257  |  CONFIDENZA: MEDIA
-==========================================================
- Entry: 1096.5600   Stop: 1050.9431
- Target 1: 1141.6286 (R/R 0.99:1)   Target 2: 1186.6972 (R/R 1.98:1)
-
- Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  0 azioni = 0EUR (0.0% portaf.)
           Rischio massimo posizione: 0EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
@@ -114,6 +84,7 @@
  VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
  CONFIDENZA: MEDIA
 ============================================================
+  SPM.MI: P/E 30.2, fwd P/E 15.1, EPS 0.15, trimestrale 2026-04-21, consenso buy  [fonte yfinance]
 ==========================================================
  SPM.MI  |  Score: 0.257  |  CONFIDENZA: MEDIA
 ==========================================================
@@ -125,6 +96,40 @@
           Rischio massimo posizione: 10EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +3EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: GS  (score 0.239)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 29 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (1099.14>970.05>874.81)
+   + Momentum 6m forte: +23.6%
+
+ TESI RIBASSISTA (BEAR):
+   - Insider SELLING (Form 4): 5 venditori, valore 33533148
+   - MFI 52 sotto RSI 64: il rialzo di prezzo non e' confermato dal volume
+
+ VERDETTO: INCERTO - pro e contro bilanciati, serve discrezione
+ CONFIDENZA: MEDIA
+============================================================
+  GS: fondamentali NON affidabili (nessun P/E ne EPS disponibile) -> esclusi dall'analisi
+==========================================================
+ GS  |  Score: 0.239  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 1099.1400   Stop: 1051.4373
+ Target 1: 1144.3147 (R/R 0.95:1)   Target 2: 1189.4893 (R/R 1.89:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  0 azioni = 0EUR (0.0% portaf.)
+          Rischio massimo posizione: 0EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
 
  PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
  CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
@@ -145,6 +150,7 @@
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
 ============================================================
+  AMZN: fondamentali NON affidabili (nessun P/E ne EPS disponibile) -> esclusi dall'analisi
 ==========================================================
  AMZN  |  Score: 0.224  |  CONFIDENZA: MEDIA
 ==========================================================
@@ -156,39 +162,6 @@
           Rischio massimo posizione: 0EUR
 
  GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +0EUR
-
- PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
- CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
-         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
-==========================================================
-
-============================================================
- DIBATTITO: STMPA.PA  (score 0.224)
- [regime COT short estremo attivo -> filtro RSI ammorbidito]
-============================================================
- TESI RIALZISTA (BULL):
-   + Trend in atto: ADX 39 (>25)
-   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (67.89>51.93>31.24)
-   + Momentum 6m forte: +208.0%
-   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
-
- TESI RIBASSISTA (BEAR):
-   - MFI 42 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
-
- VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
- CONFIDENZA: MEDIA
-============================================================
-==========================================================
- STMPA.PA  |  Score: 0.224  |  CONFIDENZA: MEDIA
-==========================================================
- Entry: 67.8900   Stop: 64.4955
- Target 1: 70.6803 (R/R 0.82:1)   Target 2: 73.4706 (R/R 1.64:1)
-
- Regime di mercato: moltiplicatore rischio x1.0
- SIZING:  2 azioni = 136EUR (6.8% portaf.) (capped a 10% portafoglio)
-          Rischio massimo posizione: 7EUR
-
- GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
 
  PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
  CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
@@ -211,6 +184,7 @@
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
+  STMMI.MI: fondamentali NON affidabili (P/E fuori range plausibile (481.9286)) -> esclusi dall'analisi
 ==========================================================
  STMMI.MI  |  Score: 0.224  |  CONFIDENZA: MEDIA
 ==========================================================
@@ -222,6 +196,40 @@
           Rischio massimo posizione: 7EUR
 
  GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +2EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+============================================================
+ DIBATTITO: STMPA.PA  (score 0.224)
+ [regime COT short estremo attivo -> filtro RSI ammorbidito]
+============================================================
+ TESI RIALZISTA (BULL):
+   + Trend in atto: ADX 39 (>25)
+   + Struttura rialzista pulita: prezzo>SMA50>SMA200 (67.89>51.93>31.24)
+   + Momentum 6m forte: +208.0%
+   + Pattern di continuazione: flag/pennant rialzista (consolidamento dopo impulso)
+
+ TESI RIBASSISTA (BEAR):
+   - MFI 42 sotto RSI 63: il rialzo di prezzo non e' confermato dal volume
+
+ VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
+ CONFIDENZA: MEDIA
+============================================================
+  STMPA.PA: fondamentali NON affidabili (P/E fuori range plausibile (481.64285)) -> esclusi dall'analisi
+==========================================================
+ STMPA.PA  |  Score: 0.224  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 67.8900   Stop: 64.4955
+ Target 1: 70.6803 (R/R 0.82:1)   Target 2: 73.4706 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  2 azioni = 136EUR (6.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 7EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +2EUR
 
  PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
  CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
@@ -242,6 +250,7 @@
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
+  LR.PA: P/E 30.9, fwd P/E 23.4, EPS 4.85, trimestrale 2026-07-29, consenso buy  [fonte yfinance]
 ==========================================================
  LR.PA  |  Score: 0.187  |  CONFIDENZA: BASSA
 ==========================================================
@@ -274,6 +283,7 @@
  VERDETTO: SFAVOREVOLE - i contro pesano piu' dei pro
  CONFIDENZA: BASSA
 ============================================================
+  ENGI.PA: P/E 17.8, fwd P/E 12.9, EPS 1.51, trimestrale 2026-07-31, consenso buy  [fonte yfinance]
 ==========================================================
  ENGI.PA  |  Score: 0.185  |  CONFIDENZA: BASSA
 ==========================================================
@@ -308,6 +318,7 @@
  VERDETTO: FAVOREVOLE - i pro dominano e sono ancorati a dati
  CONFIDENZA: MEDIA
 ============================================================
+  UCG.MI: P/E 11.0, fwd P/E 9.7, EPS 7.27, trimestrale 2026-07-23, consenso buy  [fonte yfinance]
 ==========================================================
  UCG.MI  |  Score: 0.182  |  CONFIDENZA: BASSA
 ==========================================================
