@@ -30,6 +30,10 @@ jobs:
         run: python volume_tools.py || true
       - name: Pattern detection
         run: python patterns.py || true
+      - name: Controllo split azionari
+        run: python split_check.py
+      - name: Classificazione regime di mercato
+        run: python regime_filter.py
       - name: Generate scores
         run: python score_generator.py || true
       - name: Genera report settimanale
