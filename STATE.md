@@ -420,4 +420,45 @@ laddered (2,6,10). In-sample E walk-forward OOS coerenti e positivi nel periodo 
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe, mult → x0.5 (automatico).
 
 ---
+
+## Run #11 — 2026-06-25 (FATTORI BEAR: test su ciclo completo 2018-2026)
+
+### Dati: storico lungo con bear veri (`fetch_long.py`, NUOVO)
+- Scaricato 2018→2026 via Yahoo v8 con prezzi **AGGIUSTATI** (split: NVDA/AMZN ecc.) →
+  `data/mib_data_long.csv` (142 ticker, 301k righe; gitignored, riproducibile). Include
+  **crash 2020 e bear 2022**.
+
+### Scoperta cruciale: il backtest a 14 mesi era ottimista in modo pericoloso
+- Sul ciclo completo la strategia GREZZA (top-quintile, no filtri) crolla:
+  **Sharpe 0.18, MaxDD −95.7%**, Spearman negativa. L'edge a 14 mesi (Sharpe 1.89) era in larga
+  parte un **artefatto bull**. Regime (sez.7 long): NUOVO bull Sharpe +1.37, **bear −0.48**.
+
+### I fattori bear funzionano (ma non rendono il modello bear-proof) — `bear_analysis.py` (NUOVO)
+Ciclo completo, MaxDD = metrica chiave:
+| modello | Sharpe | MaxDD |
+|---|---|---|
+| A) grezzo (no filtro) | 0.18 | −95.7% |
+| C) + regime + accumulazione | 0.57 | −66.7% |
+| C+stop (modello reale) | 0.75 | −45.7% |
+| **D) + trigger rapido SMA20** | **0.83** | **−33.0%** |
+- Lo **stop** e il **trigger rapido** sono i fattori che il portfolio_sim grezzo non cattura.
+  Insieme portano il MaxDD da −95.7% a −33.0% e lo Sharpe da 0.18 a 0.83.
+
+### Integrato il fattore bear nel modello live (`regime_filter.py`)
+- Aggiunto trigger **px>SMA20**: nuovo stato **PULLBACK (x0.5)** quando il prezzo perde la SMA20
+  pur restando in trend lungo → risk-off precoce che il filtro lento SMA50/200 mancava.
+- **Effetto live immediato**: **US → PULLBACK x0.5** (S&P sotto SMA20); IT/FR TREND_UP. Il
+  portafoglio dimezza l'esposizione USA (esposizione totale 72%→62%) in automatico.
+
+### Onesta'
+Anche con TUTTI i fattori bear, sul ciclo completo: **MaxDD −33%, Sharpe 0.83** — il modello
+resta **bull-favored**: i fattori bear **riducono il rischio di rovina, non lo eliminano**.
+DSR ancora <0.95. Per un vero salto servirebbe una logica long/short o hedge, non solo risk-off.
+
+### Watch list per il prossimo run
+- [ ] Valutare un overlay di hedge (es. ridurre a 0 o coprire l'indice) in TREND_DOWN conclamato.
+- [ ] Re-tarare i target/soglie sul ciclo COMPLETO (finora tarati su periodo bull).
+- [ ] DSR>0.95: ridurre i gradi di liberta'.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

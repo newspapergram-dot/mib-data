@@ -1,0 +1,115 @@
+======================================================================
+BACKTEST ISTITUZIONALE v3 — Swing Copilot EU+USA
+Dati: 2018-01-02 → 2026-06-25
+Ticker: 142 | Orizzonti: (5, 10, 20)
+======================================================================
+
+>>> COSTRUZIONE SEGNALI — score VECCHIO <<<
+    Segnali prodotti: 31644
+
+>>> COSTRUZIONE SEGNALI — score NUOVO <<<
+    Segnali prodotti: 31644
+
+──────────────────────────────────────────────────────────────────────
+1. CORRELAZIONE SPEARMAN score↔rendimento (netto)
+──────────────────────────────────────────────────────────────────────
+                  VECCHIO        NUOVO
+   5gg netto        -0.0139      -0.0030
+  10gg netto        -0.0227      -0.0064
+  20gg netto        -0.0295      -0.0103
+
+──────────────────────────────────────────────────────────────────────
+2. SIMULAZIONE PORTAFOGLIO (hold 10gg, top 20%, netto)
+──────────────────────────────────────────────────────────────────────
+
+  SCORE VECCHIO:
+    Trade:          6329
+    Profitto netto: +2069.7%
+    Equity finale:  €2,169,666
+    Max Drawdown:   -95.1%
+    Sharpe ann:     +0.40
+    Sortino ann:    +0.59
+    Calmar:         +0.08
+    Profit Factor:  1.27
+    Expectancy:     +0.472%
+    Win Rate:       57.0%
+    CVaR 95%:       -14.32%
+    Max Consec.Loss:15
+    Time Underwater:483 barre
+    Recovery Factor:21.77
+    Tail Ratio:     1.03
+
+  SCORE NUOVO:
+    Trade:          6329
+    Profitto netto: +12.8%
+    Equity finale:  €112,776
+    Max Drawdown:   -95.7%
+    Sharpe ann:     +0.18
+    Sortino ann:    +0.22
+    Calmar:         +0.00
+    Profit Factor:  1.12
+    Expectancy:     +0.207%
+    Win Rate:       56.8%
+    CVaR 95%:       -16.26%
+    Max Consec.Loss:14
+    Time Underwater:993 barre
+    Recovery Factor:0.13
+    Tail Ratio:     1.02
+
+──────────────────────────────────────────────────────────────────────
+3. DEFLATED SHARPE RATIO (correzione multiple testing)
+──────────────────────────────────────────────────────────────────────
+
+  VECCHIO: N_configurazioni=15, SR₀=+0.027
+    PSR(bench=0): 1.000  (soglia >0.95)
+    DSR:          0.889  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       1484 barre (5.9 anni)
+
+  NUOVO: N_configurazioni=15, SR₀=+0.050
+    PSR(bench=0): 1.000  (soglia >0.95)
+    DSR:          0.947  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       539 barre (2.1 anni)
+
+──────────────────────────────────────────────────────────────────────
+4. WALK-FORWARD ANALYSIS (anchored, 6 finestre)
+──────────────────────────────────────────────────────────────────────
+  VECCHIO: WFE=+1.31 (soglia >0.50)
+    Ret medio IS: +0.231%
+    Ret medio OOS: +0.302%
+  NUOVO: WFE=+3.28 (soglia >0.50)
+    Ret medio IS: +0.154%
+    Ret medio OOS: +0.506%
+
+──────────────────────────────────────────────────────────────────────
+5. PROBABILITY OF BACKTEST OVERFITTING (CSCV, S=8)
+──────────────────────────────────────────────────────────────────────
+  VECCHIO: PBO=0.000  (soglia <0.50 → ✓ OK)
+  NUOVO: PBO=0.000  (soglia <0.50 → ✓ OK)
+
+──────────────────────────────────────────────────────────────────────
+6. BLOCK BOOTSTRAP (IC 95% su Sharpe e MaxDD, score NUOVO)
+──────────────────────────────────────────────────────────────────────
+  Sharpe ann: stima +0.35 | IC95% [+0.22, +0.51]
+  MaxDD:      stima -98.7% | IC95% [-99.9%, -87.9%]
+
+──────────────────────────────────────────────────────────────────────
+7. PERFORMANCE PER REGIME (bull / bear via SPY/SMA200) — sul PORTAFOGLIO selezionato
+──────────────────────────────────────────────────────────────────────
+
+  VECCHIO:
+    bull    : n=5624 | ret +0.242% | hit 52.7% | Sharpe +0.59
+    bear    : n= 578 | ret +1.334% | hit 60.6% | Sharpe +2.10
+    unknown : n= 127 | ret -2.041% | hit 48.0% | Sharpe -4.01
+
+  NUOVO:
+    bull    : n=5694 | ret +0.529% | hit 54.8% | Sharpe +1.37
+    bear    : n= 509 | ret -0.288% | hit 55.4% | Sharpe -0.48
+    unknown : n= 126 | ret -0.056% | hit 60.3% | Sharpe -0.16
+
+──────────────────────────────────────────────────────────────────────
+8. SENSITIVITY — Sharpe netto (griglia holding × soglia, score NUOVO)
+──────────────────────────────────────────────────────────────────────
+            tq=0.70  tq=0.75  tq=0.80  tq=0.85  tq=0.90
+  hold= 5gg     +0.22     +0.25     +0.29     +0.30     +0.38 
+  hold=10gg     +0.31     +0.32     +0.35     +0.31     +0.48 
+  hold=20gg     +0.36     +0.36     +0.39     +0.29     +0.40 

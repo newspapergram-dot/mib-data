@@ -325,4 +325,30 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Ripetere il walk-forward quando i dati includeranno un bear; tenere DSR>0.95.
 
 ---
+
+## Lezione #11 — 2026-06-25 — Un backtest senza bear è una bugia gentile; il drawdown dice la verità
+
+**Evidenza.**
+- La stessa strategia: **Sharpe 1.89 su 14 mesi (bull)** → **Sharpe 0.18, MaxDD −95.7% sul
+  ciclo completo 2018-2026**. Il periodo corto e mono-regime nascondeva un rischio di rovina
+  totale. Walk-forward OOS positivo (L#10) NON bastava: era tutto dentro lo stesso regime bull.
+- I "fattori bear" (filtro di regime + accumulazione + STOP + trigger rapido SMA20) hanno
+  ridotto il MaxDD da −95.7% a −33% e alzato lo Sharpe a 0.83. Lo STOP e il trigger RAPIDO sono
+  i pezzi decisivi; il filtro lento SMA50/200 da solo lasciava ancora −68%.
+
+**Regola.**
+1. **Non fidarti di un backtest che non contiene un bear.** Prima di operare, testa su un ciclo
+   completo (incl. 2020/2022). Se non hai i dati, scaricali; se non puoi, dichiara che le metriche
+   valgono solo per quel regime.
+2. **Il Max Drawdown e' la metrica di verita' per i bear**, non lo Sharpe o l'expectancy: misura
+   il rischio di rovina. Uno Sharpe alto con DD −95% e' inservibile.
+3. **Usa prezzi AGGIUSTATI su orizzonti lunghi**: gli split (close grezzo) creano salti che
+   falsano il backtest. adjclose o adjustment factor sull'OHLC.
+4. **Contro i crash veloci serve un trigger RAPIDO**, non solo medie lente: SMA50>SMA200 entra
+   tardi; px<SMA20 (o vol/momentum) coglie la prima gamba al ribasso. Lo STOP per-trade e' il
+   secondo strato indispensabile.
+5. **I filtri di risk-off riducono la rovina, non trasformano una strategia bull in bear-proof.**
+   Onesta': una strategia long-only resta bull-favored; per il bear servono hedge/short o stare flat.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

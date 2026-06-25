@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+data/mib_data_long.csv
+data/backtest_report_long.csv
