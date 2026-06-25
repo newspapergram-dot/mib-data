@@ -268,8 +268,39 @@ Quasi-idonei bocciati quasi tutti su R5 (confidenza BASSA) o R4 (distribuzione: 
    ma Smart Money neutro/negativo → valutare di pesare meno il 13F quando il volume contraddice.
 10. **Watchlist**: `BPSO.MI` dà 404 su Yahoo (probabile cambio simbolo) → aggiornare la lista.
 
+---
+
+## Run #6 — 2026-06-25 (obiettivi: portafoglio piu' ampio + take profit piu' alti)
+
+### Obiettivo 2 — TP piu' ampi e R/R favorevole (`modules/trade_proposal.py`)
+- I vecchi target fissi (+4.11% / +8.22%) davano **R/R 0.82** (si rischiava il 5% per puntarne il 4):
+  troppo bassi, e per conti piccoli i costi erodevano il margine.
+- Nuovi target **T1/T2/T3 = max(k·ATR, k·rischio)** con k_ATR=(3,6,10) e floor R/R=(1.5,3,5).
+  Gli ATR-multipli corrispondono a ~1σ/2σ/3σ sull'orizzonte di holding → laddering principiato.
+  Aggiunto **T3 "runner"** e, per ogni target, il **guadagno netto in % e in EUR** sulla posizione.
+  Flag di **efficienza per conti piccoli** (T1 netto deve battere nettamente i costi).
+  Es. STM: prima T1 +1.35%/+77€ → ora **T1 +15.4%/+760€, T2 +30.9%/+1530€, T3 +51.7%/+2556€**.
+- Aggiunti parametri `size_mult` (convinzione) e `pos_cap`. Backward-compatible (weekly_report OK).
+
+### Obiettivo 1 — portafoglio piu' ampio
+- **Universo ampliato**: +15 large cap USA liquide in `fetch_data.py` → **142 ticker** (80 gated).
+- **`portfolio_builder.py` (NUOVO)**: filtri MENO restrittivi + sizing per convinzione:
+  - R3 score top **meta'** (perc. 50) invece di top quintile; R4 **banda neutra** smart-money
+    (sm≥−0.15: esclude solo la distribuzione); confidenza/illiquidita' **scalano la size**, non escludono.
+  - tier su percentili dello score (calibrati ai dati) + bonus accumulazione − penalita' illiquidi.
+  - dedup per emittente; cap esposizione 85%, max 12 nomi.
+- **Risultato: da 1 → 12 titoli** (`data/PORTFOLIO.txt`), diversificati IT/FR/US, esposizione 85%.
+  Top per convinzione: AMAT, VIE.PA, TRN.MI, ISP.MI, ENGI.PA (tutti in accumulazione).
+  Potenziale netto (ottimistico): **+6.4% a T1, +13.2% a T2, +22.2% a T3** sul capitale.
+
+### Caveat onesto
+- TP piu' larghi = **hit-rate piu' basso** del 74% storico (misurato sui VECCHI target): il payoff
+  sale ma la probabilita' di toccare il target scende. **Da ri-validare nel backtest** prima di
+  fidarsi dei numeri di vincita storici con i nuovi target.
+
 ### Watch list per il prossimo run
-- [ ] Decidere su #4/#5 (calibrazione confidenza e banda R4): cambiano quali titoli risultano idonei.
+- [ ] Ri-validare nel backtest i nuovi target ATR/R (hit-rate, expectancy, Sharpe) e tarare k_ATR.
+- [ ] Calibrare anche `confidence_level` (oggi assoluto) sui percentili, come nel builder.
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
 - [ ] Validare lo Smart Money nel backtest prima di integrarlo nello score.
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);

@@ -49,7 +49,8 @@ def confidence_level(score, ticker):
 
 def propose(ticker, entry, atr14, score, capital,
             risk_per_trade=0.0214, atr_mult_stop=2.0, n_positions=5,
-            regime_mult=1.0):
+            regime_mult=1.0, pos_cap=0.10, size_mult=1.0,
+            target_atr_mult=(3.0, 6.0, 10.0), target_rr_floor=(1.5, 3.0, 5.0)):
     """
     Genera la scheda operativa per un singolo candidato.
     entry: prezzo di ingresso previsto (es. apertura lunedi)
@@ -57,7 +58,14 @@ def propose(ticker, entry, atr14, score, capital,
     score: score NUOVO del candidato
     capital: capitale totale del portafoglio
     regime_mult: moltiplicatore di rischio dal regime di mercato (regime_filter.py).
-                 1.0 = trend favorevole, 0.5 = laterale, 0.0 = regime ostile (stop).
+    size_mult: moltiplicatore di convinzione (1.0 piena, <1 ridotta) per il portafoglio tiered.
+    pos_cap: cap di valore della posizione in frazione del capitale (default 10%).
+    target_atr_mult / target_rr_floor: i 3 target (T1/T2/T3) sono il MASSIMO tra un multiplo
+        di ATR (scala con la volatilita' del titolo) e un multiplo del rischio (garantisce R/R
+        favorevole). Sostituiscono i vecchi target fissi +4.1%/+8.2% che davano R/R<1 — troppo
+        bassi per conti piccoli, dove i costi erodono margini sottili. NB: i numeri storici di
+        win-rate/expectancy (EDGE) erano misurati sui VECCHI target: target piu' larghi
+        scambiano hit-rate con payoff e andrebbero ri-validati nel backtest.
     """
     cost = cost_rt_bps(ticker)
     # STOP guidato dalla STATISTICA della strategia (non da regola R/R generica):
@@ -67,25 +75,38 @@ def propose(ticker, entry, atr14, score, capital,
     stop_atr  = entry - atr_mult_stop * atr14      # stop tecnico ATR
     stop = max(stop_stat, stop_atr)                # il piu' vicino all'entry = piu' protettivo
     risk_per_share = entry - stop
-    # Target coerenti con avg_win storico troncato (~4.1%) e estensione
-    t1 = entry * (1 + EDGE["avg_win_pct"]/100)
-    t2 = entry * (1 + 2*EDGE["avg_win_pct"]/100)
-    rr1 = (t1-entry)/risk_per_share if risk_per_share>0 else float("nan")
-    rr2 = (t2-entry)/risk_per_share if risk_per_share>0 else float("nan")
+    # Target = max(multiplo ATR, multiplo del rischio): piu' ampi, volatility-aware, R/R>=floor.
+    def _tgt(k_atr, k_rr):
+        return entry + max(k_atr * atr14, k_rr * risk_per_share)
+    t1 = _tgt(target_atr_mult[0], target_rr_floor[0])
+    t2 = _tgt(target_atr_mult[1], target_rr_floor[1])
+    t3 = _tgt(target_atr_mult[2], target_rr_floor[2])
+    rr = lambda t: (t-entry)/risk_per_share if risk_per_share>0 else float("nan")
+    rr1, rr2, rr3 = rr(t1), rr(t2), rr(t3)
 
-    # Sizing: rischio fisso per trade, MODULATO dal regime di mercato (freno).
-    # regime_mult: 1.0 trend favorevole | 0.5 laterale | 0.0 regime ostile (stop).
-    risk_eur = capital * risk_per_trade * regime_mult
+    # Sizing: rischio fisso per trade, MODULATO da regime e convinzione (size_mult).
+    eff_mult = regime_mult * size_mult
+    risk_eur = capital * risk_per_trade * eff_mult
     shares = int(risk_eur / risk_per_share) if risk_per_share > 0 else 0
     pos_value = shares * entry
-    max_pos_value = capital * 0.10 * regime_mult   # cap 10% modulato dal regime
+    max_pos_value = capital * pos_cap * eff_mult   # cap modulato da regime e convinzione
     binding = ""
     if pos_value > max_pos_value:
         shares = int(max_pos_value / entry) if entry > 0 else 0
         pos_value = shares * entry
-        binding = " (capped a 10% portafoglio)"
+        binding = f" (capped a {pos_cap*100:.0f}% x conv)"
 
-    # Guadagno atteso NETTO probabilistico
+    # Guadagno POTENZIALE per ciascun target, netto costi, in % e in EUR sulla posizione.
+    def _gain(t):
+        gpct = (t/entry - 1)*100 - cost
+        return round(gpct, 2), round(pos_value * gpct/100, 2)
+    g1_pct, g1_eur = _gain(t1)
+    g2_pct, g2_eur = _gain(t2)
+    g3_pct, g3_eur = _gain(t3)
+    # Efficienza per conti piccoli: il guadagno netto a T1 deve battere nettamente i costi.
+    cost_efficient = g1_pct >= max(3.0, 6*cost)
+
+    # Guadagno atteso NETTO probabilistico (storico, ai VECCHI target — riferimento)
     gross_exp = EDGE["win_rate"]*EDGE["avg_win_pct"] - (1-EDGE["win_rate"])*EDGE["avg_loss_pct"]
     net_exp = gross_exp - cost
     eur_exp = pos_value * net_exp/100
@@ -93,12 +114,15 @@ def propose(ticker, entry, atr14, score, capital,
     conf = confidence_level(score, ticker)
     return {
         "ticker": ticker, "score": score, "confidence": conf,
-        "entry": entry, "stop": round(stop,4), "t1": round(t1,4), "t2": round(t2,4),
-        "rr1": round(rr1,2), "rr2": round(rr2,2),
+        "entry": entry, "stop": round(stop,4),
+        "t1": round(t1,4), "t2": round(t2,4), "t3": round(t3,4),
+        "rr1": round(rr1,2), "rr2": round(rr2,2), "rr3": round(rr3,2),
+        "g1_pct": g1_pct, "g1_eur": g1_eur, "g2_pct": g2_pct, "g2_eur": g2_eur,
+        "g3_pct": g3_pct, "g3_eur": g3_eur, "cost_efficient": cost_efficient,
         "shares": shares, "pos_value": round(pos_value,2), "pos_pct": round(pos_value/capital*100,1),
         "risk_eur": round(shares*risk_per_share,2), "cost_pct": cost,
         "net_exp_pct": round(net_exp,2), "eur_exp": round(eur_exp,2), "binding": binding,
-        "regime_mult": regime_mult,
+        "regime_mult": regime_mult, "size_mult": size_mult,
     }
 
 def render(p):
@@ -108,21 +132,25 @@ def render(p):
     out.append(f" {p['ticker']}  |  Score: {p['score']:.3f}  |  CONFIDENZA: {p['confidence']}")
     out.append("="*58)
     out.append(f" Entry: {p['entry']:.4f}   Stop: {p['stop']:.4f}")
-    out.append(f" Target 1: {p['t1']:.4f} (R/R {p['rr1']}:1)   Target 2: {p['t2']:.4f} (R/R {p['rr2']}:1)")
+    out.append(f" Target 1: {p['t1']:.4f} (R/R {p['rr1']}:1 | +{p['g1_pct']:.1f}% net = {p['g1_eur']:+.0f}EUR)")
+    out.append(f" Target 2: {p['t2']:.4f} (R/R {p['rr2']}:1 | +{p['g2_pct']:.1f}% net = {p['g2_eur']:+.0f}EUR)")
+    out.append(f" Target 3: {p['t3']:.4f} (R/R {p['rr3']}:1 | +{p['g3_pct']:.1f}% net = {p['g3_eur']:+.0f}EUR)  [runner]")
     out.append("")
-    out.append(f" Regime di mercato: moltiplicatore rischio x{p['regime_mult']}")
+    out.append(f" Regime x{p['regime_mult']} | convinzione x{p['size_mult']}")
     out.append(f" SIZING:  {p['shares']} azioni = {p['pos_value']:.0f}EUR ({p['pos_pct']}% portaf.){p['binding']}")
     out.append(f"          Rischio massimo posizione: {p['risk_eur']:.0f}EUR")
     out.append("")
-    out.append(f" GUADAGNO ATTESO (netto costi {p['cost_pct']:.2f}%): {p['net_exp_pct']:+.2f}% = {p['eur_exp']:+.0f}EUR")
+    out.append(f" Riferimento storico (ai VECCHI target, win-rate 74%): attesa {p['net_exp_pct']:+.2f}% = {p['eur_exp']:+.0f}EUR")
     out.append("")
-    out.append(" PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%")
-    out.append(" CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile")
-    out.append("         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa")
+    out.append(" PRO:  R/R ora favorevole (T1>=1.5R); T3 lascia correre i vincitori")
+    out.append(" CONTRO: stop NON negoziabile; target piu' larghi = hit-rate piu' basso del 74% storico")
+    out.append("         (misurato sui vecchi target) -> da ri-validare nel backtest")
+    if not p['cost_efficient']:
+        out.append(f"         !! poco efficiente per conti piccoli: T1 netto +{p['g1_pct']:.1f}% troppo vicino ai costi")
     if p['confidence']=="BASSA":
-        out.append("         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip")
+        out.append("         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta")
     if p['regime_mult'] < 1.0:
-        out.append(f"         !! regime di mercato non pienamente favorevole: sizing ridotto a x{p['regime_mult']}")
+        out.append(f"         !! regime non pienamente favorevole: sizing ridotto a x{p['regime_mult']}")
     out.append("="*58)
     return "\n".join(out)
 

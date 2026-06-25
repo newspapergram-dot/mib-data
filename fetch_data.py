@@ -51,6 +51,10 @@ TICKERS = [
     "PG", "JNJ", "ORCL", "BAC", "NFLX",
     "AMD", "CRM", "KO", "CVX", "MRK",
     "WMT", "PLTR", "GE", "CAT", "GS",
+    # ampliamento universo USA (large cap liquide, regime=US)
+    "ADBE", "QCOM", "TXN", "ABBV", "PEP",
+    "MCD", "ACN", "INTC", "CSCO", "NOW",
+    "AMAT", "DIS", "TMO", "ABT", "LIN",
 
     # --- Indici e regime (gratis via Yahoo) ---
     "^GSPC", "^NDX", "^VIX", "FTSEMIB.MI", "^FCHI", "^STOXX50E",

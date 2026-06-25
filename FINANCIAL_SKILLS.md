@@ -180,4 +180,36 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Validazione statistica dello Smart Money prima di pesarlo nello score.
 
 ---
+
+## Lezione #6 — 2026-06-25 — Target legati a volatilità+rischio; diversificare scalando la size, non escludendo
+
+**Evidenza.**
+- I target fissi (+4.1%/+8.2%) davano **R/R 0.82** (rischio 5% per puntare 4%): strutturalmente
+  sfavorevole e, per conti piccoli, mangiato dai costi. Legando i target ad **ATR** (volatilita')
+  e al **rischio** (R-multipli) il R/R diventa ≥1.5 e i margini diventano significativi
+  (es. STM da +1.35% a +15.4% a T1) — con T1/T2/T3 ≈ 1σ/2σ/3σ sull'orizzonte.
+- Il piano stretto dava 1 solo titolo perche' la confidenza assoluta escludeva quasi tutto.
+  Sostituendo l'esclusione con un **size_mult per convinzione** (e filtri su percentili, non
+  soglie assolute) il portafoglio passa a 12 nomi diversificati, senza buttare il controllo del rischio.
+
+**Regola.**
+1. **Il take profit si ancora a volatilita' e rischio, non a una % fissa.** `T = entry + max(k·ATR,
+   k·R)`: scala col titolo, garantisce R/R favorevole, e i k·ATR mappano su multipli di sigma
+   (1σ/2σ/3σ) = laddering con probabilita' di touch interpretabili.
+2. **Allargare il TP NON e' gratis: scambia hit-rate con payoff.** I numeri di win-rate storici
+   valgono SOLO ai target con cui sono stati misurati. Cambi i target → ri-misuri. Mai riusare
+   il vecchio win-rate con target nuovi.
+3. **Per diversificare, scala la size per convinzione invece di escludere.** Un titolo meno
+   liquido o meno forte non va buttato: entra con size ridotta. Cosi' il portafoglio si amplia
+   mantenendo il rischio proporzionato alla convinzione.
+4. **Mostra il guadagno in EUR per ogni target, non solo in %.** Per conti piccoli il punto e'
+   se, NETTO costi, il trade vale la pena: il valore assoluto rende la decisione concreta.
+5. **Soglie su percentili della distribuzione, non assolute** (vedi Lezione #5): una soglia che
+   non si raggiunge mai non filtra, esclude e basta.
+
+**Da verificare nei prossimi run.**
+- Backtest dei nuovi target ATR/R (hit-rate, expectancy, Sharpe) e taratura di k_ATR.
+- Calibrazione percentile anche di `confidence_level`.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
