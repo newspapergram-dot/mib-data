@@ -179,12 +179,23 @@ update STATE.
   codice distingue e logga come "403 Borsa Italiana". → cambiare host/header/sleep non aiuta:
   il vincolo è l'allowlist di egress, non l'endpoint.
 
+### Decisione Run #3d — leva scelta: ALLOWLIST DOMINI EGRESS
+- Esito test esaustivo: lo sblocco EU è impossibile in-sandbox per **policy di egress + piano
+  FMP**, non per il codice. Bloccati al CONNECT (403): yfinance, stooq, query1.finance.yahoo.com,
+  borsaitaliana.it; FMP MCP gated su EU (anche senza filtro date; screener gated).
+- Leva scelta dall'utente: **allowlist domini egress**. Dominio minimo e più funzionale da
+  aggiungere: **`query1.finance.yahoo.com`** (copre tutti i .MI/.PA con OHLCV completo via Piano C).
+  Backup opzionali: `query2.finance.yahoo.com`, `stooq.com` (Piano B).
+- NB: la network policy si imposta alla **creazione dell'environment** → ha effetto in una
+  **nuova sessione**, non a caldo (testato: dopo la scelta i domini risultano ancora 403).
+- **Azione una volta attivo l'allowlist (nessun nuovo codice):**
+  `python3 fetch_data.py` (il Piano C scarica EU live) → `python3 score_generator.py` → report RUN4.
+
 ### Watch list per il prossimo run
-- [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay
-      nel report). Validarlo nel backtest prima di pesarlo nello score.
-- [ ] Sbloccare EU davvero: **è un problema di policy/egress, non di sorgente.** Servono i
-      domini dati nell'allowlist di egress **oppure** un piano FMP con copertura EU, **oppure**
-      eseguire `fetch_data.py` fuori dalla sandbox. I Piani C e D sono già pronti a funzionare lì.
+- [ ] **Quando `query1.finance.yahoo.com` è raggiungibile**: rifare il refresh EU (2 comandi sopra)
+      e generare REPORT_RUN4 con scan Foreground EU finalmente fresco.
+- [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay).
+      Validarlo nel backtest prima di pesarlo nello score.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (da Run #2) e misurare l'edge dello Smart Money.
 
 ---
