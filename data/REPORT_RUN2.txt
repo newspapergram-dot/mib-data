@@ -1,0 +1,121 @@
+REPORT OPERATIVO — Run #2 — 2026-06-25
+Capitale ipotizzato €50.000 | Regime IT/FR/US = TREND_UP (mult x1.0)
+Formula repo: stop=max(entry*0.95, entry-2*ATR); T1=entry*1.0411; T2=entry*1.0822
+
+TICK      SCORE      ENTRY       STOP         T1         T2   RR1   RR2  CONF   FONTE
+GOOGL     0.306    345.290    328.026    359.481    373.673  0.82  1.64  MEDIA  EOD 24-giu (FMP)
+GE        0.281    365.880    347.586    380.918    395.955  0.82  1.64  MEDIA  EOD 24-giu (FMP)
+SPM.MI    0.257      4.383      4.164      4.563      4.743  0.82  1.64  MEDIA  EOD 18-Jun (EU stale)
+GS        0.239   1076.910   1023.064   1121.171   1165.432  0.82  1.64  MEDIA  EOD 24-giu (FMP)
+AMZN      0.224    234.270    222.556    243.899    253.527  0.82  1.64  MEDIA  EOD 24-giu (FMP)
+STMMI.MI  0.224     67.910     64.514     70.701     73.492  0.82  1.64  MEDIA  EOD 18-Jun (EU stale)
+
+
+[prezzo: EOD 24-giu (FMP)]
+==========================================================
+ GOOGL  |  Score: 0.306  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 345.2900   Stop: 328.0255
+ Target 1: 359.4814 (R/R 0.82:1)   Target 2: 373.6728 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  14 azioni = 4834EUR (9.7% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 242EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +65EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+[prezzo: EOD 24-giu (FMP)]
+==========================================================
+ GE  |  Score: 0.281  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 365.8800   Stop: 347.5860
+ Target 1: 380.9177 (R/R 0.82:1)   Target 2: 395.9553 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  13 azioni = 4756EUR (9.5% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 238EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +64EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+[prezzo: EOD 18-Jun (EU stale)]
+==========================================================
+ SPM.MI  |  Score: 0.257  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 4.3830   Stop: 4.1638
+ Target 1: 4.5631 (R/R 0.82:1)   Target 2: 4.7433 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  1140 azioni = 4997EUR (10.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 250EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +68EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+[prezzo: EOD 24-giu (FMP)]
+==========================================================
+ GS  |  Score: 0.239  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 1076.9100   Stop: 1023.0645
+ Target 1: 1121.1710 (R/R 0.82:1)   Target 2: 1165.4320 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  4 azioni = 4308EUR (8.6% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 215EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +58EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+[prezzo: EOD 24-giu (FMP)]
+==========================================================
+ AMZN  |  Score: 0.224  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 234.2700   Stop: 222.5565
+ Target 1: 243.8985 (R/R 0.82:1)   Target 2: 253.5270 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  21 azioni = 4920EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 246EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+
+[prezzo: EOD 18-Jun (EU stale)]
+==========================================================
+ STMMI.MI  |  Score: 0.224  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 67.9100   Stop: 64.5145
+ Target 1: 70.7011 (R/R 0.82:1)   Target 2: 73.4922 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  73 azioni = 4957EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 248EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +77EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+

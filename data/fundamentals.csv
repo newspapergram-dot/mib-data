@@ -1,11 +1,11 @@
 ticker,source,pe,forward_pe,eps,market_cap,revenue,currency,next_earnings,data_reliable,reliability_notes,analyst_consensus,asof_date
-GOOGL,finnhub,,,,,,USD,2026-07-23,False,nessun P/E ne EPS disponibile,,2026-06-19
-GE,finnhub,,,,,,USD,2026-07-16,False,nessun P/E ne EPS disponibile,,2026-06-19
+AMZN,fmp,27.59,,8.452,2520065817000.0,742776000000.0,USD,2026-07-30,True,ok (fonte FMP TTM),,2026-06-24
+ENGI.PA,yfinance,17.834438,12.918856,1.51,68427362304.0,71944003584.0,EUR,2026-07-31,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 18}",2026-06-19
+GE,fmp,44.89,,8.345,382282273806.0,48352000000.0,USD,2026-07-16,True,ok (fonte FMP TTM),,2026-06-24
+GOOGL,fmp,26.08,,13.24,4176237763470.0,422566000000.0,USD,2026-07-23,True,ok (fonte FMP TTM),,2026-06-24
+GS,fmp,19.42,,59.47,317696441749.0,110774000000.0,USD,2026-07-14,True,ok (fonte FMP TTM),,2026-06-24
+LR.PA,yfinance,30.938145,23.352777,4.85,39222341632.0,9740399616.0,EUR,2026-07-29,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 19}",2026-06-19
 SPM.MI,yfinance,30.179998,15.073419,0.15,8783660032.0,15512999936.0,EUR,2026-04-21,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 17}",2026-06-19
-GS,finnhub,,,,,,USD,2026-07-14,False,nessun P/E ne EPS disponibile,,2026-06-19
-AMZN,finnhub,,,,,,USD,2026-07-30,False,nessun P/E ne EPS disponibile,,2026-06-19
 STMMI.MI,yfinance,481.9286,47.514088,0.14,59966939136.0,12378000384.0,EUR,2026-07-23,False,P/E fuori range plausibile (481.9286),,2026-06-19
 STMPA.PA,yfinance,481.64285,30.546612,0.14,59931385856.0,12378000384.0,EUR,2026-07-23,False,P/E fuori range plausibile (481.64285),"{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 20}",2026-06-19
-LR.PA,yfinance,30.938145,23.352777,4.85,39222341632.0,9740399616.0,EUR,2026-07-29,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 19}",2026-06-19
-ENGI.PA,yfinance,17.834438,12.918856,1.51,68427362304.0,71944003584.0,EUR,2026-07-31,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 18}",2026-06-19
 UCG.MI,yfinance,11.008253,9.698866,7.27,119907139584.0,25464000512.0,EUR,2026-07-23,True,"ok (fonte EU yfinance: affidabilita' strutturalmente inferiore, verificare se critico)","{'recommendationKey': 'buy', 'numberOfAnalystOpinions': 17}",2026-06-19

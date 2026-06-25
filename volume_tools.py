@@ -51,6 +51,76 @@ def vwap(high, low, close, volume) -> pd.Series:
     return (tp * volume).cumsum() / volume.cumsum()
 
 
+def ad_line(high, low, close, volume) -> pd.Series:
+    """Accumulation/Distribution Line (Williams).
+    MFM = ((C-L)-(H-C))/(H-L); ADL = cumsum(MFM * volume).
+    ADL crescente = accumulazione (denaro 'forte' in entrata); calante = distribuzione.
+    Complementare a CMF (gia' presente): CMF e' oscillatore 20gg, ADL e' cumulata."""
+    rng = (high - low).replace(0, np.nan)
+    mfm = (((close - low) - (high - close)) / rng).fillna(0)
+    return (mfm * volume).cumsum()
+
+
+def volume_anomaly(df_ticker, lookback=20, mult=1.5) -> dict:
+    """Anomalia di volume giornaliera: volume ultimo > mult x media a `lookback`.
+    Intercetta l'impronta dei grandi fondi (spike di volume). Restituisce anche la
+    direzione (up/down close) per distinguere accumulazione da distribuzione.
+    df_ticker: OHLCV di UN ticker ordinato per data (colonne high/low/close/volume)."""
+    d = df_ticker.dropna(subset=["volume", "close"])
+    if len(d) < lookback + 1:
+        return {"anomaly": False, "vol_ratio": None, "direction": None, "smart_flag": None}
+    vol = pd.to_numeric(d["volume"], errors="coerce")
+    avg = vol.rolling(lookback).mean().iloc[-2]   # media ESCLUSO il giorno corrente
+    last_vol = float(vol.iloc[-1])
+    ratio = (last_vol / avg) if avg and avg > 0 else None
+    anomaly = bool(ratio is not None and ratio >= mult)
+    chg = float(d["close"].iloc[-1] - d["close"].iloc[-2])
+    direction = "up" if chg > 0 else ("down" if chg < 0 else "flat")
+    # smart_flag: spike di volume su giornata positiva = accumulazione; su negativa = distribuzione
+    smart_flag = None
+    if anomaly:
+        smart_flag = "accumulation" if direction == "up" else ("distribution" if direction == "down" else "neutral")
+    return {"anomaly": anomaly,
+            "vol_ratio": round(ratio, 2) if ratio is not None else None,
+            "direction": direction, "smart_flag": smart_flag}
+
+
+def smart_money_signal(df_ticker, lookback=20, slope_window=20) -> dict:
+    """Segnale 'Smart Money' aggregato (Foreground) per UN ticker.
+    Combina tre letture volume-ponderate, riusando i tool esistenti:
+      - pendenza ADL (accumulazione/distribuzione strutturale)   -> ad_line()
+      - CMF(20) (pressione netta mensile)                        -> cmf()  [riuso]
+      - anomalia di volume + direzione (impronta dei fondi)      -> volume_anomaly()
+    Ritorna uno score in [-1, +1] e un'etichetta leggibile."""
+    d = df_ticker.dropna(subset=["high", "low", "close", "volume"])
+    if len(d) < max(lookback, slope_window) + 5:
+        return {"score": None, "label": "dati insufficienti",
+                "adl_slope_pct": None, "cmf20": None, "vol_ratio": None, "smart_flag": None}
+    adl = ad_line(d["high"], d["low"], d["close"], d["volume"])
+    # pendenza ADL normalizzata sull'ampiezza recente (robusta alla scala)
+    recent = adl.iloc[-slope_window:]
+    span = (adl.iloc[-60:].max() - adl.iloc[-60:].min()) or 1.0
+    adl_slope = float((recent.iloc[-1] - recent.iloc[0]) / abs(span))
+    cmf20 = cmf(d["high"], d["low"], d["close"], d["volume"], 20).dropna()
+    cmf_last = float(cmf20.iloc[-1]) if cmf20.size else 0.0
+    va = volume_anomaly(d, lookback=lookback)
+    spike = 0.0
+    if va["smart_flag"] == "accumulation":
+        spike = +0.34
+    elif va["smart_flag"] == "distribution":
+        spike = -0.34
+    score = float(np.clip(0.45 * np.tanh(3 * adl_slope) + 0.45 * np.tanh(3 * cmf_last) + spike, -1, 1))
+    if score >= 0.33:
+        label = "ACCUMULAZIONE (smart money in entrata)"
+    elif score <= -0.33:
+        label = "DISTRIBUZIONE (smart money in uscita)"
+    else:
+        label = "neutro"
+    return {"score": round(score, 3), "label": label,
+            "adl_slope_pct": round(adl_slope * 100, 1), "cmf20": round(cmf_last, 3),
+            "vol_ratio": va["vol_ratio"], "smart_flag": va["smart_flag"]}
+
+
 def cmf_mfi(df_ticker, cmf_window=20, mfi_window=14):
     """
     df_ticker: DataFrame OHLCV di UN SINGOLO ticker, ordinato per data,

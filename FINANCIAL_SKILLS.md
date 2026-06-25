@@ -36,4 +36,79 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
   BULL" va presa come ipotesi prudente, non come fatto misurato.
 
 ---
+
+## Lezione #2 — 2026-06-25 — Valida la fonte dati e le metriche di partizione prima di fidarti dei numeri
+
+**Evidenza.**
+- Un risultato del backtest "troppo pulito" era in realtà un **bug**: la sez. 7 mostrava
+  bull e bear identici (n=1100 entrambi, stesse metriche). Causa: nel dataset c'erano due
+  benchmark (`SPY` e `^GSPC`) → indice-data duplicato → il join cartesiano duplicava ogni
+  segnale in una copia "bull" e una "bear". Non era un edge: era doppio conteggio. Fix in
+  `backtest_v3.py` (un solo benchmark + dedup); verificato bull=84 / bear=205 su dati reali.
+- La fonte prezzi del repo (**yfinance**) è risultata **bloccata dal proxy (HTTP 403)** e
+  finnhub dava fondamentali vuoti per i big USA. Senza un controllo, la pipeline avrebbe
+  prodotto silenziosamente dati stantii/mancanti. FMP ha colmato il gap (US), ma l'**EU resta
+  gated**: il dataset è aggiornabile solo in parte → ogni numero EU va marcato come "stale".
+- Conferma operativa del rischio: **GOOGL −5.1% in 3 sedute** (363.79→345.29), proprio
+  l'entità dello stop statistico −5%. Lo stop stretto del modello non è teoria.
+
+**Regola.**
+1. **Diffida dei risultati "perfetti o impossibili".** Metriche identiche tra gruppi che
+   dovrebbero differire (bull≡bear) = sospetto bug di join/partizione, non un edge. Controlla
+   chiavi duplicate e blow-up cartesiani (n_righe dopo join > n_righe prima).
+2. **Un solo benchmark per il regime**, deduplicato per data. Mai mescolare serie con scale
+   diverse in una `rolling()`.
+3. **Verifica la freschezza e la provenienza di OGNI dato prima di usarlo.** Etichetta i
+   prezzi con data e fonte (es. "EOD 24-giu FMP" vs "EU stale 18-giu"); non spacciare per
+   aggiornato ciò che non lo è. Se una fonte è bloccata, dichiaralo e usa un fallback esplicito.
+4. **Tieni un fallback dati indipendente** (qui FMP via `modules/fmp_source.py`): una sola
+   fonte è un single point of failure. Il fallback deve degradare in modo grazioso (None, non
+   crash) quando manca la chiave o il piano non copre il mercato.
+5. **Conseguenza sulla Lezione #1:** finché il backtest non viene ri-eseguito col regime
+   corretto, l'affermazione "edge solo in BULL" resta un'ipotesi prudenziale — la vecchia
+   misura era inquinata dal bug. Ri-misurare prima di trattarla come fatto.
+
+**Da verificare nei prossimi run.**
+- Refresh EU completo (piano FMP o `fetch_data.py` fuori sandbox) per coerenza cross-section.
+- Ri-eseguire il backtest e rileggere la performance per regime ora corretta.
+
+---
+
+## Lezione #3 — 2026-06-25 — Il Foreground (smart money sui volumi) è un filtro, non un dettaglio
+
+**Evidenza.**
+- Lo score del repo è prezzo-centrico (trend + flow 13F/insider). Aggiungendo un overlay
+  **volume-ponderato** (ADL + CMF + anomalie volume >1.5× media20) emergono contraddizioni
+  che il solo prezzo nasconde:
+  - **AMZN**: score long positivo (+0.21) ma **distribuzione** netta (sm −0.74, ADL −89%,
+    CMF −0.26, volume 1.48×). I grandi fondi stavano *uscendo* mentre il trend appariva ok.
+  - **GE**: score modesto ma **accumulazione** (sm +0.39, ADL +21%) → il volume *conferma* il long.
+  - Scan universo: distribuzione forte su Stellantis e CRM (volume 3.46× su giornata negativa =
+    impronta di vendita istituzionale); accumulazione su banche/utility IT.
+- Conferma che l'analisi del Foreground (chi compra/vende davvero) aggiunge informazione
+  ortogonale al segnale di prezzo, soprattutto come **veto** sui long "belli ma vuoti".
+
+**Regola.**
+1. **Usa lo Smart Money come filtro di conferma/veto sopra lo score**, non come abbellimento:
+   - score long + accumulazione → conferma (size piena nel regime favorevole);
+   - score long + **distribuzione** → declassa o salta: il flusso reale contraddice il prezzo.
+2. **Pesa l'anomalia di volume con la direzione**: spike >1.5× su giornata *positiva* =
+   accumulazione; su giornata *negativa* = distribuzione. Il volume senza direzione è rumore.
+3. **ADL e CMF sono complementari**: ADL (cumulata) coglie il trend strutturale di
+   accumulo/distribuzione; CMF(20) la pressione del mese. Concordi = segnale robusto.
+4. **Prima di pesare un nuovo segnale nello score, validalo nel backtest.** Per ora lo Smart
+   Money è overlay nel report: va misurato (correlazione col forward return) prima di entrare
+   nel ranking come 4° componente.
+
+**Regola operativa sui dati (rafforza Lezione #2).**
+5. **Quando una fonte è bloccata a ogni livello (egress + piano API), implementa comunque il
+   fallback in codice ma NON fabbricare dati.** EU qui è irraggiungibile da yfinance (403),
+   stooq (403) e FMP (piano US-only): la catena `get_eod_eu()` è pronta e riusa il tool stooq
+   esistente, ma i prezzi EU restano marcati "18-giu stale". Codice resiliente ≠ dati inventati.
+
+**Da verificare nei prossimi run.**
+- Backtest dello Smart Money come predittore; se regge, integrarlo in `score_generator`.
+- Sblocco EU effettivo (piano FMP-EU o egress) per scan Foreground fresco su IT/FR.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
