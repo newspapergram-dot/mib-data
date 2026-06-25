@@ -324,12 +324,33 @@ Simulazione uscita target/stop/timeout su top-quintile; stop = repo (max -5%/2AT
 - `portfolio_builder.py` e schede rigenerati con i nuovi target; testo PRO/CONTRO aggiornato
   (mediana ~0, edge nella coda, DSR<0.95).
 
+---
+
+## Run #8 — 2026-06-25 (validazione Smart Money + calibrazione confidenza)
+
+### Smart Money e' un predittore? (`sm_validate.py`, NUOVO tool, point-in-time)
+- **Spearman vs forward return netto**: score 10gg 0.086 | smart$ 10gg 0.037 (debole) ma 20gg
+  **0.078** (piu' forte sul lungo). **Il blend lineare 0.7·score+0.3·sm PEGGIORA il 10gg
+  (0.059 < 0.086)**: diluisce l'edge dello score.
+- **Ret medio per stato (10gg)**: accumulazione +0.99% (win 51%), distribuzione +0.88% (win 52%),
+  **neutro −0.245% (win 44%, il peggiore)** → lo stato grezzo non e' monotono col rendimento.
+- **DENTRO il top-quintile** invece: accumulazione **+3.14% (win 60%)** vs distribuzione
+  **+1.63% (win 40%)**, spread **+1.51%** → l'effetto e' un'INTERAZIONE col top-quintile.
+- **DECISIONE**: NON integrare lo Smart Money come componente lineare in `score_generator`
+  (peggiorerebbe il 10gg). Si tiene come **filtro di conferma/veto DENTRO la selezione**
+  (gia' cosi' in `portfolio_builder`). Risposta definitiva a una watch-list ricorrente: **no blend**.
+
+### Confidenza ricalibrata (`modules/trade_proposal.confidence_level`)
+- Le soglie assolute 0.45/0.20 rendevano ALTA **irraggiungibile** (max score osservato ~0.36,
+  p90~0.19) e quasi tutto BASSA. Nuove soglie hi=0.19 (~p90) / mid=0.13 (~p60), piu' parametri
+  opzionali per passare percentili live. Ora: **ALTA 9 / MEDIA 26 / BASSA 45** (prima ~tutto BASSA).
+- Portafoglio e schede rigenerati con la confidenza informativa.
+
 ### Watch list per il prossimo run
-- [ ] Calibrare `confidence_level` (oggi assoluto) sui percentili, come nel builder.
-- [ ] Validare lo Smart Money nel backtest (correlazione col forward return) prima di pesarlo.
+- [ ] Valutare uso dello Smart Money su variante a 20gg (dove correla meglio, 0.078).
+- [ ] Far passare a `confidence_level` i percentili LIVE dal builder (oggi default assoluti tarati).
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
-- [ ] La sez.7 del backtest e' uguale VECCHIO==NUOVO: il regime e' segmentato su TUTTI i segnali,
-      non sul portafoglio selezionato → migliorabile (segmentare la selezione top-quintile).
+- [ ] Backtest sez.7: segmentare il regime sul portafoglio selezionato (oggi su tutti i segnali).
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.

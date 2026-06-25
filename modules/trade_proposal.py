@@ -37,13 +37,18 @@ def cost_rt_bps(ticker):
     per_side = 0.10 if ticker in MEGA else (0.35 if ticker in ILLIQUID else 0.20)
     return per_side * 2
 
-def confidence_level(score, ticker):
-    """Confidenza onesta: alta richiede score forte E titolo liquido."""
+def confidence_level(score, ticker, hi=0.19, mid=0.13):
+    """Confidenza onesta: alta richiede score forte E titolo liquido.
+    Soglie TARATE sulla distribuzione reale degli score (max osservato ~0.36,
+    p90~0.19, p60~0.14): le vecchie soglie assolute (0.45/0.20) rendevano 'ALTA'
+    IRRAGGIUNGIBILE e quasi tutto 'BASSA'. Ora hi~p90 (top decile) e mid~p60
+    (top ~40%). I parametri `hi`/`mid` permettono al chiamante di passare percentili
+    live della selezione corrente (es. portfolio_builder)."""
     if ticker in ILLIQUID:
         return "BASSA"  # costi alti + raramente selezionato nel backtest
-    if score >= 0.45:
+    if score >= hi:
         return "ALTA"
-    if score >= 0.20:
+    if score >= mid:
         return "MEDIA"
     return "BASSA"
 

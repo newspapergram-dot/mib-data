@@ -31,7 +31,7 @@
 ============================================================================================
 
 ==========================================================
- AMAT  |  Score: 0.180  |  CONFIDENZA: BASSA
+ AMAT  |  Score: 0.180  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 668.0000   Stop: 634.6000
  Target 1: 742.6639 (R/R 2.24:1 | +10.8% net = +504EUR)
@@ -48,13 +48,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.72 (ACCUMULAZIONE) | tier ALTA | mercato US
 ==========================================================
 
 ==========================================================
- VIE.PA  |  Score: 0.189  |  CONFIDENZA: BASSA
+ VIE.PA  |  Score: 0.189  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 36.1500   Stop: 34.9343
  Target 1: 37.6089 (R/R 1.2:1 | +3.6% net = +181EUR)
@@ -71,7 +70,6 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.68 (ACCUMULAZIONE) | tier ALTA | mercato FR
 ==========================================================
@@ -101,7 +99,7 @@
 ==========================================================
 
 ==========================================================
- ISP.MI  |  Score: 0.143  |  CONFIDENZA: BASSA
+ ISP.MI  |  Score: 0.143  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 6.0300   Stop: 5.7772
  Target 1: 6.3334 (R/R 1.2:1 | +4.8% net = +126EUR)
@@ -118,13 +116,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.62 (ACCUMULAZIONE) | tier BASE | mercato IT
 ==========================================================
 
 ==========================================================
- ENGI.PA  |  Score: 0.190  |  CONFIDENZA: BASSA
+ ENGI.PA  |  Score: 0.190  |  CONFIDENZA: ALTA
 ==========================================================
  Entry: 27.0600   Stop: 26.0411
  Target 1: 28.2827 (R/R 1.2:1 | +4.1% net = +205EUR)
@@ -141,13 +138,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.53 (ACCUMULAZIONE) | tier ALTA | mercato FR
 ==========================================================
 
 ==========================================================
- CA.PA  |  Score: 0.130  |  CONFIDENZA: BASSA
+ CA.PA  |  Score: 0.130  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 16.2550   Stop: 15.5287
  Target 1: 17.1266 (R/R 1.2:1 | +5.0% net = +128EUR)
@@ -164,13 +160,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.58 (ACCUMULAZIONE) | tier BASE | mercato FR
 ==========================================================
 
 ==========================================================
- JNJ  |  Score: 0.184  |  CONFIDENZA: BASSA
+ JNJ  |  Score: 0.184  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 244.8800   Stop: 234.6122
  Target 1: 257.2014 (R/R 1.2:1 | +4.6% net = +227EUR)
@@ -187,7 +182,6 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.39 (ACCUMULAZIONE) | tier ALTA | mercato US
 ==========================================================
@@ -239,7 +233,7 @@
 ==========================================================
 
 ==========================================================
- ENEL.MI  |  Score: 0.164  |  CONFIDENZA: BASSA
+ ENEL.MI  |  Score: 0.164  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 10.0640   Stop: 9.7229
  Target 1: 10.4733 (R/R 1.2:1 | +3.9% net = +135EUR)
@@ -256,13 +250,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.30 (neutro) | tier MEDIA | mercato IT
 ==========================================================
 
 ==========================================================
- SPM.MI  |  Score: 0.145  |  CONFIDENZA: BASSA
+ SPM.MI  |  Score: 0.145  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 4.4020   Stop: 4.1819
  Target 1: 4.7777 (R/R 1.71:1 | +8.1% net = +285EUR)
@@ -279,13 +272,12 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.32 (neutro) | tier MEDIA | mercato IT
 ==========================================================
 
 ==========================================================
- GE  |  Score: 0.171  |  CONFIDENZA: BASSA
+ GE  |  Score: 0.171  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 371.3600   Stop: 352.7920
  Target 1: 393.6416 (R/R 1.2:1 | +5.6% net = +187EUR)
@@ -302,7 +294,6 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
  FOREGROUND: sm +0.24 (neutro) | tier MEDIA | mercato US
 ==========================================================

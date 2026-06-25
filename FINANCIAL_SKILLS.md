@@ -244,4 +244,27 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Validare lo Smart Money come predittore prima di pesarlo; calibrare `confidence_level` su percentili.
 
 ---
+
+## Lezione #8 — 2026-06-25 — Una validazione che dice "NO" vale quanto una che dice "sì"
+
+**Evidenza.**
+- Da run integrare lo Smart Money nello score era in watch-list. La validazione point-in-time
+  ha mostrato che **mescolarlo linearmente PEGGIORA** la correlazione col forward return a 10gg
+  (blend 0.059 < score 0.086). Aggiungerlo "perche' sembra sensato" avrebbe danneggiato l'edge.
+- Eppure lo stesso segnale, usato come **filtro condizionato** dentro il top-quintile, separa
+  bene: accumulazione +3.14% (win 60%) vs distribuzione +1.63% (win 40%). E' un effetto di
+  **interazione**, non un effetto principale: utile come filtro, dannoso come peso lineare.
+
+**Regola.**
+1. **Valida prima di integrare. Un risultato negativo e' un successo**: evita di degradare il
+   sistema con un'aggiunta "intuitiva". Non aggiungere un fattore solo perche' e' plausibile.
+2. **Distingui effetto principale da interazione.** Un segnale debole come predittore standalone
+   (o in blend lineare) puo' essere forte come filtro CONDIZIONATO ad altro (qui: dentro il
+   top-quintile). Testa entrambe le forme prima di decidere DOVE usarlo.
+3. **Attento all'orizzonte**: lo Smart Money correla meglio a 20gg che a 10gg. Un fattore puo'
+   essere giusto su un orizzonte e rumore su un altro — valida sull'orizzonte operativo reale.
+4. **Le soglie delle etichette vanno calibrate sulla distribuzione** (ribadisce L#5/L#7): soglie
+   assolute che non si raggiungono mai (ALTA>=0.45 con score max 0.36) non informano, confondono.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
