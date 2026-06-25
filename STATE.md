@@ -298,11 +298,38 @@ Quasi-idonei bocciati quasi tutti su R5 (confidenza BASSA) o R4 (distribuzione: 
   sale ma la probabilita' di toccare il target scende. **Da ri-validare nel backtest** prima di
   fidarsi dei numeri di vincita storici con i nuovi target.
 
+---
+
+## Run #7 — 2026-06-25 (backtest + taratura moltiplicatori target sui risultati)
+
+### Backtest base ri-validato su dati freschi (142 ticker, `backtest_v3.py`)
+- Score NUOVO: Sharpe **1.89**, PF 3.03, win 68.3%, expectancy +3.09%, Spearman 10gg +0.086.
+- **Fix regime confermato** (sez.7): bull n=1016 / bear n=189 / unknown distinti (niente piu' copie).
+- Robustezza: PBO 0.000 (ok), WFE +2.34 (OOS>IS, ok), bootstrap Sharpe IC [0.61, 2.16];
+  **DSR 0.794 < 0.95** → edge reale ma non blindato (cautela multiple-testing).
+
+### Taratura target su simulazione PATH-BASED (`target_backtest.py`, NUOVO tool)
+Simulazione uscita target/stop/timeout su top-quintile; stop = repo (max -5%/2ATR).
+- **Sweep target singolo**: expectancy CRESCE col multiplo (coda fat-tail), hit% crolla
+  (m=1→64% hit/exp 0.14%; m=3→31%/0.99%; m=10→1%/2.09%). exp/sd picco ~6×ATR (N=10).
+- **Confronto laddered [0.5/0.25/0.25]** (exp% | med% | win% | exp/sd, N=10):
+  - (3,6,10) **exp-max**: 1.50 | −0.17 | 49.4 | 0.216  → expectancy massima ma mediana NEGATIVA
+  - **(2,6,10) SCELTO**: 1.27 | **+0.28** | **51.0** | 0.200
+  - (2,4,6) tight: 1.10 | +0.28 | 51.0 | 0.185
+- **Decisione**: default cambiati da (3,6,10) a **(2,6,10)** in `trade_proposal.py`. Si porta
+  T1 a 2×ATR ("hittable" ~50%): mediana per-trade da −0.17% a **+0.28%**, win 49%→51%, cedendo
+  ~15% di expectancy → curva piu' liscia, adatta a conti piccoli (obiettivo dell'utente).
+  T2/T3 (6,10) restano larghi: la coda dei vincitori e' dove sta l'expectancy. Chi vuole la
+  sola expectancy max usa (3,6,10) (un parametro).
+- `portfolio_builder.py` e schede rigenerati con i nuovi target; testo PRO/CONTRO aggiornato
+  (mediana ~0, edge nella coda, DSR<0.95).
+
 ### Watch list per il prossimo run
-- [ ] Ri-validare nel backtest i nuovi target ATR/R (hit-rate, expectancy, Sharpe) e tarare k_ATR.
-- [ ] Calibrare anche `confidence_level` (oggi assoluto) sui percentili, come nel builder.
+- [ ] Calibrare `confidence_level` (oggi assoluto) sui percentili, come nel builder.
+- [ ] Validare lo Smart Money nel backtest (correlazione col forward return) prima di pesarlo.
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
-- [ ] Validare lo Smart Money nel backtest prima di integrarlo nello score.
+- [ ] La sez.7 del backtest e' uguale VECCHIO==NUOVO: il regime e' segmentato su TUTTI i segnali,
+      non sul portafoglio selezionato → migliorabile (segmentare la selezione top-quintile).
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.

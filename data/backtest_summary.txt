@@ -1,113 +1,115 @@
 ======================================================================
 BACKTEST ISTITUZIONALE v3 — Swing Copilot EU+USA
-Dati: 2025-04-11 → 2026-06-18
-Ticker: 128 | Orizzonti: (5, 10, 20)
+Dati: 2025-04-17 → 2026-06-25
+Ticker: 142 | Orizzonti: (5, 10, 20)
 ======================================================================
 
 >>> COSTRUZIONE SEGNALI — score VECCHIO <<<
-    Segnali prodotti: 1100
+    Segnali prodotti: 1224
 
 >>> COSTRUZIONE SEGNALI — score NUOVO <<<
-    Segnali prodotti: 1100
+    Segnali prodotti: 1224
 
 ──────────────────────────────────────────────────────────────────────
 1. CORRELAZIONE SPEARMAN score↔rendimento (netto)
 ──────────────────────────────────────────────────────────────────────
                   VECCHIO        NUOVO
-   5gg netto        +0.0086      +0.0438
-  10gg netto        +0.0663      +0.0549
-  20gg netto        -0.0514      -0.0240
+   5gg netto        -0.0103      +0.0624
+  10gg netto        +0.0180      +0.0863
+  20gg netto        -0.0491      +0.0373
 
 ──────────────────────────────────────────────────────────────────────
 2. SIMULAZIONE PORTAFOGLIO (hold 10gg, top 20%, netto)
 ──────────────────────────────────────────────────────────────────────
 
   SCORE VECCHIO:
-    Trade:          220
-    Profitto netto: +76.5%
-    Equity finale:  €176,479
-    Max Drawdown:   -22.2%
-    Sharpe ann:     +1.40
-    Sortino ann:    +2.36
-    Calmar:         +2.06
-    Profit Factor:  2.23
-    Expectancy:     +1.687%
-    Win Rate:       60.5%
-    CVaR 95%:       -12.49%
-    Max Consec.Loss:7
-    Time Underwater:10 barre
-    Recovery Factor:3.45
-    Tail Ratio:     1.58
+    Trade:          245
+    Profitto netto: +36.8%
+    Equity finale:  €136,795
+    Max Drawdown:   -30.1%
+    Sharpe ann:     +0.92
+    Sortino ann:    +1.38
+    Calmar:         +0.70
+    Profit Factor:  1.61
+    Expectancy:     +0.881%
+    Win Rate:       63.4%
+    CVaR 95%:       -9.69%
+    Max Consec.Loss:6
+    Time Underwater:25 barre
+    Recovery Factor:1.22
+    Tail Ratio:     1.03
 
   SCORE NUOVO:
-    Trade:          220
-    Profitto netto: +141.7%
-    Equity finale:  €241,694
-    Max Drawdown:   -28.8%
-    Sharpe ann:     +1.88
-    Sortino ann:    +3.48
-    Calmar:         +2.58
-    Profit Factor:  2.75
-    Expectancy:     +2.438%
-    Win Rate:       65.0%
-    CVaR 95%:       -12.81%
+    Trade:          245
+    Profitto netto: +206.4%
+    Equity finale:  €306,385
+    Max Drawdown:   -29.6%
+    Sharpe ann:     +1.89
+    Sortino ann:    +3.62
+    Calmar:         +3.35
+    Profit Factor:  3.03
+    Expectancy:     +3.092%
+    Win Rate:       68.3%
+    CVaR 95%:       -12.30%
     Max Consec.Loss:6
     Time Underwater:11 barre
-    Recovery Factor:4.91
-    Tail Ratio:     2.63
+    Recovery Factor:6.98
+    Tail Ratio:     2.13
 
 ──────────────────────────────────────────────────────────────────────
 3. DEFLATED SHARPE RATIO (correzione multiple testing)
 ──────────────────────────────────────────────────────────────────────
 
-  VECCHIO: N_configurazioni=15, SR₀=+0.094
-    PSR(bench=0): 0.990  (soglia >0.95)
-    DSR:          0.812  (soglia >0.95 → ✗ NON PASSA)
-    MinTRL:       112 barre (0.4 anni)
+  VECCHIO: N_configurazioni=15, SR₀=+0.142
+    PSR(bench=0): 0.847  (soglia >0.95)
+    DSR:          0.103  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       633 barre (2.5 anni)
 
-  NUOVO: N_configurazioni=15, SR₀=+0.079
-    PSR(bench=0): 0.987  (soglia >0.95)
-    DSR:          0.849  (soglia >0.95 → ✗ NON PASSA)
-    MinTRL:       121 barre (0.5 anni)
+  NUOVO: N_configurazioni=15, SR₀=+0.194
+    PSR(bench=0): 1.000  (soglia >0.95)
+    DSR:          0.794  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       40 barre (0.2 anni)
 
 ──────────────────────────────────────────────────────────────────────
 4. WALK-FORWARD ANALYSIS (anchored, 6 finestre)
 ──────────────────────────────────────────────────────────────────────
-  VECCHIO: WFE=+3.54 (soglia >0.50)
-    Ret medio IS: +0.462%
-    Ret medio OOS: +1.638%
-  NUOVO: WFE=+0.95 (soglia >0.50)
-    Ret medio IS: +1.206%
-    Ret medio OOS: +1.143%
+  VECCHIO: WFE=-0.78 (soglia >0.50)
+    Ret medio IS: -1.068%
+    Ret medio OOS: +0.831%
+  NUOVO: WFE=+2.34 (soglia >0.50)
+    Ret medio IS: +0.964%
+    Ret medio OOS: +2.260%
 
 ──────────────────────────────────────────────────────────────────────
 5. PROBABILITY OF BACKTEST OVERFITTING (CSCV, S=8)
 ──────────────────────────────────────────────────────────────────────
-  VECCHIO: PBO=0.100  (soglia <0.50 → ✓ OK)
-  NUOVO: PBO=0.100  (soglia <0.50 → ✓ OK)
+  VECCHIO: PBO=0.000  (soglia <0.50 → ✓ OK)
+  NUOVO: PBO=0.000  (soglia <0.50 → ✓ OK)
 
 ──────────────────────────────────────────────────────────────────────
 6. BLOCK BOOTSTRAP (IC 95% su Sharpe e MaxDD, score NUOVO)
 ──────────────────────────────────────────────────────────────────────
-  Sharpe ann: stima +0.74 | IC95% [+0.10, +1.56]
-  MaxDD:      stima -60.3% | IC95% [-86.1%, -34.1%]
+  Sharpe ann: stima +1.21 | IC95% [+0.61, +2.16]
+  MaxDD:      stima -56.9% | IC95% [-76.2%, -32.8%]
 
 ──────────────────────────────────────────────────────────────────────
 7. PERFORMANCE PER REGIME (bull / bear via SPY/SMA200)
 ──────────────────────────────────────────────────────────────────────
 
   VECCHIO:
-    bull    : n=1100 | ret +0.338% | hit 47.5% | Sharpe +0.76
-    bear    : n=1100 | ret +0.338% | hit 47.5% | Sharpe +0.76
+    bull    : n=1016 | ret -0.109% | hit 43.4% | Sharpe -0.24
+    bear    : n= 189 | ret +4.532% | hit 77.8% | Sharpe +8.12
+    unknown : n=  19 | ret +1.523% | hit 84.2% | Sharpe +5.49
 
   NUOVO:
-    bull    : n=1100 | ret +0.338% | hit 47.5% | Sharpe +0.76
-    bear    : n=1100 | ret +0.338% | hit 47.5% | Sharpe +0.76
+    bull    : n=1016 | ret -0.109% | hit 43.4% | Sharpe -0.24
+    bear    : n= 189 | ret +4.532% | hit 77.8% | Sharpe +8.12
+    unknown : n=  19 | ret +1.523% | hit 84.2% | Sharpe +5.49
 
 ──────────────────────────────────────────────────────────────────────
 8. SENSITIVITY — Sharpe netto (griglia holding × soglia, score NUOVO)
 ──────────────────────────────────────────────────────────────────────
             tq=0.70  tq=0.75  tq=0.80  tq=0.85  tq=0.90
-  hold= 5gg     +0.80     +0.64     +0.49     +0.79     +0.22 
-  hold=10gg     +0.91     +0.80     +0.74     +0.93     +0.89 
-  hold=20gg     +0.47     +0.38     +0.47     +0.53     +0.62 
+  hold= 5gg     +0.82     +1.09     +1.34     +1.96     +2.56 
+  hold=10gg     +0.93     +1.10     +1.21     +1.81     +2.42 
+  hold=20gg     +0.65     +0.79     +0.96     +1.22     +1.63 

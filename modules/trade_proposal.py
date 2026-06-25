@@ -50,7 +50,7 @@ def confidence_level(score, ticker):
 def propose(ticker, entry, atr14, score, capital,
             risk_per_trade=0.0214, atr_mult_stop=2.0, n_positions=5,
             regime_mult=1.0, pos_cap=0.10, size_mult=1.0,
-            target_atr_mult=(3.0, 6.0, 10.0), target_rr_floor=(1.5, 3.0, 5.0)):
+            target_atr_mult=(2.0, 6.0, 10.0), target_rr_floor=(1.2, 3.0, 5.0)):
     """
     Genera la scheda operativa per un singolo candidato.
     entry: prezzo di ingresso previsto (es. apertura lunedi)
@@ -62,10 +62,14 @@ def propose(ticker, entry, atr14, score, capital,
     pos_cap: cap di valore della posizione in frazione del capitale (default 10%).
     target_atr_mult / target_rr_floor: i 3 target (T1/T2/T3) sono il MASSIMO tra un multiplo
         di ATR (scala con la volatilita' del titolo) e un multiplo del rischio (garantisce R/R
-        favorevole). Sostituiscono i vecchi target fissi +4.1%/+8.2% che davano R/R<1 — troppo
-        bassi per conti piccoli, dove i costi erodono margini sottili. NB: i numeri storici di
-        win-rate/expectancy (EDGE) erano misurati sui VECCHI target: target piu' larghi
-        scambiano hit-rate con payoff e andrebbero ri-validati nel backtest.
+        favorevole). Sostituiscono i vecchi target fissi +4.1%/+8.2% (R/R<1).
+        DEFAULT TARATI SUL BACKTEST (path-based target/stop su top-quintile NUOVO, N=10/20):
+        T1=2*ATR e' "hittable" (~44-55% di hit) -> banca presto la prima quota, mediana POSITIVA;
+        T2=6*ATR / T3=10*ATR restano larghi per catturare la coda (dove sta l'expectancy).
+        Il confronto laddered [0.5/0.25/0.25] mostra che spostare T1 da 3 a 2*ATR alza win-rate
+        (49%->51%) e mediana (-0.17%->+0.28%) cedendo ~15% di expectancy: scelta migliore per
+        conti piccoli (curva piu' liscia). Per massimizzare la sola expectancy usare (3,6,10).
+        NB: i numeri storici di win-rate/expectancy (EDGE) erano misurati sui VECCHI target.
     """
     cost = cost_rt_bps(ticker)
     # STOP guidato dalla STATISTICA della strategia (non da regola R/R generica):
@@ -142,9 +146,10 @@ def render(p):
     out.append("")
     out.append(f" Riferimento storico (ai VECCHI target, win-rate 74%): attesa {p['net_exp_pct']:+.2f}% = {p['eur_exp']:+.0f}EUR")
     out.append("")
-    out.append(" PRO:  R/R ora favorevole (T1>=1.5R); T3 lascia correre i vincitori")
-    out.append(" CONTRO: stop NON negoziabile; target piu' larghi = hit-rate piu' basso del 74% storico")
-    out.append("         (misurato sui vecchi target) -> da ri-validare nel backtest")
+    out.append(" PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),")
+    out.append("       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)")
+    out.append(" CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,")
+    out.append("         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato")
     if not p['cost_efficient']:
         out.append(f"         !! poco efficiente per conti piccoli: T1 netto +{p['g1_pct']:.1f}% troppo vicino ai costi")
     if p['confidence']=="BASSA":

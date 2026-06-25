@@ -212,4 +212,36 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Calibrazione percentile anche di `confidence_level`.
 
 ---
+
+## Lezione #7 — 2026-06-25 — Tara i parametri sul backtest, non sull'intuizione; e scegli la metrica giusta
+
+**Evidenza.**
+- Avevo "indovinato" che i target larghi (3,6,10) fossero troppo lontani. Il backtest path-based
+  ha mostrato il contrario sull'expectancy: target piu' larghi = expectancy PIU' alta, perche'
+  l'edge della strategia vive nella **coda destra** (pochi grandi vincitori). L'intuizione era
+  sbagliata; i dati l'hanno corretta.
+- Ma "expectancy massima" non e' l'unica metrica: (3,6,10) ha **mediana per-trade negativa**
+  (>50% dei trade perde, si vive di coda). Per un conto piccolo conta anche la *liscezza*: (2,6,10)
+  porta la mediana a +0.28% e il win-rate a 51% cedendo solo ~15% di expectancy. La scelta del
+  parametro dipende dall'OBIETTIVO (expectancy pura vs curva sostenibile), non da un singolo numero.
+
+**Regola.**
+1. **Prima di cambiare un parametro, simulalo.** Una taratura "a sensazione" e' un bias: costruisci
+   il backtest del parametro stesso (qui: uscita path-based target/stop) e leggi i numeri.
+2. **Simula il MECCANISMO reale, non un proxy.** I forward-return (hold-N) NON validano i target:
+   serve simulare l'uscita a target/stop barra-per-barra, con lo stop controllato prima del target
+   (conservativo) per non barare sull'intrabar.
+3. **Scegli la metrica coerente con l'obiettivo.** Expectancy massima ≠ migliore per tutti:
+   guarda anche mediana, win-rate ed exp/sd. Conti piccoli → preferire mediana positiva e win-rate
+   piu' alti (curva sostenibile) anche a costo di un po' di expectancy.
+4. **Edge nella coda = serve disciplina e numeri.** Se la mediana e' ~0 e l'expectancy viene dai
+   pochi grandi vincitori, il sistema funziona solo su MOLTE operazioni con stop rispettato; un
+   campione piccolo o l'abbandono anticipato distruggono l'edge.
+5. **Lascia il parametro configurabile e documenta il trade-off**, cosi' la scelta resta reversibile
+   (qui: default (2,6,10) "liscio", ma (3,6,10) per expectancy pura a un parametro di distanza).
+
+**Da verificare nei prossimi run.**
+- Validare lo Smart Money come predittore prima di pesarlo; calibrare `confidence_level` su percentili.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
