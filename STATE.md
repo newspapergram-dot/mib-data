@@ -191,12 +191,41 @@ update STATE.
 - **Azione una volta attivo l'allowlist (nessun nuovo codice):**
   `python3 fetch_data.py` (il Piano C scarica EU live) → `python3 score_generator.py` → report RUN4.
 
+---
+
+## Run #4 — 2026-06-25 (EU SBLOCCATO — refresh completo live)
+
+**Sblocco riuscito.** L'utente ha aggiunto i domini all'allowlist di egress
+(`query1.finance.yahoo.com` ecc.). Verificato raggiungibile → il **Piano C** già scritto
+(`get_eod_eu_robust`, API JSON Yahoo v8) ha sbloccato l'intero universo, EU compreso, con
+la barra di **oggi 25-giu**.
+
+### Cosa ho fatto
+1. **Refresh COMPLETO** dell'universo via Piano C (Yahoo v8), 2 anni di storia, fonte unica e
+   coerente: **127/128 ticker** freschi al 2026-06-25 (`data/mib_data.csv`, 64.241 righe).
+   - Unico fallito: `BPSO.MI` (404 Yahoo, cambio simbolo/delisting) → **omesso, non inventato**.
+   - NB: `yfinance` resta KO anche con l'allowlist (usa anche `fc.yahoo.com` per cookie/crumb,
+     non in allowlist). L'endpoint diretto **v8 JSON** è più robusto della libreria → usato quello.
+2. **Ranking rigenerato** (`score_generator.py`) su dati freschi: GOOGL 0.343 · STMPA/STMMI.PA 0.231
+   · EDEN.PA 0.202 · ENGI.PA 0.190 · VIE.PA 0.189 · MRK 0.188 · PRY.MI 0.187 (EU ora pesa molto).
+3. **`regime_filter.csv` rigenerato**: IT/FR/US tutti TREND_UP (x1.0). **Nota fragilità**: S&P 500
+   a −0.09% dalla SMA50 → regime US sul filo, un calo modesto lo ribalta in RISK_OFF.
+4. **REPORT_RUN4** (`data/REPORT_RUN4.txt`): tabella operativa + overlay Smart Money + scan
+   accumulazione/distribuzione, ora **tutto su dati freschi 25-giu** (niente più EU-stale).
+
+### Insight dal Foreground (ora EU fresco)
+- **Accumulazione**: utility/banche IT (SRG.MI, BAMI.MI, BMPS.MI, G.MI, TRN.MI) e FR (CS.PA,
+  VIE.PA). **VIE.PA** (sm +0.68) ed **ENGI.PA** (sm +0.53) = score long *confermato* dal volume.
+- **Distribuzione (veto)**: **AAPL** (sm −1.00, ADL −94%), **AMZN** (−0.78), Stellantis
+  (STLAM/STLAP), **MC.PA**, **LDO.MI**. EDEN.PA è in top score ma in distribuzione → cautela.
+
 ### Watch list per il prossimo run
-- [ ] **Quando `query1.finance.yahoo.com` è raggiungibile**: rifare il refresh EU (2 comandi sopra)
-      e generare REPORT_RUN4 con scan Foreground EU finalmente fresco.
-- [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay).
-      Validarlo nel backtest prima di pesarlo nello score.
-- [ ] Ri-girare `backtest_v3.py` col regime corretto (da Run #2) e misurare l'edge dello Smart Money.
+- [ ] Sorgente dati ora stabile su Yahoo v8: valutare di rendere il Piano C la fonte primaria in
+      `fetch_data.py` (yfinance richiede host extra non in allowlist).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
+- [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
+      validarlo prima nel backtest.
+- [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

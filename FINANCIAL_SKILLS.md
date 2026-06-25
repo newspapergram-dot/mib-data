@@ -111,4 +111,39 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Sblocco EU effettivo (piano FMP-EU o egress) per scan Foreground fresco su IT/FR.
 
 ---
+
+## Lezione #4 — 2026-06-25 — Diagnostica il livello giusto del problema, e fidati della fonte canonica
+
+**Evidenza.**
+- Per 3 run ho aggiunto fallback su fallback (FMP→stooq→Yahoo JSON→Borsa Italiana) contro un
+  403 che NON era del dato ma della **policy di egress** (allowlist di host). La svolta non è
+  arrivata da più codice ma dall'**aggiunta di un dominio all'allowlist** (`query1.finance.yahoo.com`):
+  subito dopo, il Piano C già scritto ha sbloccato **tutto l'universo EU live**. Il codice era
+  pronto da prima; mancava il permesso di rete.
+- `yfinance`, pur con l'allowlist, è rimasto KO: usa host aggiuntivi (`fc.yahoo.com` per
+  cookie/crumb) non in allowlist. L'**endpoint JSON ufficiale v8** (un solo host) ha funzionato:
+  meno dipendenze di rete = più robusto della libreria.
+- Ricalcolando il regime "a mano" ottenevo US=RISK_OFF (S&P 7350 < SMA50 7357), mentre il modulo
+  canonico del repo (`regime_filter.py`) dava US=TREND_UP (slope +4.99%). Differenza nata su un
+  confine sub-0,1%: la mia stima ad-hoc era fragile e **incoerente con la fonte di verità**.
+
+**Regola.**
+1. **Prima di accumulare workaround, isola il livello del fallimento.** Un 403 al CONNECT
+   (ProxyError, prima di qualunque header) = policy di rete, non endpoint/anti-bot. Più scraper
+   non risolvono un blocco di allowlist: la leva è la configurazione di egress, non il codice.
+2. **Costruisci il fallback resiliente, ma riconosci quando il blocco è esterno** e portalo a chi
+   ha la leva (qui: allowlist dell'environment). Codice pronto + leva giusta = sblocco immediato.
+3. **Preferisci l'endpoint con meno dipendenze di rete.** Una libreria che tocca più host fallisce
+   appena uno non è raggiungibile; un singolo endpoint JSON ufficiale è più robusto.
+4. **Per le decisioni operative usa la fonte canonica del repo, non ricalcoli ad-hoc.** Sul confine
+   di una SMA un ricalcolo semplificato può dare il segno opposto. Usa `regime_filter.py` (e segnala
+   la fragilità: "S&P a −0,09% dalla SMA50 → regime sul filo"), non una stima parallela.
+5. **Una fonte unica e coerente batte il mix.** Rifare TUTTO l'universo da Yahoo (vs US-FMP +
+   EU-Yahoo) elimina discrepanze cross-source nei confronti cross-section dello score.
+
+**Da verificare nei prossimi run.**
+- Rendere il Piano C (Yahoo v8) la sorgente primaria in `fetch_data.py`.
+- Monitorare il regime US (S&P sul filo della SMA50).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
