@@ -152,10 +152,25 @@ update STATE.
 - Macro live 25-giu: S&P 7358 (>SMA50>SMA200), VIX 18.0, 10y 4.41% → regime risk-on confermato.
 - Nota dati: barra 25-giu non ancora pubblicata → ultimo EOD consistente 24-giu.
 
+### Addendum Run #3b — Piano C sblocco EU (API Yahoo JSON + header browser)
+- Aggiunta `modules/fmp_source.get_eod_eu_robust()`: interroga l'API pubblica JSON di Yahoo
+  (`query1.finance.yahoo.com/v8/finance/chart/<TICKER>`) con User-Agent da browser reale, su
+  formato ticker Yahoo (es. `ISP.MI`). Scelto l'endpoint JSON ufficiale (non lo scraping HTML
+  di Investing/MarketScreener, fragile e spesso vietato dai ToS).
+- `fetch_data.py`: cascata di fallback per gli EU ora Piano A (FMP) → B (stooq) → **C (Yahoo
+  JSON robust)**; se tutti falliscono, **WARN chiaro e riga OMESSA (mai inventata)**.
+- **Verifica live**: anche il Piano C è bloccato in sandbox — `query1.finance.yahoo.com:443
+  → 403 al CONNECT (policy denial)`. Importante: **lo User-Agent NON aggira un blocco di
+  egress per allowlist di host** (il rifiuto avviene al tunnel CONNECT, prima di ogni header).
+  Il codice è corretto e funzionerà dove l'host è raggiungibile; qui resta None gestito,
+  nessun dato EU fabbricato. Non si tenta di forzare la policy del proxy (vedi README proxy).
+
 ### Watch list per il prossimo run
 - [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay
       nel report). Validarlo nel backtest prima di pesarlo nello score.
-- [ ] Sbloccare EU davvero (piano/egress) per rendere fresco lo scan Foreground sui titoli IT/FR.
+- [ ] Sbloccare EU davvero: serve un ambiente con egress verso Yahoo/stooq **oppure** un piano
+      FMP con copertura EU. Il Piano C è già pronto a funzionare lì. In alternativa, eseguire
+      `fetch_data.py` fuori dalla sandbox.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (da Run #2) e misurare l'edge dello Smart Money.
 
 ---

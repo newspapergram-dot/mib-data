@@ -6,10 +6,13 @@ import os
 # Fallback FMP: usato quando yfinance non restituisce dati (es. proxy che
 # blocca Yahoo con HTTP 403). Richiede FMP_API_KEY; se assente resta no-op.
 try:
-    from modules.fmp_source import get_eod as _fmp_eod, get_eod_eu as _fmp_eod_eu
+    from modules.fmp_source import (get_eod as _fmp_eod,
+                                     get_eod_eu as _fmp_eod_eu,
+                                     get_eod_eu_robust as _eu_robust)
 except Exception:
     _fmp_eod = None
     _fmp_eod_eu = None
+    _eu_robust = None
 
 _EU_SUFFIXES = (".MI", ".PA", ".AS", ".L", ".DE")
 
@@ -67,16 +70,24 @@ for t in TICKERS:
             progress=False,
         )
         if df is None or df.empty:
-            # Fallback quando Yahoo non risponde (es. proxy 403).
-            # EU (.MI/.PA/...) -> catena FMP nativo + stooq; resto -> FMP.
-            _fb_fn = _fmp_eod_eu if t.endswith(_EU_SUFFIXES) else _fmp_eod
-            if _fb_fn is not None:
-                fb = _fb_fn(t, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+            # Cascata di fallback quando Yahoo (yfinance) non risponde (es. proxy 403).
+            _s, _e = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+            _is_eu = t.endswith(_EU_SUFFIXES)
+            # Piano A (FMP nativo) + Piano B (stooq) per gli EU; FMP per il resto.
+            _fb_fn = _fmp_eod_eu if _is_eu else _fmp_eod
+            fb = _fb_fn(t, _s, _e) if _fb_fn is not None else None
+            if (fb is None or fb.empty) and _is_eu and _eu_robust is not None:
+                # Piano C: API pubblica JSON di Yahoo con header da browser reale.
+                fb = _eu_robust(t, _s, _e)
                 if fb is not None and not fb.empty:
-                    frames.append(fb)
-                    print(f"[OK-FALLBACK] {t}: {len(fb)} righe")
-                    continue
-            print(f"[WARN] Nessun dato per {t} (ne yfinance ne FMP)")
+                    print(f"[OK-PIANO-C] {t}: {len(fb)} righe (Yahoo JSON robust)")
+            if fb is not None and not fb.empty:
+                frames.append(fb)
+                print(f"[OK-FALLBACK] {t}: {len(fb)} righe")
+                continue
+            # Nessun piano ha funzionato: avviso CHIARO, nessun dato fabbricato.
+            print(f"[WARN] {t}: nessun dato (yfinance/FMP/stooq/Yahoo-robust tutti falliti) "
+                  f"-> riga OMESSA, non inventata")
             continue
         df = df.reset_index()
         # yfinance a volte restituisce colonne MultiIndex: normalizziamole

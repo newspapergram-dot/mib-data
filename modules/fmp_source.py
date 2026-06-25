@@ -89,6 +89,72 @@ def get_eod_eu(symbol, from_date=None, to_date=None):
     return out if not out.empty else None
 
 
+# Header da browser reale: alcune API pubbliche (es. Yahoo v8) rifiutano le
+# richieste senza User-Agent. NB: questo serve a interrogare correttamente l'API,
+# NON ad aggirare una egress policy: se l'host non e' nell'allowlist del proxy
+# aziendale, il CONNECT viene rifiutato (403) a prescindere dagli header.
+_BROWSER_HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"),
+    "Accept": "application/json,text/plain,*/*",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def get_eod_eu_robust(symbol, from_date=None, to_date=None, range_="3mo"):
+    """PIANO C per i dati EOD EU: interroga l'API pubblica JSON di Yahoo Finance
+    (`query1.finance.yahoo.com/v8/finance/chart/<TICKER>`) con header da browser
+    reale, usando il formato ticker Yahoo gia' in uso nel repo (es. 'ISP.MI').
+
+    Approccio: si usa l'endpoint JSON ufficiale (non lo scraping HTML di
+    Investing.com/MarketScreener, piu' fragile e spesso vietato dai ToS). Lo
+    User-Agent serve perche' Yahoo rifiuta le richieste prive di UA — e' uso
+    legittimo dell'API, non un tentativo di eludere controlli.
+
+    Ritorna un DataFrame [ticker,date,open,high,low,close,volume] oppure None.
+    Non solleva eccezioni e NON fabbrica dati: in caso di fallimento (incluso il
+    403 della egress policy aziendale, che NON e' aggirabile via header) ritorna
+    None e logga un avviso, lasciando al chiamante la gestione."""
+    if requests is None:
+        print(f"[EU-robust] requests non disponibile per {symbol}")
+        return None
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+    params = {"range": range_, "interval": "1d"}
+    try:
+        r = requests.get(url, params=params, headers=_BROWSER_HEADERS, timeout=20)
+    except Exception as e:
+        # Tipico in sandbox: il proxy rifiuta il CONNECT con 403 (host non in allowlist).
+        print(f"[EU-robust] {symbol}: rete/proxy non raggiungibile ({repr(e)[:120]})")
+        return None
+    if r.status_code != 200:
+        print(f"[EU-robust] {symbol}: HTTP {r.status_code} (se 403 = egress policy: "
+              f"host non in allowlist, non aggirabile via header)")
+        return None
+    try:
+        res = r.json()["chart"]["result"][0]
+        ts = res["timestamp"]
+        q = res["indicators"]["quote"][0]
+        df = pd.DataFrame({
+            "date": pd.to_datetime(ts, unit="s").date,
+            "open": q["open"], "high": q["high"], "low": q["low"],
+            "close": q["close"], "volume": q["volume"],
+        })
+    except Exception as e:
+        print(f"[EU-robust] {symbol}: payload Yahoo non interpretabile ({repr(e)[:120]})")
+        return None
+    df = df.dropna(subset=["close"])
+    if df.empty:
+        return None
+    df["ticker"] = symbol
+    df["date"] = df["date"].astype(str)
+    if from_date:
+        df = df[df["date"] >= str(from_date)]
+    if to_date:
+        df = df[df["date"] <= str(to_date)]
+    df = df[["ticker", "date", "open", "high", "low", "close", "volume"]]
+    return df if not df.empty else None
+
+
 def get_fundamentals(symbol):
     """P/E, EPS, market cap, revenue (TTM) per `symbol`. Dict o None.
     Combina metrics-ratios-ttm (P/E, EPS, P/S) e key-metrics-ttm (market cap)."""
