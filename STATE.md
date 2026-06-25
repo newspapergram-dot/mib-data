@@ -219,9 +219,15 @@ la barra di **oggi 25-giu**.
 - **Distribuzione (veto)**: **AAPL** (sm −1.00, ADL −94%), **AMZN** (−0.78), Stellantis
   (STLAM/STLAP), **MC.PA**, **LDO.MI**. EDEN.PA è in top score ma in distribuzione → cautela.
 
+### Addendum Run #4b — Piano C reso sorgente PRIMARIA in `fetch_data.py`
+- `fetch_data.py` riscritto: ordine sorgenti ora **1) Piano C (Yahoo v8 JSON) → 2) yfinance →
+  3) FMP/catena EU → 4) Borsa Italiana**. Logica isolata in `fetch_one()`; esecuzione sotto
+  `if __name__ == "__main__"` (importare il modulo non scarica più nulla — bug latente risolto).
+- `modules/fmp_source.get_eod_eu_robust`: ora se è indicata una finestra date usa
+  `period1`/`period2` (epoch) invece di `range`, così una richiesta su molti mesi non viene
+  troncata. Verificato: finestra 14m → 299 barre (prima ~60). Piano C primario su US/EU/indici OK.
+
 ### Watch list per il prossimo run
-- [ ] Sorgente dati ora stabile su Yahoo v8: valutare di rendere il Piano C la fonte primaria in
-      `fetch_data.py` (yfinance richiede host extra non in allowlist).
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
