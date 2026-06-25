@@ -346,11 +346,44 @@ Simulazione uscita target/stop/timeout su top-quintile; stop = repo (max -5%/2AT
   opzionali per passare percentili live. Ora: **ALTA 9 / MEDIA 26 / BASSA 45** (prima ~tutto BASSA).
 - Portafoglio e schede rigenerati con la confidenza informativa.
 
+---
+
+## Run #9 — 2026-06-25 (modello operativo affidabile: 3 watch-list completate)
+
+Obiettivo: modello operativo **altamente affidabile**. Eseguiti i 3 punti aperti.
+
+### #3 — Backtest sez.7 segmentato sul PORTAFOGLIO selezionato (`backtest_v3.py`)
+- Prima segmentava TUTTI i segnali → VECCHIO==NUOVO. Ora filtra al top-quintile selezionato.
+- Diagnosi reale: **NUOVO bull** n=215 ret **+2.90%** hit 56.7% **Sharpe 4.58**; bear n=24 −1.24%
+  (campione piccolo). VECCHIO bull solo +0.25% hit 43%. → l'edge NUOVO e' reale e **bull-concentrato**
+  ⇒ il regime_filter (operare solo TREND_UP) e' la salvaguardia chiave, ora validata.
+
+### #1 — Smart Money come LEVA DI AFFIDABILITA' (test in `sm_validate.reliability()`)
+Filtro accumulazione (sm>=.33) sul top-quintile migliora OGNI metrica, monotono:
+| selezione (10gg) | n | win% | med% | Sharpe | PF |
+|---|---|---|---|---|---|
+| base top-quintile | 245 | 56.7 | 1.29 | 1.21 | 2.08 |
+| + accumulazione | 193 | **60.1** | **1.64** | **1.55** | **2.61** |
+(20gg: accumulazione win 59.6%, med +3.50%, PF 3.30.) → l'accumulazione e' la leva.
+- **`portfolio_builder` ora tiered**: accumulazione = **CORE** (piena size); neutro = **SAT**
+  (size ridotta ×0.55); distribuzione **esclusa**. Portafoglio: 12 nomi (9 CORE / 3 SAT),
+  esposizione 72% (piu' concentrata sul core affidabile). Ranking pesa SM > score.
+
+### #2 — Confidenza su percentili LIVE
+- `confidence_level(score, ticker, hi, mid)`: il builder passa hi=p90, mid=p60 della selezione
+  corrente. La confidenza in scheda torna informativa (ALTA/MEDIA/BASSA reali, non ~tutto BASSA).
+
+### Onesta' sull'affidabilita'
+Il modello e' **piu' affidabile** (filtro accumulazione validato + gate trend + regime filter),
+ma le metriche sono **in-sample** (un solo periodo 2025-04→2026-06, prevalentemente bull) e
+**DSR 0.794 < 0.95**; l'edge e' bull-concentrato con mediana per-trade modesta. Affidabilita'
+reale = trend gate + regime TREND_UP + accumulazione + stop disciplinato su MOLTE operazioni.
+Manca un test out-of-sample su un ciclo completo (incl. bear vero).
+
 ### Watch list per il prossimo run
-- [ ] Valutare uso dello Smart Money su variante a 20gg (dove correla meglio, 0.078).
-- [ ] Far passare a `confidence_level` i percentili LIVE dal builder (oggi default assoluti tarati).
-- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
-- [ ] Backtest sez.7: segmentare il regime sul portafoglio selezionato (oggi su tutti i segnali).
+- [ ] Out-of-sample / walk-forward su un ciclo che includa un vero bear (oggi pochi dati bear).
+- [ ] Tenere DSR>0.95 come obiettivo: ridurre i gradi di liberta' (meno configurazioni testate).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe, mult → x0.5 (gia' automatico).
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.

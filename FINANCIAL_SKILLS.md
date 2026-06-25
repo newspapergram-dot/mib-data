@@ -267,4 +267,35 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    assolute che non si raggiungono mai (ALTA>=0.45 con score max 0.36) non informano, confondono.
 
 ---
+
+## Lezione #9 — 2026-06-25 — L'affidabilità si costruisce a strati condizionali, e si dichiara in-sample
+
+**Evidenza.**
+- Lo stesso segnale Smart Money, inutile come peso lineare (L#8), diventa la **leva di
+  affidabilita'** come filtro condizionato: top-quintile + accumulazione porta win 57%→60%,
+  Sharpe 1.21→1.55, PF 2.08→2.61 (monotono anche a 20gg). Gli strati (trend gate → regime
+  TREND_UP → top-quintile → accumulazione → stop) si MOLTIPLICANO in condizioni dove l'edge
+  esiste davvero.
+- La sez.7 corretta mostra che l'edge e' **bull-concentrato** (NUOVO Sharpe bull +4.58, bear
+  −1.54 su piccolo campione): l'affidabilita' dipende dall'operare nel regime giusto, non dal
+  titolo in se'. Il regime filter non e' un orpello, e' la condizione abilitante.
+- Tutte le metriche restano **in-sample** (un periodo, prevalentemente bull) con DSR<0.95.
+
+**Regola.**
+1. **L'affidabilita' e' un prodotto di filtri condizionali, non un singolo numero.** Concatena
+   condizioni che restringono al sottoinsieme dove l'edge e' misurato (trend, regime, score,
+   smart money); ogni strato deve MIGLIORARE le metriche del sottoinsieme, altrimenti toglilo.
+2. **Concentra la size dove l'edge e' piu' forte** (CORE accumulazione piena size; SAT neutro
+   ridotta): il sizing e' parte del modello di affidabilita', non un dettaglio.
+3. **Dichiara sempre se le metriche sono in-sample.** "Win 60%, Sharpe 1.55" senza il contesto
+   (un periodo, bull, DSR<0.95) e' fuorviante. Un modello e' "piu' affidabile", non "affidabile",
+   finche' non regge out-of-sample su un ciclo completo.
+4. **Un edge condizionato a un regime richiede il filtro di quel regime in produzione.** Se
+   funziona solo in BULL, opera solo (o a piena size solo) in BULL: e' la salvaguardia, non un
+   limite da aggirare.
+
+**Da verificare nei prossimi run.**
+- Walk-forward/OOS su un ciclo con bear vero; tenere DSR>0.95 riducendo i gradi di liberta'.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

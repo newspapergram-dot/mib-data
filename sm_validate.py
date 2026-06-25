@@ -56,6 +56,37 @@ def run(px_path="data/mib_data.csv"):
     print(f"  spread accumulazione-distribuzione: {hi.mean()-lo.mean():+.3f}%")
 
 
+def reliability(px_path="data/mib_data.csv"):
+    """Test di AFFIDABILITA': il filtro Smart Money migliora il portafoglio selezionato?
+    Metriche (win/median/Sharpe/PF) per top-quintile +/- filtro SM a 10 e 20gg.
+    Esito: l'accumulazione (sm>=.33) alza ogni metrica -> e' la leva di affidabilita'."""
+    px = pd.read_csv(px_path, parse_dates=["date"]).dropna(subset=["close"])
+    sig = bt.build_signals(px, bt.score_new, horizons=(5, 10, 20))
+    frames = {tk: px[px.ticker == tk].sort_values("date").dropna(subset=["close"]).reset_index(drop=True)
+              for tk in sig["ticker"].unique()}
+    sig = sig.copy()
+    sig["sm"] = [_sm(frames[r.ticker], r.t) for r in sig.itertuples()]
+    sig = sig.dropna(subset=["sm"])
+    p80 = sig["score"].quantile(0.80)
+    defs = {
+        "base top-quintile":         lambda d: d[d.score >= p80],
+        "+ non distrib (sm>=-.15)":  lambda d: d[(d.score >= p80) & (d.sm >= -0.15)],
+        "+ accumulazione (sm>=.33)": lambda d: d[(d.score >= p80) & (d.sm >= 0.33)],
+    }
+    for hz in (10, 20):
+        col = f"fwd_{hz}_net"
+        print(f"\n=== AFFIDABILITA' orizzonte {hz}gg (netto) ===")
+        print(f"{'selezione':28s}{'n':>5}{'mean%':>7}{'med%':>7}{'win%':>7}{'Sharpe':>8}{'PF':>6}")
+        for name, fn in defs.items():
+            a = fn(sig)[col].dropna().values/100
+            if len(a) < 10:
+                continue
+            sd = a.std(ddof=1) or 1e-9
+            pf = a[a > 0].sum()/(-a[a < 0].sum()) if (a < 0).any() else np.inf
+            print(f"{name:28s}{len(a):5d}{a.mean()*100:7.2f}{np.median(a)*100:7.2f}"
+                  f"{(a>0).mean()*100:7.1f}{a.mean()/sd*np.sqrt(252/hz):8.2f}{pf:6.2f}")
+
+
 def _sm(g, idx):
     s = smart_money_signal(g.iloc[:idx+1])
     return s["score"] if s["score"] is not None else np.nan
@@ -63,3 +94,4 @@ def _sm(g, idx):
 
 if __name__ == "__main__":
     run()
+    reliability()

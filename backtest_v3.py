@@ -541,10 +541,15 @@ def run(px_path="data/mib_data.csv",
 
     # ── PERFORMANCE PER REGIME ────────────────────────────────────────────────
     log("\n" + "─"*70)
-    log("7. PERFORMANCE PER REGIME (bull / bear via SPY/SMA200)")
+    log("7. PERFORMANCE PER REGIME (bull / bear via SPY/SMA200) — sul PORTAFOGLIO selezionato")
     log("─"*70)
     for name in ["VECCHIO","NUOVO"]:
-        reg = regime_analysis(all_dfs[name], px, f"fwd_10_net")
+        # Si segmenta il portafoglio EFFETTIVAMENTE selezionato (top-quintile dello score),
+        # non tutti i segnali: altrimenti VECCHIO e NUOVO risultano identici e la diagnosi
+        # non riflette la strategia realmente operata.
+        s_all = all_dfs[name]
+        sel = s_all[s_all["score"] >= s_all["score"].quantile(0.80)]
+        reg = regime_analysis(sel, px, "fwd_10_net")
         if reg:
             log(f"\n  {name}:")
             for r_name, m in reg.items():
