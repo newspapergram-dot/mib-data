@@ -73,4 +73,42 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Ri-eseguire il backtest e rileggere la performance per regime ora corretta.
 
 ---
+
+## Lezione #3 — 2026-06-25 — Il Foreground (smart money sui volumi) è un filtro, non un dettaglio
+
+**Evidenza.**
+- Lo score del repo è prezzo-centrico (trend + flow 13F/insider). Aggiungendo un overlay
+  **volume-ponderato** (ADL + CMF + anomalie volume >1.5× media20) emergono contraddizioni
+  che il solo prezzo nasconde:
+  - **AMZN**: score long positivo (+0.21) ma **distribuzione** netta (sm −0.74, ADL −89%,
+    CMF −0.26, volume 1.48×). I grandi fondi stavano *uscendo* mentre il trend appariva ok.
+  - **GE**: score modesto ma **accumulazione** (sm +0.39, ADL +21%) → il volume *conferma* il long.
+  - Scan universo: distribuzione forte su Stellantis e CRM (volume 3.46× su giornata negativa =
+    impronta di vendita istituzionale); accumulazione su banche/utility IT.
+- Conferma che l'analisi del Foreground (chi compra/vende davvero) aggiunge informazione
+  ortogonale al segnale di prezzo, soprattutto come **veto** sui long "belli ma vuoti".
+
+**Regola.**
+1. **Usa lo Smart Money come filtro di conferma/veto sopra lo score**, non come abbellimento:
+   - score long + accumulazione → conferma (size piena nel regime favorevole);
+   - score long + **distribuzione** → declassa o salta: il flusso reale contraddice il prezzo.
+2. **Pesa l'anomalia di volume con la direzione**: spike >1.5× su giornata *positiva* =
+   accumulazione; su giornata *negativa* = distribuzione. Il volume senza direzione è rumore.
+3. **ADL e CMF sono complementari**: ADL (cumulata) coglie il trend strutturale di
+   accumulo/distribuzione; CMF(20) la pressione del mese. Concordi = segnale robusto.
+4. **Prima di pesare un nuovo segnale nello score, validalo nel backtest.** Per ora lo Smart
+   Money è overlay nel report: va misurato (correlazione col forward return) prima di entrare
+   nel ranking come 4° componente.
+
+**Regola operativa sui dati (rafforza Lezione #2).**
+5. **Quando una fonte è bloccata a ogni livello (egress + piano API), implementa comunque il
+   fallback in codice ma NON fabbricare dati.** EU qui è irraggiungibile da yfinance (403),
+   stooq (403) e FMP (piano US-only): la catena `get_eod_eu()` è pronta e riusa il tool stooq
+   esistente, ma i prezzi EU restano marcati "18-giu stale". Codice resiliente ≠ dati inventati.
+
+**Da verificare nei prossimi run.**
+- Backtest dello Smart Money come predittore; se regge, integrarlo in `score_generator`.
+- Sblocco EU effettivo (piano FMP-EU o egress) per scan Foreground fresco su IT/FR.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

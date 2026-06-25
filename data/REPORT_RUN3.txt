@@ -1,0 +1,192 @@
+======================================================================
+ REPORT OPERATIVO — Run #3 — generato 2026-06-25
+======================================================================
+ Dati: ultimo EOD consistente = 24-giu (la barra 25-giu non e' ancora
+       pubblicata). Macro live 25-giu via FMP. EU (.MI/.PA) fermi al 18-giu
+       (vedi sezione SBLOCCO EU).
+ Macro 25-giu: S&P500 7358 (>SMA50 7349 >SMA200 6916) | VIX 18.0 |
+       UST 10y 4.41% 2y 4.11% (2s10s +0.30) -> regime RISK-ON
+ Regime IT/FR/US = TREND_UP (regime_filter.csv) -> moltiplicatore rischio x1.0
+ Capitale ipotizzato: 50.000 EUR
+
+ NOVITA' Run #3: overlay SMART MONEY (Foreground) = ADL + CMF + anomalie
+ volume >1.5x media20. Intercetta accumulazione/distribuzione dei grandi fondi.
+
+----------------------------------------------------------------------------------------------
+ TABELLA OPERATIVA (stop=max(entry*0.95, entry-2ATR); T1=entry*1.0411; T2=entry*1.0822)
+----------------------------------------------------------------------------------------------
+TICK      SCORE     ENTRY      STOP        T1        T2   SMART$  FOREGROUND       FONTE
+GOOGL     0.301   345.290   328.026   359.481   373.673    -0.32  neutro           24-giu FMP
+GS        0.252  1076.910  1023.064  1121.171  1165.432     0.21  neutro           24-giu FMP
+AMZN      0.207   234.270   222.556   243.899   253.527    -0.74  DISTRIBUZIONE    24-giu FMP
+SPM.MI    0.169     4.383     4.164     4.563     4.743    -0.33  DISTRIBUZIONE    18-Jun EU-stale
+GE        0.166   365.880   347.586   380.918   395.955     0.39  ACCUMULAZIONE    24-giu FMP
+STMMI.MI  0.148    67.910    64.514    70.701    73.492     0.17  neutro           18-Jun EU-stale
+
+----------------------------------------------------------------------
+ SMART MONEY — TOP ACCUMULAZIONE (universo, score volume-ponderato)
+----------------------------------------------------------------------
+  BAMI.MI   sm=+1.00  ADLslope= +63.7%  CMF20=+0.272  vol=1.6x  [EU 18-giu]
+  SRG.MI    sm=+0.93  ADLslope= +40.3%  CMF20=+0.171  vol=1.59x  [EU 18-giu]
+  BMPS.MI   sm=+0.74  ADLslope= +57.4%  CMF20=+0.300  vol=0.78x  [EU 18-giu]
+  KER.PA    sm=+0.70  ADLslope= +29.4%  CMF20=+0.030  vol=1.62x  [EU 18-giu]
+  ISP.MI    sm=+0.64  ADLslope= +43.6%  CMF20=+0.205  vol=1.48x  [EU 18-giu]
+  BPE.MI    sm=+0.63  ADLslope= +40.0%  CMF20=+0.211  vol=1.04x  [EU 18-giu]
+  ORCL      sm=+0.61  ADLslope= +36.5%  CMF20=+0.211  vol=0.64x  [EU 18-giu]
+  MB.MI     sm=+0.60  ADLslope= +38.3%  CMF20=+0.194  vol=0.66x  [EU 18-giu]
+
+ SMART MONEY — TOP DISTRIBUZIONE (cautela / no-long)
+  STLAM.MI  sm=-1.00  ADLslope= -60.3%  CMF20=-0.327  vol=1.95x  [EU 18-giu]
+  STLAP.PA  sm=-1.00  ADLslope= -69.3%  CMF20=-0.348  vol=1.83x  [EU 18-giu]
+  IP.MI     sm=-1.00  ADLslope= -58.3%  CMF20=-0.192  vol=1.84x  [EU 18-giu]
+  CRM       sm=-0.97  ADLslope= -73.1%  CMF20=-0.152  vol=3.46x  [EU 18-giu]
+  XLRE      sm=-0.96  ADLslope= -49.2%  CMF20=-0.177  vol=2.38x  [EU 18-giu]
+  A2A.MI    sm=-0.85  ADLslope= -24.3%  CMF20=-0.191  vol=1.71x  [EU 18-giu]
+
+======================================================================
+ SCHEDE OPERATIVE DETTAGLIATE + VERDETTO SMART MONEY
+======================================================================
+
+[prezzo: 24-giu FMP]
+==========================================================
+ GOOGL  |  Score: 0.301  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 345.2900   Stop: 328.0255
+ Target 1: 359.4814 (R/R 0.82:1)   Target 2: 373.6728 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  14 azioni = 4834EUR (9.7% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 242EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +65EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND (Smart Money): score -0.32 | ADL slope -19.5% | CMF20 -0.060 | vol 1.34x media20
+   -> neutro (nessuna impronta forte dei fondi)
+======================================================================
+
+[prezzo: 24-giu FMP]
+==========================================================
+ GS  |  Score: 0.252  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 1076.9100   Stop: 1023.0645
+ Target 1: 1121.1710 (R/R 0.82:1)   Target 2: 1165.4320 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  4 azioni = 4308EUR (8.6% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 215EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +58EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND (Smart Money): score +0.21 | ADL slope +12.1% | CMF20 +0.042 | vol 0.84x media20
+   -> neutro (nessuna impronta forte dei fondi)
+======================================================================
+
+[prezzo: 24-giu FMP]
+==========================================================
+ AMZN  |  Score: 0.207  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 234.2700   Stop: 222.5565
+ Target 1: 243.8985 (R/R 0.82:1)   Target 2: 253.5270 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  21 azioni = 4920EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 246EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND (Smart Money): score -0.74 | ADL slope -89.1% | CMF20 -0.258 | vol 1.48x media20
+   -> ATTENZIONE: smart money in DISTRIBUZIONE -> il Foreground contraddice il long
+======================================================================
+
+[prezzo: 18-Jun EU-stale]
+==========================================================
+ SPM.MI  |  Score: 0.169  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 4.3830   Stop: 4.1638
+ Target 1: 4.5631 (R/R 0.82:1)   Target 2: 4.7433 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  1140 azioni = 4997EUR (10.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 250EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +68EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND (Smart Money): score -0.33 | ADL slope +2.1% | CMF20 -0.017 | vol 2.13x media20
+   -> ATTENZIONE: smart money in DISTRIBUZIONE -> il Foreground contraddice il long
+======================================================================
+
+[prezzo: 24-giu FMP]
+==========================================================
+ GE  |  Score: 0.166  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 365.8800   Stop: 347.5860
+ Target 1: 380.9177 (R/R 0.82:1)   Target 2: 395.9553 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  13 azioni = 4756EUR (9.5% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 238EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +64EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND (Smart Money): score +0.39 | ADL slope +21.2% | CMF20 +0.106 | vol 1.29x media20
+   -> CONFERMA (smart money in accumulazione)
+======================================================================
+
+[prezzo: 18-Jun EU-stale]
+==========================================================
+ STMMI.MI  |  Score: 0.148  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 67.9100   Stop: 64.5145
+ Target 1: 70.7011 (R/R 0.82:1)   Target 2: 73.4922 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  73 azioni = 4957EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 248EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +77EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND (Smart Money): score +0.17 | ADL slope +5.6% | CMF20 +0.073 | vol 0.98x media20
+   -> neutro (nessuna impronta forte dei fondi)
+======================================================================
+
+======================================================================
+ SBLOCCO DATI EU (.MI/.PA) — STATO
+======================================================================
+ Implementato in codice: catena di ripiego pulita in modules/fmp_source.get_eod_eu():
+   1) FMP nativo  2) stooq via volume_tools.fetch_stooq_fallback (RIUSO, no duplicazione)
+ Wired in fetch_data.py: i ticker EU usano automaticamente la catena se yfinance fallisce.
+
+ Stato LIVE in questa sandbox: EU NON sbloccabile ora. Tutte le fonti EU sono
+ bloccate dall'egress policy / piano API:
+   - yfinance (Yahoo)  -> proxy 403 (CONNECT negato)
+   - stooq.com         -> proxy 403 (CONNECT negato)
+   - FMP nativo EU     -> piano 'US-domestic only' (anche ADR STM/E gated)
+ => i prezzi EU restano al 18-giu. Lo sblocco richiede: FMP con copertura EU,
+    oppure egress verso stooq/yahoo, oppure run di fetch_data.py fuori sandbox.

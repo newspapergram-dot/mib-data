@@ -59,6 +59,36 @@ def get_eod(symbol, from_date, to_date):
     return df[["ticker", "date", "open", "high", "low", "close", "volume"]]
 
 
+def get_eod_eu(symbol, from_date=None, to_date=None):
+    """Sblocca i mercati EU (.MI/.PA/...) con una catena di ripiego pulita:
+       1) FMP nativo (get_eod)              -- se il piano copre l'exchange EU
+       2) stooq via volume_tools            -- RIUSO di fetch_stooq_fallback (no duplicazione)
+    Ritorna un DataFrame [ticker,date,open,high,low,close,volume] o None se tutte
+    le fonti sono irraggiungibili (es. egress policy che blocca yahoo/stooq, o
+    piano FMP che esclude i listini EU). Non solleva eccezioni."""
+    df = get_eod(symbol, from_date, to_date)            # 1) FMP nativo
+    if df is not None and not df.empty:
+        return df
+    try:                                                # 2) stooq (riuso del tool esistente)
+        from volume_tools import fetch_stooq_fallback
+    except Exception:
+        return None
+    sq = fetch_stooq_fallback(symbol)
+    if sq is None or sq.empty:
+        return None
+    sq = sq.reset_index().rename(columns={
+        "Date": "date", "Open": "open", "High": "high",
+        "Low": "low", "Close": "close", "Volume": "volume"})
+    sq["ticker"] = symbol
+    keep = [c for c in ["ticker", "date", "open", "high", "low", "close", "volume"] if c in sq.columns]
+    out = sq[keep]
+    if from_date:
+        out = out[out["date"].astype(str) >= str(from_date)]
+    if to_date:
+        out = out[out["date"].astype(str) <= str(to_date)]
+    return out if not out.empty else None
+
+
 def get_fundamentals(symbol):
     """P/E, EPS, market cap, revenue (TTM) per `symbol`. Dict o None.
     Combina metrics-ratios-ttm (P/E, EPS, P/S) e key-metrics-ttm (market cap)."""

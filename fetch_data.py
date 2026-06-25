@@ -6,9 +6,12 @@ import os
 # Fallback FMP: usato quando yfinance non restituisce dati (es. proxy che
 # blocca Yahoo con HTTP 403). Richiede FMP_API_KEY; se assente resta no-op.
 try:
-    from modules.fmp_source import get_eod as _fmp_eod
+    from modules.fmp_source import get_eod as _fmp_eod, get_eod_eu as _fmp_eod_eu
 except Exception:
     _fmp_eod = None
+    _fmp_eod_eu = None
+
+_EU_SUFFIXES = (".MI", ".PA", ".AS", ".L", ".DE")
 
 # === MODIFICA QUI LA TUA WATCHLIST ===
 TICKERS = [
@@ -64,12 +67,14 @@ for t in TICKERS:
             progress=False,
         )
         if df is None or df.empty:
-            # Fallback FMP quando Yahoo non risponde (es. proxy 403)
-            if _fmp_eod is not None:
-                fb = _fmp_eod(t, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+            # Fallback quando Yahoo non risponde (es. proxy 403).
+            # EU (.MI/.PA/...) -> catena FMP nativo + stooq; resto -> FMP.
+            _fb_fn = _fmp_eod_eu if t.endswith(_EU_SUFFIXES) else _fmp_eod
+            if _fb_fn is not None:
+                fb = _fb_fn(t, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
                 if fb is not None and not fb.empty:
                     frames.append(fb)
-                    print(f"[OK-FMP] {t}: {len(fb)} righe (fallback)")
+                    print(f"[OK-FALLBACK] {t}: {len(fb)} righe")
                     continue
             print(f"[WARN] Nessun dato per {t} (ne yfinance ne FMP)")
             continue
