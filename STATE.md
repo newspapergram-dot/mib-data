@@ -389,4 +389,35 @@ Manca un test out-of-sample su un ciclo completo (incl. bear vero).
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.
 
 ---
+
+## Run #10 — 2026-06-25 (validazione walk-forward OUT-OF-SAMPLE del modello)
+
+### `walkforward_oos.py` (NUOVO tool) — anchored walk-forward, no lookahead
+Modello operativo testato OOS: top-quintile (soglia stimata SOLO sull'IS precedente) +
+accumulazione (sm>=0.33) + uscita laddered a target (2,6,10). 4 finestre OOS sequenziali.
+
+| | n | win% | mean% | Sharpe | PF |
+|---|---|---|---|---|---|
+| IS (in-sample) | 193 | 54.4 | +1.52 | 1.20 | 1.84 |
+| **OOS (walk-fwd)** | 108 | **56.5** | **+2.31** | **1.55** | **2.25** |
+
+- **WFE = +1.52** (OOS ≥ IS, ben oltre ~0.5) → l'edge NON e' un artefatto in-sample nel periodo:
+  regge (anzi migliora) fuori campione. Per-fold: 3/4 positive (win 50/57/69%); 1 debole
+  (win 45%, mediana −3.91%, media +0.49%).
+
+### Limite onesto (ancora aperto)
+Periodo unico ~14 mesi **prevalentemente bull**: l'OOS prova la **stabilita' temporale**, NON un
+**ciclo completo con bear vero**. In bear l'edge NUOVO si indebolisce (sez.7) → il `regime_filter`
+(full size solo in TREND_UP) resta la salvaguardia. DSR 0.794 < 0.95 invariato.
+
+### Stato del modello operativo
+Strati: trend gate → regime TREND_UP → top-quintile → accumulazione (CORE/SAT) → stop + target
+laddered (2,6,10). In-sample E walk-forward OOS coerenti e positivi nel periodo disponibile.
+
+### Watch list per il prossimo run
+- [ ] Con dati bear disponibili: ripetere il walk-forward su un ciclo completo.
+- [ ] Tenere DSR>0.95: ridurre i gradi di liberta' (meno configurazioni testate).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe, mult → x0.5 (automatico).
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -298,4 +298,31 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Walk-forward/OOS su un ciclo con bear vero; tenere DSR>0.95 riducendo i gradi di liberta'.
 
 ---
+
+## Lezione #10 — 2026-06-25 — Out-of-sample: la prova del nove, ma solo nel regime che hai visto
+
+**Evidenza.**
+- Il walk-forward anchored (soglia top-quintile stimata solo sull'IS, modello applicato a
+  finestre OOS mai viste) ha dato **WFE +1.52**: l'edge OOS (win 56.5%, Sharpe 1.55) e' pari o
+  superiore all'IS → le scelte fatte (top-quintile + accumulazione + target) NON erano
+  overfitting nel periodo. Una validazione che, stavolta, dice "si'".
+- Ma tutte le finestre cadono in un periodo prevalentemente bull: l'OOS prova la stabilita'
+  temporale, non la robustezza su un ciclo completo. Una finestra su 4 era gia' debole.
+
+**Regola.**
+1. **Stima i parametri SOLO sull'IS e misura sull'OOS mai visto.** La soglia (es. quantile del
+   top-quintile) va calcolata sui dati precedenti, mai sull'intero campione: altrimenti e'
+   lookahead travestito da validazione.
+2. **WFE ~>0.5 = l'edge regge; WFE bassa = era overfit.** Un OOS >= IS e' ottimo, ma diffida
+   se e' MOLTO sopra l'IS su pochi dati: puo' essere fortuna di periodo, non solo assenza di overfit.
+3. **L'OOS vale quanto la varieta' dei dati che contiene.** Un walk-forward tutto in bull NON
+   certifica il comportamento in bear. Dichiara sempre quali regimi l'OOS ha (e non ha) visto.
+4. **Finche' manca un ciclo completo, l'affidabilita' poggia sul filtro di regime.** Se l'edge e'
+   bull-concentrato, e' il regime_filter (operare solo in TREND_UP) a renderlo "operativo", non
+   l'OOS da solo.
+
+**Da verificare nei prossimi run.**
+- Ripetere il walk-forward quando i dati includeranno un bear; tenere DSR>0.95.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
