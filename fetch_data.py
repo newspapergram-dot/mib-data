@@ -3,6 +3,13 @@ import pandas as pd
 from datetime import datetime, timedelta
 import os
 
+# Fallback FMP: usato quando yfinance non restituisce dati (es. proxy che
+# blocca Yahoo con HTTP 403). Richiede FMP_API_KEY; se assente resta no-op.
+try:
+    from modules.fmp_source import get_eod as _fmp_eod
+except Exception:
+    _fmp_eod = None
+
 # === MODIFICA QUI LA TUA WATCHLIST ===
 TICKERS = [
     # --- FTSE MIB (.MI) ---
@@ -57,7 +64,14 @@ for t in TICKERS:
             progress=False,
         )
         if df is None or df.empty:
-            print(f"[WARN] Nessun dato per {t}")
+            # Fallback FMP quando Yahoo non risponde (es. proxy 403)
+            if _fmp_eod is not None:
+                fb = _fmp_eod(t, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+                if fb is not None and not fb.empty:
+                    frames.append(fb)
+                    print(f"[OK-FMP] {t}: {len(fb)} righe (fallback)")
+                    continue
+            print(f"[WARN] Nessun dato per {t} (ne yfinance ne FMP)")
             continue
         df = df.reset_index()
         # yfinance a volte restituisce colonne MultiIndex: normalizziamole

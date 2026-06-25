@@ -324,11 +324,25 @@ def portfolio_sim(signals, col, top_q=0.80, capital=100_000):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def regime_analysis(signals, px, col, sma_window=200):
-    """Segmenta i segnali per regime bull/bear dell'indice (proxy: SPY o SPM.MI)."""
-    bench = (px[px["ticker"].isin(["SPY","^GSPC"])]
-             .sort_values("date").dropna(subset=["close"]))
+    """Segmenta i segnali per regime bull/bear dell'indice (proxy: ^GSPC, fallback SPY).
+
+    NB: si usa UN SOLO benchmark e si deduplica per data. Usare più ticker
+    (es. SPY + ^GSPC insieme) creava un indice-data duplicato: il join espandeva
+    ogni segnale in più righe (una per benchmark) e, con regimi discordi, le
+    partizioni bull e bear diventavano copie quasi identiche dell'intero set
+    (n_bull == n_bear == n_totale). Inoltre rolling(200) su due serie con scale
+    diverse interlacciate rendeva la SMA priva di senso.
+    """
+    bench = pd.DataFrame()
+    for cand in ["^GSPC", "SPY"]:
+        cand_df = px[px["ticker"] == cand]
+        if not cand_df.empty:
+            bench = cand_df.copy()
+            break
     if bench.empty:
         return None
+    bench = (bench.sort_values("date").dropna(subset=["close"])
+                  .drop_duplicates("date"))
     bench["sma"] = bench["close"].rolling(sma_window).mean()
     bench["regime"] = np.where(bench["close"] > bench["sma"], "bull", "bear")
     bench = bench[["date","regime"]].set_index("date")

@@ -36,4 +36,41 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
   BULL" va presa come ipotesi prudente, non come fatto misurato.
 
 ---
+
+## Lezione #2 — 2026-06-25 — Valida la fonte dati e le metriche di partizione prima di fidarti dei numeri
+
+**Evidenza.**
+- Un risultato del backtest "troppo pulito" era in realtà un **bug**: la sez. 7 mostrava
+  bull e bear identici (n=1100 entrambi, stesse metriche). Causa: nel dataset c'erano due
+  benchmark (`SPY` e `^GSPC`) → indice-data duplicato → il join cartesiano duplicava ogni
+  segnale in una copia "bull" e una "bear". Non era un edge: era doppio conteggio. Fix in
+  `backtest_v3.py` (un solo benchmark + dedup); verificato bull=84 / bear=205 su dati reali.
+- La fonte prezzi del repo (**yfinance**) è risultata **bloccata dal proxy (HTTP 403)** e
+  finnhub dava fondamentali vuoti per i big USA. Senza un controllo, la pipeline avrebbe
+  prodotto silenziosamente dati stantii/mancanti. FMP ha colmato il gap (US), ma l'**EU resta
+  gated**: il dataset è aggiornabile solo in parte → ogni numero EU va marcato come "stale".
+- Conferma operativa del rischio: **GOOGL −5.1% in 3 sedute** (363.79→345.29), proprio
+  l'entità dello stop statistico −5%. Lo stop stretto del modello non è teoria.
+
+**Regola.**
+1. **Diffida dei risultati "perfetti o impossibili".** Metriche identiche tra gruppi che
+   dovrebbero differire (bull≡bear) = sospetto bug di join/partizione, non un edge. Controlla
+   chiavi duplicate e blow-up cartesiani (n_righe dopo join > n_righe prima).
+2. **Un solo benchmark per il regime**, deduplicato per data. Mai mescolare serie con scale
+   diverse in una `rolling()`.
+3. **Verifica la freschezza e la provenienza di OGNI dato prima di usarlo.** Etichetta i
+   prezzi con data e fonte (es. "EOD 24-giu FMP" vs "EU stale 18-giu"); non spacciare per
+   aggiornato ciò che non lo è. Se una fonte è bloccata, dichiaralo e usa un fallback esplicito.
+4. **Tieni un fallback dati indipendente** (qui FMP via `modules/fmp_source.py`): una sola
+   fonte è un single point of failure. Il fallback deve degradare in modo grazioso (None, non
+   crash) quando manca la chiave o il piano non copre il mercato.
+5. **Conseguenza sulla Lezione #1:** finché il backtest non viene ri-eseguito col regime
+   corretto, l'affermazione "edge solo in BULL" resta un'ipotesi prudenziale — la vecchia
+   misura era inquinata dal bug. Ri-misurare prima di trattarla come fatto.
+
+**Da verificare nei prossimi run.**
+- Refresh EU completo (piano FMP o `fetch_data.py` fuori sandbox) per coerenza cross-section.
+- Ri-eseguire il backtest e rileggere la performance per regime ora corretta.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

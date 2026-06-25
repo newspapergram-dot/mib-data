@@ -1,1 +1,1 @@
-2026-06-19T12:52:54.069469Z
+2026-06-24T00:00:00Z  # parziale: US+indici via FMP; EU (.MI/.PA) stale 2026-06-19 (yfinance bloccato, FMP EU gated)
