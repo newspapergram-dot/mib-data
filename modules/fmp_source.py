@@ -15,6 +15,9 @@ essere riservati ai piani superiori (lower-tier: US ok, EU gated). In tal caso
 la funzione ritorna None per quel simbolo.
 """
 import os
+import re
+import time
+import random
 import pandas as pd
 
 try:
@@ -153,6 +156,92 @@ def get_eod_eu_robust(symbol, from_date=None, to_date=None, range_="3mo"):
         df = df[df["date"] <= str(to_date)]
     df = df[["ticker", "date", "open", "high", "low", "close", "volume"]]
     return df if not df.empty else None
+
+
+# Mappa ticker Yahoo -> ISIN usato nelle URL pubbliche di Borsa Italiana.
+# Le schede sono indicizzate per ISIN (es. /scheda/IT0000072618.html), non per
+# ticker: per i nomi qui assenti la funzione non puo' costruire l'URL e ritorna None.
+_BORSAIT_ISIN = {
+    "ISP.MI": "IT0000072618",   # Intesa Sanpaolo
+    "ENEL.MI": "IT0003128367",  # Enel
+    "ENI.MI": "IT0003132476",   # Eni
+    "UCG.MI": "IT0005239360",   # UniCredit
+    "STMMI.MI": "NL0000226223", # STMicroelectronics
+    "G.MI": "IT0000062072",     # Generali
+    "TIT.MI": "IT0003497168",   # Telecom Italia
+    "SPM.MI": "IT0000068525",   # Saipem
+}
+
+
+def get_eod_eu_borsait(symbol, isin=None, pause=True):
+    """PIANO D per i dati EOD EU: parsing della scheda pubblica di Borsa Italiana
+    (`https://www.borsaitaliana.it/borsa/azioni/scheda/<ISIN>.html`).
+
+    Fonte: il gestore ufficiale del mercato italiano, che pubblica i prezzi di
+    chiusura/riferimento per il pubblico. Si estrae l'ultimo dato giornaliero
+    (chiusura/prezzo di riferimento + eventuali O/H/L/volume se presenti in pagina).
+
+    Note oneste:
+      - Le schede sono indicizzate per ISIN, non per ticker: serve la mappa
+        `_BORSAIT_ISIN` (o passare `isin=`). Per nomi non mappati -> None.
+      - `pause=True` inserisce un breve ritardo di CORTESIA (rate-limit) per non
+        gravare sul server pubblico: e' buona educazione verso l'host, NON una
+        tecnica per eludere bot-detection o l'egress policy del proxy.
+      - Rispettare i ToS/robots del sito: uso personale e a basso volume.
+      - Non fabbrica dati: su qualsiasi errore ritorna None e logga il motivo
+        specifico (incluso '403 Borsa Italiana') per distinguere endpoint vs policy.
+    """
+    if requests is None:
+        print(f"[Borsa Italiana] requests non disponibile per {symbol}")
+        return None
+    isin = isin or _BORSAIT_ISIN.get(symbol)
+    if not isin:
+        print(f"[Borsa Italiana] {symbol}: ISIN non mappato -> impossibile costruire l'URL")
+        return None
+    url = f"https://www.borsaitaliana.it/borsa/azioni/scheda/{isin}.html?lang=it"
+    if pause:
+        time.sleep(random.uniform(1.0, 2.5))   # cortesia/rate-limit verso il server
+    try:
+        r = requests.get(url, headers=_BROWSER_HEADERS, timeout=25)
+    except Exception as e:
+        # In sandbox: il proxy rifiuta il CONNECT (host non in allowlist) -> ProxyError.
+        print(f"[Borsa Italiana] {symbol}: rete/proxy non raggiungibile ({repr(e)[:120]})")
+        return None
+    if r.status_code != 200:
+        tag = "403 Borsa Italiana" if r.status_code == 403 else f"HTTP {r.status_code}"
+        print(f"[Borsa Italiana] {symbol}: {tag} (403 -> probabile policy/blocco host; "
+              f"altri codici -> possibile endpoint/ISIN errato)")
+        return None
+    html = r.text
+    # Parsing difensivo: le schede espongono coppie label/valore in tabella.
+    def _num(label):
+        m = re.search(label + r"\s*</span>.*?<span[^>]*>\s*([\d\.\,]+)", html,
+                      re.IGNORECASE | re.DOTALL)
+        if not m:
+            m = re.search(label + r".{0,80}?([\d]{1,3}(?:\.\d{3})*,\d+)", html,
+                          re.IGNORECASE | re.DOTALL)
+        if not m:
+            return None
+        raw = m.group(1).replace(".", "").replace(",", ".")  # formato IT 1.234,56
+        try:
+            return float(raw)
+        except ValueError:
+            return None
+    close = _num("Prezzo di Riferimento") or _num("Prezzo Ultimo") or _num("Ultimo Prezzo")
+    if close is None:
+        print(f"[Borsa Italiana] {symbol}: pagina raggiunta ma prezzo non individuato "
+              f"(selettori da adeguare al markup corrente)")
+        return None
+    row = {
+        "ticker": symbol,
+        "date": pd.Timestamp.today().strftime("%Y-%m-%d"),
+        "open": _num("Apertura"),
+        "high": _num("Massimo"),
+        "low": _num("Minimo"),
+        "close": close,
+        "volume": _num("Volume"),
+    }
+    return pd.DataFrame([row])[["ticker", "date", "open", "high", "low", "close", "volume"]]
 
 
 def get_fundamentals(symbol):

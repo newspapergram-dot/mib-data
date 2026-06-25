@@ -165,12 +165,26 @@ update STATE.
   Il codice è corretto e funzionerà dove l'host è raggiungibile; qui resta None gestito,
   nessun dato EU fabbricato. Non si tenta di forzare la policy del proxy (vedi README proxy).
 
+### Addendum Run #3c — Piano D sblocco EU (scheda pubblica Borsa Italiana)
+- Aggiunta `modules/fmp_source.get_eod_eu_borsait()`: parsing della scheda pubblica
+  `borsaitaliana.it/borsa/azioni/scheda/<ISIN>.html` (mappa ticker→ISIN per i nomi principali).
+  Estrae la chiusura/prezzo di riferimento + O/H/L/volume se presenti. UA reale + ritardo di
+  **cortesia/rate-limit** (non per simulare un umano né per eludere protezioni).
+- `fetch_data.py`: cascata EU ora A (FMP) → B (stooq) → C (Yahoo JSON) → **D (Borsa Italiana,
+  solo `.MI`)**; se tutto fallisce, WARN chiaro e riga OMESSA.
+- **Diagnosi endpoint-vs-policy (richiesta esplicita)**: è **POLICY**. Verifica live:
+  `www.borsaitaliana.it:443 → 403 al CONNECT (policy denial)`. Non è arrivato alcun 403 *dal*
+  web server di Borsa Italiana: il rifiuto è del gateway di egress *prima* della richiesta HTTP
+  (ProxyError sul CONNECT). Un blocco anti-bot del sito darebbe invece un vero HTTP 403, che il
+  codice distingue e logga come "403 Borsa Italiana". → cambiare host/header/sleep non aiuta:
+  il vincolo è l'allowlist di egress, non l'endpoint.
+
 ### Watch list per il prossimo run
 - [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay
       nel report). Validarlo nel backtest prima di pesarlo nello score.
-- [ ] Sbloccare EU davvero: serve un ambiente con egress verso Yahoo/stooq **oppure** un piano
-      FMP con copertura EU. Il Piano C è già pronto a funzionare lì. In alternativa, eseguire
-      `fetch_data.py` fuori dalla sandbox.
+- [ ] Sbloccare EU davvero: **è un problema di policy/egress, non di sorgente.** Servono i
+      domini dati nell'allowlist di egress **oppure** un piano FMP con copertura EU, **oppure**
+      eseguire `fetch_data.py` fuori dalla sandbox. I Piani C e D sono già pronti a funzionare lì.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (da Run #2) e misurare l'edge dello Smart Money.
 
 ---
