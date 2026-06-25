@@ -1,0 +1,209 @@
+==============================================================================
+ REPORT OPERATIVO — Run #4 — generato 2026-06-25  [EU LIVE: allowlist egress attiva]
+==============================================================================
+ Dati: refresh COMPLETO via Piano C (Yahoo v8) — EU+US+indici freschi al 2026-06-25.
+ Fonte unica e coerente (no piu' EU-stale). 127/128 ticker (BPSO.MI: 404 Yahoo, omesso).
+
+ REGIME (fonte: regime_filter.py del repo, rigenerato sui dati freschi):
+   IT  FTSEMIB.MI : TREND_UP  (x1.0) — px>SMA50, px>SMA200, slope50_20g=+5.24%
+   FR  ^FCHI      : TREND_UP  (x1.0) — px>SMA50, px>SMA200, slope50_20g=+1.76%
+   US  ^GSPC      : TREND_UP  (x1.0) — px>SMA50, px>SMA200, slope50_20g=+4.99%
+   VIX: 19.2  ->  moltiplicatore rischio applicato x1.0
+   ATTENZIONE: S&P 500 a ridosso della SMA50 (-0.09%) -> regime US fragile,
+   un calo modesto puo' ribaltarlo in RISK_OFF: monitorare prima di size piena.
+
+ Overlay SMART MONEY (Foreground): ADL + CMF + anomalie volume >1.5x media20.
+ Capitale ipotizzato: 50.000 EUR
+
+--------------------------------------------------------------------------------------------------
+ TABELLA OPERATIVA (stop=max(entry*0.95, entry-2ATR); T1=entry*1.0411; T2=entry*1.0822)
+--------------------------------------------------------------------------------------------------
+TICK      SCORE     ENTRY      STOP        T1        T2   SMART$  FOREGROUND
+GOOGL     0.343   341.940   324.843   355.994   370.048    -0.14  neutro
+STMPA.PA  0.231    65.060    61.807    67.734    70.408     0.00  neutro
+STMMI.MI  0.231    65.050    61.797    67.724    70.397     0.14  neutro
+EDEN.PA   0.202    22.060    20.957    22.967    23.873    -0.40  DISTRIBUZIONE
+ENGI.PA   0.190    27.060    26.041    28.172    29.284     0.53  ACCUMULAZIONE
+VIE.PA    0.189    36.150    34.934    37.636    39.121     0.68  ACCUMULAZIONE
+MRK       0.188   125.730   119.444   130.898   136.065    -0.14  neutro
+PRY.MI    0.187   148.100   140.695   154.187   160.274    -0.23  neutro
+
+------------------------------------------------------------------------------
+ SMART MONEY — TOP ACCUMULAZIONE (universo, dati freschi 25-giu)
+------------------------------------------------------------------------------
+  SRG.MI    sm=+0.82  ADLslope= +73.8%  CMF20=+0.404  vol=1.0x
+  CS.PA     sm=+0.73  ADLslope=+100.0%  CMF20=+0.247  vol=0.66x
+  BAMI.MI   sm=+0.70  ADLslope= +61.4%  CMF20=+0.229  vol=0.93x
+  BMPS.MI   sm=+0.69  ADLslope= +50.5%  CMF20=+0.245  vol=0.37x
+  VIE.PA    sm=+0.68  ADLslope= +39.9%  CMF20=+0.281  vol=0.98x
+  G.MI      sm=+0.68  ADLslope= +30.8%  CMF20=+0.341  vol=0.6x
+  TRN.MI    sm=+0.66  ADLslope= +88.3%  CMF20=+0.174  vol=0.88x
+  BMED.MI   sm=+0.63  ADLslope= +34.6%  CMF20=+0.239  vol=0.8x
+
+ SMART MONEY — TOP DISTRIBUZIONE (cautela / no-long)
+  AAPL      sm=-1.00  ADLslope= -94.2%  CMF20=-0.300  vol=1.51x
+  LDO.MI    sm=-1.00  ADLslope= -74.3%  CMF20=-0.265  vol=1.88x
+  STLAP.PA  sm=-0.84  ADLslope= -78.4%  CMF20=-0.481  vol=1.24x
+  STLAM.MI  sm=-0.84  ADLslope= -71.2%  CMF20=-0.495  vol=0.94x
+  MC.PA     sm=-0.81  ADLslope= -56.3%  CMF20=-0.445  vol=0.63x
+  AMZN      sm=-0.78  ADLslope=-100.0%  CMF20=-0.314  vol=1.1x
+
+==============================================================================
+ SCHEDE OPERATIVE + VERDETTO SMART MONEY
+==============================================================================
+
+==========================================================
+ GOOGL  |  Score: 0.343  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 341.9400   Stop: 324.8430
+ Target 1: 355.9937 (R/R 0.82:1)   Target 2: 370.0475 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  14 azioni = 4787EUR (9.6% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 239EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +65EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND: sm -0.14 | ADL slope -8.6% | CMF20 -0.019 | vol 0.83x -> neutro (nessuna impronta forte dei fondi)
+==============================================================================
+
+==========================================================
+ STMPA.PA  |  Score: 0.231  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 65.0600   Stop: 61.8070
+ Target 1: 67.7340 (R/R 0.82:1)   Target 2: 70.4079 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  76 azioni = 4945EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 247EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND: sm +0.00 | ADL slope +4.9% | CMF20 -0.047 | vol 0.69x -> neutro (nessuna impronta forte dei fondi)
+==============================================================================
+
+==========================================================
+ STMMI.MI  |  Score: 0.231  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 65.0500   Stop: 61.7975
+ Target 1: 67.7236 (R/R 0.82:1)   Target 2: 70.3971 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  76 azioni = 4944EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 247EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +77EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND: sm +0.14 | ADL slope +8.3% | CMF20 +0.022 | vol 1.24x -> neutro (nessuna impronta forte dei fondi)
+==============================================================================
+
+==========================================================
+ EDEN.PA  |  Score: 0.202  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 22.0600   Stop: 20.9570
+ Target 1: 22.9667 (R/R 0.82:1)   Target 2: 23.8733 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  226 azioni = 4986EUR (10.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 249EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND: sm -0.40 | ADL slope -26.6% | CMF20 -0.075 | vol 0.74x -> ATTENZIONE: DISTRIBUZIONE -> il Foreground contraddice il long
+==============================================================================
+
+==========================================================
+ ENGI.PA  |  Score: 0.190  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 27.0600   Stop: 26.0411
+ Target 1: 28.1722 (R/R 1.09:1)   Target 2: 29.2843 (R/R 2.18:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  184 azioni = 4979EUR (10.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 187EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND: sm +0.53 | ADL slope +53.1% | CMF20 +0.086 | vol 0.9x -> CONFERMA (accumulazione)
+==============================================================================
+
+==========================================================
+ VIE.PA  |  Score: 0.189  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 36.1500   Stop: 34.9343
+ Target 1: 37.6358 (R/R 1.22:1)   Target 2: 39.1215 (R/R 2.44:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  138 azioni = 4989EUR (10.0% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 168EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +67EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND: sm +0.68 | ADL slope +39.9% | CMF20 +0.281 | vol 0.98x -> CONFERMA (accumulazione)
+==============================================================================
+
+==========================================================
+ MRK  |  Score: 0.188  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 125.7300   Stop: 119.4435
+ Target 1: 130.8975 (R/R 0.82:1)   Target 2: 136.0650 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  39 azioni = 4903EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 245EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +66EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND: sm -0.14 | ADL slope -6.1% | CMF20 -0.046 | vol 0.74x -> neutro (nessuna impronta forte dei fondi)
+==============================================================================
+
+==========================================================
+ PRY.MI  |  Score: 0.187  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 148.1000   Stop: 140.6950
+ Target 1: 154.1869 (R/R 0.82:1)   Target 2: 160.2738 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  33 azioni = 4887EUR (9.8% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 244EUR
+
+ GUADAGNO ATTESO (netto costi 0.40%): +1.35% = +66EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+         !! confidenza BASSA: titolo illiquido o score debole -> valuta lo skip
+==========================================================
+ FOREGROUND: sm -0.23 | ADL slope -12.4% | CMF20 -0.051 | vol 1.08x -> neutro (nessuna impronta forte dei fondi)
+==============================================================================

@@ -8,11 +8,13 @@ import os
 try:
     from modules.fmp_source import (get_eod as _fmp_eod,
                                      get_eod_eu as _fmp_eod_eu,
-                                     get_eod_eu_robust as _eu_robust)
+                                     get_eod_eu_robust as _eu_robust,
+                                     get_eod_eu_borsait as _eu_borsait)
 except Exception:
     _fmp_eod = None
     _fmp_eod_eu = None
     _eu_robust = None
+    _eu_borsait = None
 
 _EU_SUFFIXES = (".MI", ".PA", ".AS", ".L", ".DE")
 
@@ -81,6 +83,11 @@ for t in TICKERS:
                 fb = _eu_robust(t, _s, _e)
                 if fb is not None and not fb.empty:
                     print(f"[OK-PIANO-C] {t}: {len(fb)} righe (Yahoo JSON robust)")
+            if (fb is None or fb.empty) and _is_eu and _eu_borsait is not None and t.endswith(".MI"):
+                # Piano D: scheda pubblica Borsa Italiana (solo titoli .MI, indicizzata per ISIN).
+                fb = _eu_borsait(t)
+                if fb is not None and not fb.empty:
+                    print(f"[OK-PIANO-D] {t}: {len(fb)} righe (Borsa Italiana)")
             if fb is not None and not fb.empty:
                 frames.append(fb)
                 print(f"[OK-FALLBACK] {t}: {len(fb)} righe")

@@ -165,13 +165,67 @@ update STATE.
   Il codice è corretto e funzionerà dove l'host è raggiungibile; qui resta None gestito,
   nessun dato EU fabbricato. Non si tenta di forzare la policy del proxy (vedi README proxy).
 
+### Addendum Run #3c — Piano D sblocco EU (scheda pubblica Borsa Italiana)
+- Aggiunta `modules/fmp_source.get_eod_eu_borsait()`: parsing della scheda pubblica
+  `borsaitaliana.it/borsa/azioni/scheda/<ISIN>.html` (mappa ticker→ISIN per i nomi principali).
+  Estrae la chiusura/prezzo di riferimento + O/H/L/volume se presenti. UA reale + ritardo di
+  **cortesia/rate-limit** (non per simulare un umano né per eludere protezioni).
+- `fetch_data.py`: cascata EU ora A (FMP) → B (stooq) → C (Yahoo JSON) → **D (Borsa Italiana,
+  solo `.MI`)**; se tutto fallisce, WARN chiaro e riga OMESSA.
+- **Diagnosi endpoint-vs-policy (richiesta esplicita)**: è **POLICY**. Verifica live:
+  `www.borsaitaliana.it:443 → 403 al CONNECT (policy denial)`. Non è arrivato alcun 403 *dal*
+  web server di Borsa Italiana: il rifiuto è del gateway di egress *prima* della richiesta HTTP
+  (ProxyError sul CONNECT). Un blocco anti-bot del sito darebbe invece un vero HTTP 403, che il
+  codice distingue e logga come "403 Borsa Italiana". → cambiare host/header/sleep non aiuta:
+  il vincolo è l'allowlist di egress, non l'endpoint.
+
+### Decisione Run #3d — leva scelta: ALLOWLIST DOMINI EGRESS
+- Esito test esaustivo: lo sblocco EU è impossibile in-sandbox per **policy di egress + piano
+  FMP**, non per il codice. Bloccati al CONNECT (403): yfinance, stooq, query1.finance.yahoo.com,
+  borsaitaliana.it; FMP MCP gated su EU (anche senza filtro date; screener gated).
+- Leva scelta dall'utente: **allowlist domini egress**. Dominio minimo e più funzionale da
+  aggiungere: **`query1.finance.yahoo.com`** (copre tutti i .MI/.PA con OHLCV completo via Piano C).
+  Backup opzionali: `query2.finance.yahoo.com`, `stooq.com` (Piano B).
+- NB: la network policy si imposta alla **creazione dell'environment** → ha effetto in una
+  **nuova sessione**, non a caldo (testato: dopo la scelta i domini risultano ancora 403).
+- **Azione una volta attivo l'allowlist (nessun nuovo codice):**
+  `python3 fetch_data.py` (il Piano C scarica EU live) → `python3 score_generator.py` → report RUN4.
+
+---
+
+## Run #4 — 2026-06-25 (EU SBLOCCATO — refresh completo live)
+
+**Sblocco riuscito.** L'utente ha aggiunto i domini all'allowlist di egress
+(`query1.finance.yahoo.com` ecc.). Verificato raggiungibile → il **Piano C** già scritto
+(`get_eod_eu_robust`, API JSON Yahoo v8) ha sbloccato l'intero universo, EU compreso, con
+la barra di **oggi 25-giu**.
+
+### Cosa ho fatto
+1. **Refresh COMPLETO** dell'universo via Piano C (Yahoo v8), 2 anni di storia, fonte unica e
+   coerente: **127/128 ticker** freschi al 2026-06-25 (`data/mib_data.csv`, 64.241 righe).
+   - Unico fallito: `BPSO.MI` (404 Yahoo, cambio simbolo/delisting) → **omesso, non inventato**.
+   - NB: `yfinance` resta KO anche con l'allowlist (usa anche `fc.yahoo.com` per cookie/crumb,
+     non in allowlist). L'endpoint diretto **v8 JSON** è più robusto della libreria → usato quello.
+2. **Ranking rigenerato** (`score_generator.py`) su dati freschi: GOOGL 0.343 · STMPA/STMMI.PA 0.231
+   · EDEN.PA 0.202 · ENGI.PA 0.190 · VIE.PA 0.189 · MRK 0.188 · PRY.MI 0.187 (EU ora pesa molto).
+3. **`regime_filter.csv` rigenerato**: IT/FR/US tutti TREND_UP (x1.0). **Nota fragilità**: S&P 500
+   a −0.09% dalla SMA50 → regime US sul filo, un calo modesto lo ribalta in RISK_OFF.
+4. **REPORT_RUN4** (`data/REPORT_RUN4.txt`): tabella operativa + overlay Smart Money + scan
+   accumulazione/distribuzione, ora **tutto su dati freschi 25-giu** (niente più EU-stale).
+
+### Insight dal Foreground (ora EU fresco)
+- **Accumulazione**: utility/banche IT (SRG.MI, BAMI.MI, BMPS.MI, G.MI, TRN.MI) e FR (CS.PA,
+  VIE.PA). **VIE.PA** (sm +0.68) ed **ENGI.PA** (sm +0.53) = score long *confermato* dal volume.
+- **Distribuzione (veto)**: **AAPL** (sm −1.00, ADL −94%), **AMZN** (−0.78), Stellantis
+  (STLAM/STLAP), **MC.PA**, **LDO.MI**. EDEN.PA è in top score ma in distribuzione → cautela.
+
 ### Watch list per il prossimo run
-- [ ] Integrare lo `smart_money_signal` come 4° componente in `score_generator` (oggi è overlay
-      nel report). Validarlo nel backtest prima di pesarlo nello score.
-- [ ] Sbloccare EU davvero: serve un ambiente con egress verso Yahoo/stooq **oppure** un piano
-      FMP con copertura EU. Il Piano C è già pronto a funzionare lì. In alternativa, eseguire
-      `fetch_data.py` fuori dalla sandbox.
-- [ ] Ri-girare `backtest_v3.py` col regime corretto (da Run #2) e misurare l'edge dello Smart Money.
+- [ ] Sorgente dati ora stabile su Yahoo v8: valutare di rendere il Piano C la fonte primaria in
+      `fetch_data.py` (yfinance richiede host extra non in allowlist).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
+- [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
+      validarlo prima nel backtest.
+- [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -1,1 +1,1 @@
-2026-06-24T00:00:00Z  # parziale: US+indici via FMP; EU (.MI/.PA) stale 2026-06-19 (yfinance bloccato, FMP EU gated)
+2026-06-25T19:54:20.919637Z  # full refresh via Piano C (Yahoo v8) - EU+US+indici, allowlist egress attivo
