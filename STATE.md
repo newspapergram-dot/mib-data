@@ -227,8 +227,51 @@ la barra di **oggi 25-giu**.
   `period1`/`period2` (epoch) invece di `range`, così una richiesta su molti mesi non viene
   troncata. Verificato: finestra 14m → 299 barre (prima ~60). Piano C primario su US/EU/indici OK.
 
+---
+
+## Run #5 — 2026-06-25 (collaudo end-to-end + piano d'azione + audit del processo)
+
+**Test del processo completo** con la nuova sorgente primaria:
+`fetch_data.py` (Piano C, 127/128 ticker in 82s) → `score_generator.py` → `regime_filter.py`
+→ filtro multi-requisito (`data/ACTION_PLAN.txt`).
+
+### Piano d'azione — requisiti applicati (idoneo solo se li rispetta TUTTI)
+R1 gate (px>SMA200 & SMA50>SMA200) · R2 regime mercato TREND_UP · R3 score top quintile
+(≥0.169) · R4 Smart Money non in distribuzione (sm≥0) · R5 confidenza ≥MEDIA · R6 volume
+affidabile · **+ dedup doppie quotazioni stesso emittente**.
+
+**Esito: 1 titolo idoneo → STMMI.MI** (STMicroelectronics, Milano; tenuta vs Parigi perché
+costo round-trip inferiore 0.20% vs 0.40%). Entry 65.05 · Stop 61.80 · T1 67.72 · T2 70.40 ·
+sizing 76 az ≈ 4.944€ (9.9%, x1.0) · rischio max 247€. Foreground neutro (sm +0.14), volume ok.
+Quasi-idonei bocciati quasi tutti su R5 (confidenza BASSA) o R4 (distribuzione: EDEN.PA, UCG.MI).
+
+### ERRORI TROVATI E CORRETTI nel processo
+1. **`regime_filter.py` __main__**: scaricava `mib_data.csv` da raw.githubusercontent/**main**
+   → crash `IncompleteRead` (file da 3.5MB troncato) **e** dati STALE (classificava il regime
+   sul branch main, non sul fresco locale). → FIX: legge `data/mib_data.csv` locale (remoto solo fallback).
+2. **`volume_tools.py` __main__**: identico bug di download da main. → FIX: legge locale.
+3. **Piano d'azione, doppia quotazione**: STMMI.MI e STMPA.PA sono lo STESSO emittente (ISIN
+   NL0000226223) → comparivano entrambi = doppia esposizione nascosta. → FIX: dedup per emittente.
+
+### MARGINI DI MIGLIORAMENTO (segnalati — scelte di design, non ancora applicate)
+4. **Confidenza mal calibrata vs scala score**: soglie assolute 0.20/0.45, ma gli score reali
+   sono compressi (max ~0.29) → quasi tutto "BASSA" e "ALTA" (≥0.45) non si raggiunge MAI →
+   R5 over-filtra. Proposta: soglie percentile-based o ricalibrate alla distribuzione.
+5. **R4 confine netto a 0**: GOOGL sm −0.07 (di fatto neutro) bocciato. Proposta: banda neutra
+   (pass se sm≥−0.15) + tier "alta convinzione" se sm≥+0.33 (accumulazione).
+6. **Score poco dispersivo** (tanh satura presto): il ranking discrimina poco; rivedere la
+   normalizzazione di `score_technical`.
+7. **Profondità storica** `MONTHS_BACK=14` (~298 barre): SMA200 ok ma con poco margine; valutare 18–24 mesi.
+8. **Smart Money non ancora validato nel backtest**: filtra ma manca la prova statistica
+   (correlazione col forward return) prima di pesarlo nello score.
+9. **Conflitto score↔Foreground su GOOGL**: #1 per score (trainato dal flow 13F 0.5, dato a 40+gg)
+   ma Smart Money neutro/negativo → valutare di pesare meno il 13F quando il volume contraddice.
+10. **Watchlist**: `BPSO.MI` dà 404 su Yahoo (probabile cambio simbolo) → aggiornare la lista.
+
 ### Watch list per il prossimo run
+- [ ] Decidere su #4/#5 (calibrazione confidenza e banda R4): cambiano quali titoli risultano idonei.
 - [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
+- [ ] Validare lo Smart Money nel backtest prima di integrarlo nello score.
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.

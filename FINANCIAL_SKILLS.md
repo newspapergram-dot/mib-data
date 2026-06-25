@@ -146,4 +146,38 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
 - Monitorare il regime US (S&P sul filo della SMA50).
 
 ---
+
+## Lezione #5 — 2026-06-25 — Collaudare l'INTERO processo svela errori che i singoli moduli nascondono
+
+**Evidenza.**
+- Eseguendo la pipeline end-to-end sono emersi bug invisibili nei test isolati:
+  due script (`regime_filter.py`, `volume_tools.py`) leggevano i dati da
+  raw.githubusercontent/**main** invece che dal file locale → crash `IncompleteRead`
+  e, peggio, classificavano su dati **stale** del branch, non su quelli appena prodotti.
+  Per giorni il regime poteva essere stato calcolato sui dati sbagliati senza errori visibili.
+- Il piano d'azione consigliava STMMI.MI **e** STMPA.PA: stesso emittente (ISIN
+  NL0000226223) su due borse → doppia esposizione nascosta su un solo nome.
+- Con i requisiti stringenti applicati a dati freschi, **un solo titolo** (STM) li
+  rispetta tutti: le soglie di confidenza (0.20/0.45) sono tarate troppo in alto rispetto
+  alla scala reale degli score (max ~0.29), quindi quasi tutto finisce "BASSA".
+
+**Regola.**
+1. **Testa la catena completa, non i pezzi.** I bug stanno nelle giunzioni (sorgente dati,
+   passaggio tra moduli), non dentro le funzioni pure. Un collaudo end-to-end periodico è
+   parte del processo, non un extra.
+2. **Una pipeline legge i dati che ha appena prodotto, in locale.** Mai far dipendere uno step
+   da una copia remota/branch: è fragile (download che si troncano) e silenziosamente stale.
+3. **Deduplica per EMITTENTE (ISIN), non per ticker.** Doppie quotazioni (Milano/Parigi),
+   ADR e classi multiple sono lo stesso rischio: contarle due volte raddoppia l'esposizione.
+4. **Tara le soglie sulla distribuzione reale dei dati.** Una soglia assoluta ("ALTA ≥0.45")
+   che non viene MAI raggiunta non è un filtro, è un bug logico: usa percentili o ricalibra.
+5. **Pochi titoli idonei è un risultato onesto, non un fallimento.** Con filtri stringenti in
+   un mercato a bassa dispersione è normale che passi 1 nome: meglio 1 segnale pulito che 10
+   forzati. Mostra sempre i "quasi-idonei" e il requisito fallito, per trasparenza e tuning.
+
+**Da verificare nei prossimi run.**
+- Calibrazione confidenza (percentile) e banda neutra su R4 → cambiano i titoli idonei.
+- Validazione statistica dello Smart Money prima di pesarlo nello score.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

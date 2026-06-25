@@ -121,9 +121,22 @@ def risk_mult_for_ticker(ticker, regime_result):
 
 
 if __name__ == "__main__":
-    import urllib.request, io
-    base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
-    px = pd.read_csv(io.StringIO(urllib.request.urlopen(base + "mib_data.csv", timeout=60).read().decode("utf-8", "replace")))
+    import os
+    # Sorgente: il file LOCALE appena rigenerato da fetch_data.py. Usare il file
+    # locale (invece di scaricarlo da raw.githubusercontent/main) e' (1) robusto
+    # — niente download da 3.5MB che si tronca (IncompleteRead) — e (2) corretto:
+    # classifica il regime sui dati FRESCHI della pipeline, non sulla copia stale
+    # del branch main. Il download remoto resta solo come fallback estremo.
+    local = "data/mib_data.csv"
+    if os.path.exists(local):
+        px = pd.read_csv(local)
+        print(f"[regime] sorgente: {local} (locale, fresco)")
+    else:
+        import urllib.request, io
+        base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
+        print("[regime] file locale assente -> fallback download da main")
+        px = pd.read_csv(io.StringIO(
+            urllib.request.urlopen(base + "mib_data.csv", timeout=60).read().decode("utf-8", "replace")))
     res = regime_table(px)
     print()
     for mkt, r in res.items():

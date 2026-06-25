@@ -175,7 +175,17 @@ def volume_quality_report(px: pd.DataFrame, out_path="data/volume_quality.csv"):
 
 
 if __name__ == "__main__":
-    import urllib.request, io
-    base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
-    px = pd.read_csv(io.StringIO(urllib.request.urlopen(base+"mib_data.csv", timeout=60).read().decode("utf-8","replace")))
+    import os
+    # Sorgente: file LOCALE fresco (come fetch_data/score_generator). Evita il
+    # download da raw.githubusercontent/main, che e' (1) fragile (IncompleteRead su
+    # file da MB) e (2) stale (classifica su dati del branch main, non su quelli
+    # appena rigenerati). Download remoto solo come fallback estremo.
+    local = "data/mib_data.csv"
+    if os.path.exists(local):
+        px = pd.read_csv(local)
+    else:
+        import urllib.request, io
+        base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
+        px = pd.read_csv(io.StringIO(
+            urllib.request.urlopen(base+"mib_data.csv", timeout=60).read().decode("utf-8","replace")))
     volume_quality_report(px)
