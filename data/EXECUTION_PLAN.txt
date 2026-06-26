@@ -2,26 +2,26 @@
  FOGLIO D'ESECUZIONE — sessione 2026-06-26  (capitale 50000 EUR)
 ==================================================================================================================
  TICK     AZIENDA                   CONF    ENTRY    STOP  STOP%   AZ VAL EUR   %pf  RISK    T1    T2    T3
- TRN.MI   Terna S.p.A.             BASSA   10.265   9.914  -3.4%  204    2094  4.2%    72    71   200   343
- CA.PA    Carrefour SA             MEDIA   16.385  15.676  -4.3%  305    4997 10.0%   216   239   628  1061
- ISP.MI   Intesa Sanpaolo S.p.A.   MEDIA    5.952   5.699  -4.3%  588    3500  7.0%   149   172   440   738
- ENGI.PA  Engie SA                  ALTA   27.310  26.314  -3.6%  183    4998 10.0%   182   199   527   891
- PST.MI   Poste Italiane S.p.A.    BASSA   28.460  27.190  -4.5%  105    2988  6.0%   133   139   379   646
- REC.MI   Recordati Industria Chi  MEDIA   51.500  50.507  -1.9%   37    1906  3.8%    37    36   103   176
- STMMI.MI STMicroelectronics N.V.  MEDIA   62.600  59.470  -5.0%   43    2692  5.4%   135   282   857  1432
- SPM.MI   Saipem SpA               BASSA    4.174   3.965  -5.0%  359    1498  3.0%    75   132   407   682
- AI.PA    L'Air Liquide S.A.       MEDIA  172.860 166.247  -3.8%   11    1901  3.8%    73    83   214   360
- GLE.PA   Société Générale Sociét  MEDIA   76.780  72.941  -5.0%   35    2687  5.4%   134   150   405   682
- EDEN.PA  Edenred SE                ALTA   22.500  21.375  -5.0%  122    2745  5.5%   137   209   648  1088
- TEN.MI   Tenaris S.A.             MEDIA   24.670  23.436  -5.0%  111    2738  5.5%   137   153   449   756
+ SRG.MI   Snam S.p.A.              BASSA    6.314   6.087  -3.6%  237    1496  3.0%    54    54   151   258
+ VIE.PA   Veolia Environnement SA  MEDIA   36.150  34.934  -3.4%  138    4989 10.0%   168   181   483   819
+ TRN.MI   Terna S.p.A.             BASSA   10.220   9.863  -3.5%  205    2095  4.2%    73    73   205   351
+ BMPS.MI  Banca Monte dei Paschi   BASSA   10.952  10.426  -4.8%  136    1489  3.0%    72    75   204   347
+ ISP.MI   Intesa Sanpaolo S.p.A.   MEDIA    6.030   5.777  -4.2%  580    3497  7.0%   147   169   433   726
+ ENGI.PA  Engie SA                 MEDIA   27.060  26.041  -3.8%  184    4979 10.0%   187   205   543   917
+ CA.PA    Carrefour SA             BASSA   16.255  15.529  -4.5%  138    2243  4.5%   100   111   292   492
+ AZM.MI   Azimut Holding S.p.A.    BASSA   36.580  34.990  -4.3%   57    2085  4.2%    91    94   257   439
+ TEN.MI   Tenaris S.A.             BASSA   25.090  23.835  -5.0%   89    2233  4.5%   112   125   369   622
+ ENEL.MI  Enel SpA                 MEDIA   10.064   9.723  -3.4%  193    1942  3.9%    66    75   194   325
+ SPM.MI   Saipem SpA               MEDIA    4.402   4.182  -5.0%  442    1946  3.9%    97   158   490   822
+ STMMI.MI STMicroelectronics N.V.   ALTA   65.050  61.797  -5.0%   42    2732  5.5%   137   278   845  1413
 ------------------------------------------------------------------------------------------------------------------
- TOTALE                                                                 34744 69.5%  1480  1865  5257  8855
+ TOTALE                                                                 31726 63.5%  1304  1598  4466  7531
 
- Esposizione:        34744 EUR (69% del capitale)
- RISCHIO TOTALE a stop: 1480 EUR (2.96% del capitale) <- max perdita se TUTTI gli stop scattano
- Profitto potenziale: T1 +1865 EUR (+3.7%) | T2 +5257 EUR (+10.5%) | T3 +8855 EUR (+17.7%)
- R/R aggregato:      T1 1.26 | T2 3.55 | T3 5.98
- Disciplina rischio: 2.96% del capitale a rischio = OK (<6%)
+ Esposizione:        31726 EUR (63% del capitale)
+ RISCHIO TOTALE a stop: 1304 EUR (2.61% del capitale) <- max perdita se TUTTI gli stop scattano
+ Profitto potenziale: T1 +1598 EUR (+3.2%) | T2 +4466 EUR (+8.9%) | T3 +7531 EUR (+15.1%)
+ R/R aggregato:      T1 1.23 | T2 3.42 | T3 5.78
+ Disciplina rischio: 2.61% del capitale a rischio = OK (<6%)
 
  ESECUZIONE: ordini limite all'entry; stop OBBLIGATORIO subito dopo il fill (non negoziabile).
  Scala in uscita ai target (laddering); l'edge sta nella coda T2/T3, la mediana per-trade ~0.

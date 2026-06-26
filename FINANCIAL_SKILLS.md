@@ -510,4 +510,25 @@ una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiez
    profitto composto vive nel non-rovinarsi, non nell'alzare la posta su un Sharpe non blindato.
 
 ---
+
+## Lezione #17 — 2026-06-26 — "No data" != "segnale negativo" nella combinazione multi-sorgente
+
+**Evidenza.**
+- `score_flow` ritornava 0.0 quando nessuna fonte (13F/insider/short) copriva un ticker. Poi
+  `combine_signals = mean(technical, flow=0)` dimezzava lo score. L'intero universo EU + i piccoli
+  US avevano score artificialmente compressi (IQR 0.086, mediana 0.116). Dopo il fix: IQR 0.193,
+  mediana 0.200 (+72%). I nomi con forte accumulazione ma senza copertura 13F (SRG.MI, BMPS.MI)
+  passavano sotto p50 e venivano esclusi dal portafoglio a causa del bug.
+- Errore classico: confondere l'assenza di informazione con un dato reale e usarlo per penalizzare.
+
+**Regola.**
+1. **Se una fonte non copre un ticker, il segnale e' `None`, non 0.** Zero e' "ho cercato, il dato
+   e' neutro"; `None` e' "non ho dato per giudicare". La media ponderata deve ignorare il `None`,
+   non includerlo come zero.
+2. **Verifica che il modulo di aggregazione (combine_signals) salti i `None`.** Se fa la media
+   semplice con 0, i ticker meno coperti sono penalizzati in modo invisibile.
+3. **L'auto-audit deve distinguere cause strutturali da actionable.** "6/12 BASSA" e' un allarme
+   diverso se 4 sono illiquidi (strutturale, size gia' ridotta) vs 6 per score (problema di calibrazione).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

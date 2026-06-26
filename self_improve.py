@@ -96,8 +96,18 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
     n_bassa = len(re.findall(r"conf BASSA", txt))
     n_tot = len(re.findall(r"FOREGROUND:", txt))
     if n_tot and n_bassa / n_tot > 0.4:
-        findings.append(("MEDIA", "selezione", f"{n_bassa}/{n_tot} nomi a confidenza BASSA",
-                         "score compresso: rivedere normalizzazione score_technical", "code"))
+        from modules.trade_proposal import ILLIQUID
+        cards = re.findall(r"^\s*([A-Z0-9]+\.?[A-Z]{0,3})\s*\|.*CONFIDENZA:\s*BASSA", txt, re.M)
+        n_illiq = sum(1 for tk in cards if tk in ILLIQUID)
+        n_score_bassa = n_bassa - n_illiq
+        if n_score_bassa > 0:
+            findings.append(("MEDIA", "selezione",
+                             f"{n_bassa}/{n_tot} nomi conf BASSA ({n_illiq} illiquidi, {n_score_bassa} per score)",
+                             "rivedere normalizzazione score_technical o soglie confidenza", "code"))
+        else:
+            findings.append(("NOTA", "selezione",
+                             f"{n_bassa}/{n_tot} nomi conf BASSA (tutti illiquidi: costi alti -> riduzione size gia' attiva)",
+                             "strutturale: la selezione premia l'accumulazione su titoli meno liquidi", "data"))
     if re.search(r"DISTRIBUZIONE", txt):
         findings.append(("BASSA", "selezione", "almeno un nome in distribuzione tra i selezionati",
                          "verificare la soglia smart-money (sm>=-0.15)", "code"))

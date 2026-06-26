@@ -800,4 +800,48 @@ precisa, evitando di "gamare" il numero.
 - [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
 
 ---
+
+## Run #21 — 2026-06-26 (fix score compression: flow=0 bug + auto-audit migliorato)
+
+Prossima mossa indicata dall'auto-audit Run #20: "6/12 nomi a confidenza BASSA → score compresso".
+
+### Bug trovato e corretto: `score_flow` trattava "no data" come "segnale negativo"
+
+**Causa radice**: `score_flow_13f`, `_insider`, `_short` ritornavano **0.0** sia per "nessun dato
+disponibile" (EU, small cap senza copertura 13F/insider) sia per "dato trovato, valore neutro".
+Poi `combine_signals = mean(technical, flow=0)` **dimezzava lo score** di ogni ticker senza
+copertura flow — la maggior parte dell'universo EU + molti US.
+
+**Fix**: le sotto-funzioni ora ritornano `None` quando non trovano dati. `score_flow` aggrega
+solo le componenti con dato reale; `None` se nessuna fonte copre il ticker. `apply_decay` passa
+`None` inalterato. `combine_signals` (gia' predisposto) ignora i `None` e usa solo il tecnico.
+
+**Effetto sulla distribuzione**:
+| metrica | PRIMA | DOPO |
+|---|---|---|
+| mediana score | 0.116 | **0.200** |
+| IQR | 0.086 | **0.193** (+124%) |
+| p90 | 0.190 | **0.356** |
+| max | 0.356 | **0.599** |
+
+### Effetto sul portafoglio
+- **ENTRATI**: SRG.MI (Snam, sm +0.82 CORE) e BMPS.MI (Monte Paschi, sm +0.69 CORE) — avevano
+  score dimezzato sotto p50, ora sopra → selezionati per la forte accumulazione.
+- **USCITI**: REC.MI e FBK.MI — SAT con bassa convinzione, spinti fuori dal cap 12 dai nuovi CORE.
+- **Composizione**: da 7 CORE / 5 SAT a **9 CORE / 3 SAT** (piu' concentrato sulla parte affidabile).
+- **Rischio**: 2.61% a stop (OK <6%), R/R T2 3.42.
+
+### Auto-audit migliorato
+- `self_improve.py` ora distingue BASSA-per-illiquidita' (strutturale, size gia' ridotta) da
+  BASSA-per-score (actionable). Risultato: 6/12 BASSA = **4 illiquidi** (SRG.MI, TRN.MI, BMPS.MI,
+  AZM.MI: costi alti, ma selezionati per accumulation → BASSA e' un avviso corretto) + **2 per score**
+  (CA.PA 0.242, TEN.MI 0.241 marginalmente sotto p60=0.253). La diagnosi "score compresso" ora punta
+  al problema reale, non a un artefatto illiquidita'.
+
+### Watch list
+- [ ] I 4 ILLIQUID nel book sono un trade-off cosciente (accumulazione forte vs costi): monitorare il fill.
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
