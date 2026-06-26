@@ -3,7 +3,9 @@
 ============================================================================================
  MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.
  Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.
- Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).
+ ROBUSTEZZA CICLO COMPLETO 2018-2026 (robustness_consolidate): Sharpe 1.0, MaxDD -13.8%,
+   CAGR +14%, PSR 0.98 (edge REALE) ma DSR<0.95 (non blindato) -> SIZE MODERATA, mai leverage:
+   il profitto si protegge col gate di regime + STOP, non con un Sharpe alto (bull-concentrato).
  QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).
    Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati
    NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).

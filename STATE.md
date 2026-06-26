@@ -766,4 +766,38 @@ Ogni sessione: genera il piano + foglio rischio + grafici + si auto-critica e in
 - [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
 
 ---
+
+## Run #20 — 2026-06-26 (consolidamento robustezza: DSR del modello OPERATIVO sul ciclo completo)
+
+Prossima mossa indicata dall'auto-audit: consolidare la robustezza (DSR>0.95). Eseguita con analisi
+precisa, evitando di "gamare" il numero.
+
+### Il problema misurato
+- `backtest_v3` sez.2-3 calcola Sharpe/DSR sul top-quintile **GREZZO** (no gate regime, no
+  accumulazione, no stop): sul ciclo 2018-2026 da' Sharpe **0.17 / MaxDD -95.7%** (conferma L#11).
+  Ma NON e' cio' che si opera. Misurare il segnale grezzo invece del modello = diagnosi sbagliata.
+
+### `robustness_consolidate.py` (NUOVO) — DSR del modello che si OPERA davvero
+- Riusa la serie M2M giornaliera del modello operativo (go-flat regime UP + top-quintile +
+  accumulazione, da hedge_overlay) sul ciclo completo: **1022 giorni op., 2164 trade, 2019-2026**.
+- Pannello: **Sharpe 1.00 | MaxDD -13.8% | CAGR +14.4% | PSR 0.977 | MinTRL 2.8 anni**.
+- DSR a conteggi-trial multipli (anti-gaming, si guarda il N piu' severo): **0.924 (N=6) ->
+  0.855 (N=15)** -> NON supera 0.95.
+- Output: `data/ROBUSTNESS_PANEL.txt`.
+
+### Verdetto onesto (chiude la watch-list DSR)
+- L'edge e' **REALE** (PSR 0.98 = Sharpe vero quasi certamente >0; Sharpe 1.0 / MaxDD -13.8% su un
+  ciclo CON bear 2020/2022) ma **non blindato** a multiple-testing (DSR<0.95). Non si forza il numero.
+- Implicazione operativa (gia' nel modello): **size MODERATA, mai leverage**; il profitto si protegge
+  col **gate di regime + STOP**, non con un Sharpe alto. Aggiornati header di `portfolio_builder` e la
+  nota di `self_improve` perche' citino queste metriche REALISTICHE di ciclo completo (non le
+  bull-gonfiate 14-mesi: Sharpe 1.89 era artefatto di periodo).
+
+### Watch list
+- [ ] DSR>0.95 non raggiungibile onestamente con i dati attuali: rivedere solo se arriva piu' storia
+      o si riducono i gradi di liberta' del modello senza intaccare l'edge. Per ora: chiuso, size moderata.
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

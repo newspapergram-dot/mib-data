@@ -1,0 +1,19 @@
+==============================================================================
+ ROBUSTEZZA DEL MODELLO OPERATIVO (go-flat UP + top-quintile + accumulazione)
+ Ciclo completo: 2019-03-01 -> 2026-06-11 | 1022 giorni operativi | 2164 trade
+==============================================================================
+ Sharpe annuo:   +1.00
+ MaxDrawdown:    -13.8%
+ CAGR:           +14.4%
+ PSR (vs SR=0):  0.977  (prob. che lo Sharpe vero sia >0)
+ MinTRL:         695 giorni (2.8 anni)
+ DSR per numero di strategie provate (anti-gaming, conservativo = N piu' alto):
+   N= 6 trial -> DSR 0.924  (SR0 +0.018)  [no]
+   N=10 trial -> DSR 0.884  (SR0 +0.025)  [no]
+   N=15 trial -> DSR 0.855  (SR0 +0.030)  [no]
+------------------------------------------------------------------------------
+ VERDETTO:
+   DSR 0.855 < 0.95: edge reale (PSR 0.98) ma NON blindato a
+   multiple-testing. Onesto: tenere size moderata, l'edge vive nel gate di regime
+   + stop, non in un Sharpe alto. Il profitto si protegge con la disciplina, non col leverage.
+==============================================================================

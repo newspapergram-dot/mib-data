@@ -99,8 +99,11 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
                          "verificare la soglia smart-money (sm>=-0.15)", "code"))
 
     # 5) ASSUNZIONI NON BLINDATE (onesta' statistica) ----------------------
-    findings.append(("NOTA", "robustezza", "edge in-sample, DSR<0.95 (0.794): non blindato",
-                     "ridurre gradi di liberta'; walk-forward su ciclo completo", "stats"))
+    # Consolidato su ciclo completo (robustness_consolidate, Run #20): modello operativo
+    # Sharpe 1.0 / MaxDD -13.8% / PSR 0.98 (edge REALE) ma DSR 0.86-0.92 (<0.95, non blindato).
+    findings.append(("NOTA", "robustezza", "edge reale (PSR 0.98) ma DSR<0.95 sul ciclo completo",
+                     "size moderata: l'edge vive nel gate di regime+stop, non nel Sharpe; mai leverage",
+                     "stats"))
 
     # 6) COPERTURA GRAFICI -------------------------------------------------
     picks = set(re.findall(r"^\s*([A-Z0-9]+\.?[A-Z]{0,3})\s*\|\s*Score:", txt, re.M))
