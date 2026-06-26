@@ -450,4 +450,36 @@ non monotono): tienila come leva prudente, non come edge. Un'altra prova che piu
 una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiezza si sgonfia.
 
 ---
+
+## Lezione #15 — 2026-06-26 — Allargare l'universo non e' gratis: piu' nomi diluiscono se non li filtri
+
+**Evidenza.**
+- Tentazione: aggiungere ~33 "unicorni" growth (alto unicorn_score) al `TICKERS` per piu' rendimento.
+  Backtest (unicorn_validate, 2018-2026, score momentum validato sugli unicorni):
+  - unicorni top-quintile: ret +0.34%/+1.05% (10/20gg), **Sharpe 0.15/0.22**;
+  - mega-cap top-quintile (stesso modello): ret +0.89%/+2.01%, **Sharpe 0.64/0.68**.
+  -> dump indiscriminato di high-beta **DILUISCE** l'edge (Sharpe quasi triplo sui mega-cap).
+- Ma DENTRO il top-quintile, un GATE point-in-time separa nettamente: iper-crescita (rev YoY>=25%
+  PIT) vs crescita decelerata (<25%):
+  - BULL: +0.60%/+1.58% vs **-0.68%/+0.06%** (i nomi a crescita svanita = trappole momentum);
+  - BEAR: +2.68%/+4.37% (win 56-64%) vs +1.34%/+0.51%. Spearman crescita↔ritorno bear +0.12/+0.20.
+
+**Regola.**
+1. **Piu' ticker != piu' edge.** Allargare l'universo con nomi high-beta non filtrati abbassa lo
+   Sharpe del sistema: il rumore aggiunto supera il segnale. Misura SEMPRE l'effetto sull'edge
+   (Sharpe, non solo il rendimento medio) prima di ampliare la watchlist operativa.
+2. **Se aggiungi high-beta, aggiungi anche il gate che li rende edge.** Per gli unicorni il gate e'
+   la crescita ricavi PIT (>=25%): senza, il momentum su un growth decelerato e' una trappola.
+   Con, e' uno SLEEVE valido (ma high-beta -> satellite a size ridotta, dentro il gate di regime).
+3. **Il profilo "growth" e' un gate point-in-time, non un'etichetta statica.** Un nome era un
+   unicorno; conta se lo e' ANCORA alla data del segnale (rev YoY corrente, da SEC filed<=data).
+   La crescita passata non si compra: si compra quella ancora in corso.
+4. **Uno screener di scoperta (L precedenti su unicorn_screener) NON e' un segnale finche' non lo
+   backtesti.** Il profilo fondamentale alto non basta: solo il backtest ha detto DOVE (gate
+   crescita) e COME (satellite high-beta) usarlo. Scoperta -> validazione -> regola operativa.
+5. **Zero candidati che passano il gate e' un output legittimo** (ribadisce L#5). Oggi 0 unicorni
+   passano (i leader di momentum hanno crescita svanita, gli iper-cresciti non hanno momentum):
+   "non comprare" e' una decisione, non un fallimento del tool.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

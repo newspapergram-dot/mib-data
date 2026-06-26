@@ -654,4 +654,53 @@ riconfermare il filtro PIT difensivo (Run #14) su un campione bear piu' ampio.
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #17 — 2026-06-26 (EU PIT profondo: bloccato; integrazione unicorni: backtest del profilo)
+
+Due punti in ordine.
+
+### #1 — EU PIT piu' profondo: NON ottenibile ora (limite strutturale + allowlist)
+- Fonte naturale per il PIT-EU vero: `filings.xbrl.org` (repository ESEF di XBRL International, con
+  API JSON). **Bloccato dall'allowlist di egress** (ProxyError al CONNECT, stesso pattern L#3/#4).
+- Limite STRUTTURALE oltre l'accesso: il mandato ESEF parte da **FY2020** -> la storia EU pre-2020
+  NON esiste in forma XBRL standardizzata in nessuna fonte gratuita. Quindi anche sbloccando l'host
+  si otterrebbe al massimo 2020+ (true PIT, meglio del lag-approx Yahoo, ma non piu' profondo).
+- Decisione: non si fabbrica. Leva = aggiungere `filings.xbrl.org` all'allowlist (per true-PIT EU
+  2020+); profondita' pre-2020 EU resta strutturalmente impossibile. Resta Yahoo (~4 anni) come base.
+
+### #2 — `unicorn_validate.py` (NUOVO): gli unicorni sono tradeable nel modello?
+Prezzi 2018-2026 (Yahoo v8, 33 candidati score>=50) + score momentum validato + crescita ricavi
+**POINT-IN-TIME da SEC** (filed<=data segnale) + segmentazione per regime.
+
+**Risultati (top-quintile, netto):**
+| selezione (10gg / 20gg) | mean% | Sharpe |
+|---|---|---|
+| unicorni top-quintile | +0.34 / +1.05 | 0.15 / 0.22 |
+| mega-cap top-quintile (confronto) | +0.89 / +2.01 | 0.64 / 0.68 |
+
+- **Buttare gli unicorni nell'universo DILUISCE il modello** (Sharpe 0.15-0.22 vs 0.64-0.68): sono
+  high-beta, piu' rumorosi. Un dump indiscriminato peggiora l'edge.
+- **Il gate di CRESCITA PIT e' il separatore** (dentro il top-quintile):
+  - BULL: iper-crescita (rev YoY>=25%) +0.60%/+1.58% vs crescita decelerata (<25%) **-0.68%/+0.06%**
+    -> i nomi a crescita svanita sono **trappole momentum** (ritorno bull negativo).
+  - BEAR: iper-crescita +2.68%/+4.37% (win 56-64%) vs bassa +1.34%/+0.51%. Crescita premiata di piu'
+    nel risk-off (Spearman crescita↔ritorno bear +0.12/+0.20 vs bull +0.05).
+- **Verdetto**: NON aggiungere gli unicorni al `TICKERS` operativo (diluirebbe il modello validato).
+  Trattarli come **SLEEVE high-beta GATED**: un segnale momentum su un unicorno vale solo se il nome
+  e' ANCORA in iper-crescita (rev YoY>=25% PIT); size ridotta, dentro il gate di regime.
+
+### Artefatto operativo: `unicorn_validate.live_sleeve()` -> `data/unicorn_sleeve.csv`
+- Applica il gate ai dati correnti. **Oggi: 0 nomi passano** — i leader di momentum (FTNT/PANW/CRWD)
+  hanno crescita decelerata (<25%, la trappola), gli iper-cresciti (DDOG 28%/AFRM 39%/NET 30%) non
+  sono in top-quintile di momentum ora. "Nessun unicorno da comprare oggi" e' un risultato onesto
+  (L#5), non un bug: il gate rifiuta sia le trappole sia i growth senza momentum.
+- Report completo: `data/unicorn_validate.txt`. Prezzi in `data/mib_data_unicorns.csv` (gitignored).
+
+### Watch list per il prossimo run
+- [ ] Sleeve unicorni: ricontrollare quando un iper-grower (rev YoY>=25%) entra in momentum top-quintile.
+- [ ] Se si vuole operare lo sleeve: wiring opzionale in portfolio_builder come satellite a size ridotta.
+- [ ] EU true-PIT 2020+: possibile solo con `filings.xbrl.org` in allowlist.
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
