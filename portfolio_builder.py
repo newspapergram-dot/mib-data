@@ -22,6 +22,20 @@ from modules.fundamentals import _load_pit_csv, pit_quality_score
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
 
 
+def _load_fundamentals():
+    """Merge fondamentali per il fq tier: USA (SEC PIT) + EU (Yahoo best-effort).
+    Le righe EU hanno gli stessi campi-metrica (net_margin, current_ratio, ocf_margin, roe)
+    che pit_quality_score usa. USA ha precedenza se un ticker comparisse in entrambi."""
+    rows = {}
+    if os.path.exists("data/fundamentals_eu.csv"):
+        import csv as _csv
+        with open("data/fundamentals_eu.csv", newline="") as f:
+            for r in _csv.DictReader(f):
+                rows[r["ticker"]] = r
+    rows.update(_load_pit_csv())   # USA sovrascrive eventuali collisioni
+    return rows
+
+
 def _fundamental_tier(tk, pit_rows, defensive=False):
     """Leva di size da QUALITA' FONDAMENTALE PIT (SEC EDGAR), validata su ciclo completo
     2018-2026 in `pit_validate.py`.
@@ -38,7 +52,8 @@ def _fundamental_tier(tk, pit_rows, defensive=False):
     TREND_UP). In TREND_UP resta NEUTRA (label informativo, size piena): non penalizzare la
     qualita' bassa quando il momentum la premia.
 
-    Restituisce (fq_mult, fq_label). USA only; EU=`n/d` neutro (no SEC coverage, N/A != veto).
+    Restituisce (fq_mult, fq_label). Copre USA (SEC PIT vero) ed EU (Yahoo best-effort, restated,
+    NON PIT vero — vedi fundamentals_eu.py); chi non ha dati resta `n/d` neutro (N/A != veto).
     Coerente con Lezione #6 (scala la size, non escludere) e #9 (leva condizionale, non blend).
     """
     row = pit_rows.get(tk)
@@ -82,7 +97,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     regime_by_mkt = {r.market: r.regime for r in rf.itertuples()}
     mult_by_mkt = {r.market: r.risk_mult for r in rf.itertuples()}
     p50, p60, p80, p90 = (score["score"].quantile(q) for q in (0.50, 0.60, 0.80, 0.90))
-    pit_rows = _load_pit_csv()        # fondamentali PIT SEC EDGAR (USA); {} se assente
+    pit_rows = _load_fundamentals()   # fondamentali USA (SEC PIT) + EU (Yahoo, best-effort)
 
     rows = []
     for r in score.itertuples():

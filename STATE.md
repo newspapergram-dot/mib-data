@@ -615,4 +615,43 @@ declassati (rev $52B -> nessun bonus dimensione). Output: `data/unicorn_candidat
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #16 — 2026-06-26 (fondamentali EU best-effort + riconferma bear con piu' dati)
+
+**Obiettivo:** chiudere le due watch-list aperte: (1) estendere i fondamentali all'EU; (2)
+riconfermare il filtro PIT difensivo (Run #14) su un campione bear piu' ampio.
+
+### #1 — `fundamentals_eu.py` (NUOVO): copertura EU best-effort
+- Limite strutturale confermato: per l'EU NON esiste un equivalente gratuito di data.sec.gov
+  (ESEF non ha API aggregata aperta). Unico ripiego praticabile: endpoint pubblico Yahoo
+  fundamentals-timeseries (host query1, in allowlist) — verificato funzionante su .MI/.PA/.AS.
+- **NON e' PIT vero** (da dichiarare sempre): `asOfDate` = fine periodo, valori RESTATED. Per il
+  backtest si approssima la disponibilita' = fine periodo + **120gg** (lag regolatorio EU,
+  Transparency Directive) per evitare lookahead. Fonte `yahoo_ts`, form `AR` (vs SEC PIT vero).
+- Risultato: **79/80 ticker EU** (solo BPSO.MI ko), 317 osservazioni (~4 anni, limite Yahoo ->
+  copre il bear 2022 ma non 2018/2020). Metriche sensate: RMS nm 28%/ROE 24%, RNO/STLA in perdita,
+  banche current_ratio N/A. Output: `data/fundamentals_eu.csv` + `data/fundamentals_eu_history.csv`.
+- Wiring: `backtest_v3.load_pit` fonde la storia EU (schema identico); `portfolio_builder` fonde
+  lo snapshot EU -> i nomi EU ora hanno un fq tier reale (Q+/Q/Q-) invece di `n/d`. La leva resta
+  DIFENSIVA: in TREND_UP neutra (label informativo), morde solo in PULLBACK (RNO->x0.85, STLA->x0.70).
+
+### #2 — Riconferma del filtro difensivo con piu' dati (124 ticker con fondamentali, bear n 168->276)
+| | Run #14 (US-only) | Run #16 (US+EU) |
+|---|---|---|
+| BEAR 10gg (PIT>=0.60 vs base) | +0.63% / Sharpe +0.48 | **+0.18% / +0.17** (aiuta) |
+| BEAR 20gg | +0.82% / +0.34 | **+0.09% / +0.04** (aiuta) |
+| BULL 10/20gg | peggiora | neutro / peggiora |
+- **Il SEGNO regge** (qualita' = leva difensiva: aiuta in bear, neutra/contro in bull) -> l'integrazione
+  regime-conditional e' confermata nella direzione. **Ma le magnitudini si ridimensionano molto**: la
+  stima US-only era ottimistica (classico effetto L#11). Spearman ~0 in entrambi i regimi -> e' un
+  debole effetto-SOGLIA, non un predittore monotono. Non sovrastimare; tenere come leva prudente.
+- Caveat: i +108 segnali bear aggiunti sono in larga parte EU 2022 (restated/lag-approx, piu' rumorosi),
+  un solo episodio bear. La riconferma rafforza il segno, non promuove il fattore a edge forte.
+
+### Watch list per il prossimo run
+- [ ] Bear ancora concentrato (2020 US + 2022): servono piu' episodi per stringere le stime.
+- [ ] EU solo ~4 anni (limite Yahoo): per backtest PIT-EU piu' profondo serve fonte ESEF storica.
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

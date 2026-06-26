@@ -441,5 +441,13 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    (qui i nomi in perdita) sono di solito beta/coda, non un fattore da sfruttare: alta varianza,
    crolla per primo in un bear vero. Non confondere la coda fortunata con un segnale.
 
+**Aggiornamento Run #16 (riconferma con piu' dati).** Allargato il campione (US PIT + EU,
+bear n 168->276), il SEGNO del filtro difensivo regge (aiuta in bear, neutro/contro in bull) ma
+le MAGNITUDINI crollano: bear 10gg da +0.63%/Sharpe+0.48 a **+0.18%/+0.17**; Spearman ~0 in
+entrambi i regimi. Conferma il punto 3 nella sua forma piu' forte: la stima US-only era ottimistica.
+La leva resta direzionalmente giusta (difensiva, regime-conditional) ma e' DEBOLE (effetto-soglia,
+non monotono): tienila come leva prudente, non come edge. Un'altra prova che piu' dati raffreddano
+una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiezza si sgonfia.
+
 ---
 *Le attività di ogni run sono registrate in `STATE.md`.*

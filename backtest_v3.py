@@ -39,15 +39,26 @@ EMC = 0.5772156649015329          # costante di Eulero-Mascheroni
 # FONDAMENTALI POINT-IN-TIME (SEC EDGAR)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def load_pit(path="data/fundamentals_pit_history.csv"):
-    """Carica la storia PIT e costruisce un lookup point-in-time per ticker.
-    Ritorna un dict {ticker: DataFrame ordinato per filed} o {} se il file manca."""
-    if not os.path.exists(path):
+def load_pit(path="data/fundamentals_pit_history.csv",
+             eu_path="data/fundamentals_eu_history.csv"):
+    """Carica la storia fondamentale e costruisce un lookup point-in-time per ticker.
+
+    Unisce due fonti con schema identico:
+      - USA: SEC EDGAR, PIT VERO (filed = data di deposito reale).
+      - EU:  Yahoo timeseries, PIT APPROSSIMATO (filed = fine periodo + lag regolatorio;
+             dati restated). Disponibile solo ~ultimi 4 anni. Vedi fundamentals_eu.py.
+    Ritorna {ticker: DataFrame ordinato per filed} o {} se nessun file presente."""
+    frames = []
+    for p in (path, eu_path):
+        if os.path.exists(p):
+            d = pd.read_csv(p)
+            if not d.empty:
+                frames.append(d)
+    if not frames:
         return {}
-    df = pd.read_csv(path)
-    if df.empty:
-        return {}
-    df["filed"] = pd.to_datetime(df["filed"])
+    df = pd.concat(frames, ignore_index=True, sort=False)
+    df["filed"] = pd.to_datetime(df["filed"], errors="coerce")
+    df = df.dropna(subset=["filed"])
     out = {}
     for tk, g in df.groupby("ticker"):
         out[tk] = g.sort_values("filed").reset_index(drop=True)
