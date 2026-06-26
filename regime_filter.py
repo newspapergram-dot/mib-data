@@ -56,27 +56,37 @@ def classify_regime(df_index, slope_window=20, flat_slope=1.0):
         return {"regime": "INSUFF_DATA", "risk_mult": 0.5,
                 "detail": f"solo {len(d)} sedute (<200)"}
 
+    d["sma20"] = d["close"].rolling(20).mean()
     d["sma50"] = d["close"].rolling(50).mean()
     d["sma200"] = d["close"].rolling(200).mean()
     px = d["close"].iloc[-1]
+    s20 = d["sma20"].iloc[-1]
     s50 = d["sma50"].iloc[-1]
     s200 = d["sma200"].iloc[-1]
     slope50 = (d["sma50"].iloc[-1] / d["sma50"].iloc[-(slope_window + 1)] - 1) * 100
 
+    above20 = px > s20      # trigger RAPIDO di risk-off (validato su 2018-2026: vedi bear_analysis)
     above50 = px > s50
     above200 = px > s200
     rising = slope50 > flat_slope
     falling = slope50 < -flat_slope
 
-    if above50 and above200 and rising:
+    # FATTORE BEAR: il filtro lento SMA50/200 non coglie i crash rapidi (es. feb 2020).
+    # Aggiunto il trigger px>SMA20: se il prezzo perde la SMA20 pur in trend lungo, si
+    # passa a PULLBACK (mezza size) come early-warning. Sul ciclo completo 2018-2026 questo
+    # porta il MaxDD del modello da -45.7% a -33.0% e alza lo Sharpe 0.75 -> 0.83.
+    if above50 and above200 and rising and above20:
         regime, mult = "TREND_UP", 1.00
     elif (not above200) and falling:
         regime, mult = "TREND_DOWN", 0.00
+    elif above200 and not above20:
+        regime, mult = "PULLBACK", 0.50      # prezzo sotto SMA20 in trend: risk-off precauzionale
     else:
         regime, mult = "LATERALE", 0.50
 
     return {"regime": regime, "risk_mult": mult,
-            "detail": f"px{'>' if above50 else '<'}SMA50, "
+            "detail": f"px{'>' if above20 else '<'}SMA20, "
+                      f"px{'>' if above50 else '<'}SMA50, "
                       f"px{'>' if above200 else '<'}SMA200, "
                       f"slope50_{slope_window}g={slope50:+.2f}%"}
 
@@ -121,9 +131,22 @@ def risk_mult_for_ticker(ticker, regime_result):
 
 
 if __name__ == "__main__":
-    import urllib.request, io
-    base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
-    px = pd.read_csv(io.StringIO(urllib.request.urlopen(base + "mib_data.csv", timeout=60).read().decode("utf-8", "replace")))
+    import os
+    # Sorgente: il file LOCALE appena rigenerato da fetch_data.py. Usare il file
+    # locale (invece di scaricarlo da raw.githubusercontent/main) e' (1) robusto
+    # — niente download da 3.5MB che si tronca (IncompleteRead) — e (2) corretto:
+    # classifica il regime sui dati FRESCHI della pipeline, non sulla copia stale
+    # del branch main. Il download remoto resta solo come fallback estremo.
+    local = "data/mib_data.csv"
+    if os.path.exists(local):
+        px = pd.read_csv(local)
+        print(f"[regime] sorgente: {local} (locale, fresco)")
+    else:
+        import urllib.request, io
+        base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
+        print("[regime] file locale assente -> fallback download da main")
+        px = pd.read_csv(io.StringIO(
+            urllib.request.urlopen(base + "mib_data.csv", timeout=60).read().decode("utf-8", "replace")))
     res = regime_table(px)
     print()
     for mkt, r in res.items():

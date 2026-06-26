@@ -122,7 +122,16 @@ def get_eod_eu_robust(symbol, from_date=None, to_date=None, range_="3mo"):
         print(f"[EU-robust] requests non disponibile per {symbol}")
         return None
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-    params = {"range": range_, "interval": "1d"}
+    # Se e' indicata una finestra date, si usano period1/period2 (epoch) cosi' la
+    # finestra viene rispettata lato server; altrimenti si usa `range`. Senza
+    # questo, un `range` corto troncherebbe una richiesta su molti mesi.
+    if from_date or to_date:
+        p1 = int(pd.Timestamp(from_date or "1990-01-01").timestamp())
+        p2 = int((pd.Timestamp(to_date) + pd.Timedelta(days=1)).timestamp()) if to_date \
+            else int(pd.Timestamp.today().timestamp())
+        params = {"period1": p1, "period2": p2, "interval": "1d"}
+    else:
+        params = {"range": range_, "interval": "1d"}
     try:
         r = requests.get(url, params=params, headers=_BROWSER_HEADERS, timeout=20)
     except Exception as e:

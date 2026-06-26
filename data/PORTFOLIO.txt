@@ -1,0 +1,306 @@
+============================================================================================
+ PORTAFOGLIO DIVERSIFICATO — 2026-06-25  (capitale 50000 EUR)
+============================================================================================
+ MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.
+ Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.
+ Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).
+ Score top-meta' (>= 0.124); confidenza su percentili LIVE; dedup emittente.
+ Universo 142 ticker, 80 gated. Regime: IT=TREND_UP FR=TREND_UP US=PULLBACK
+
+ SELEZIONATI: 12 (7 CORE / 5 SAT) | esposizione 30933 EUR (62% del capitale)
+--------------------------------------------------------------------------------------------
+ TICK      SCORE   SM$ ROLE  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
+ VIE.PA    0.189  0.68 CORE MEDIA  1.00  138     4989    3.6    9.7   16.4
+ TRN.MI    0.167  0.66 CORE BASSA  0.42  205     2095    3.5    9.8   16.8
+ ISP.MI    0.143  0.62 CORE BASSA  0.45  373     2249    4.8   12.4   20.8
+ CA.PA     0.130  0.58 CORE BASSA  0.45  138     2243    5.0   13.0   21.9
+ ENGI.PA   0.190  0.53 CORE  ALTA  1.00  184     4979    4.1   10.9   18.4
+ TEN.MI    0.129  0.36 CORE BASSA  0.45   89     2233    5.6   16.6   27.8
+ AZM.MI    0.145  0.34 CORE BASSA  0.42   57     2085    4.5   12.3   21.0
+ SPM.MI    0.145  0.32  SAT MEDIA  0.39  442     1946    8.1   25.2   42.3
+ ENEL.MI   0.164  0.30  SAT MEDIA  0.39  193     1942    3.9   10.0   16.7
+ STMMI.MI  0.231  0.14  SAT  ALTA  0.55   42     2732   10.2   30.9   51.7
+ REC.MI    0.153  0.19  SAT MEDIA  0.39   38     1949    1.9    5.5    9.3
+ FBK.MI    0.147  0.17  SAT BASSA  0.30   67     1490    4.3   11.9   20.3
+--------------------------------------------------------------------------------------------
+ GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):
+   T1: +1513 EUR (+3.0%) | T2: +4241 EUR (+8.5%) | T3: +7153 EUR (+14.3%)
+   (NB: non tutti i target vengono raggiunti; lo stop tronca i perdenti)
+
+ OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).
+
+============================================================================================
+ SCHEDE OPERATIVE
+============================================================================================
+
+==========================================================
+ VIE.PA  |  Score: 0.189  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 36.1500   Stop: 34.9343
+ Target 1: 37.6089 (R/R 1.2:1 | +3.6% net = +181EUR)
+ Target 2: 39.7972 (R/R 3.0:1 | +9.7% net = +483EUR)
+ Target 3: 42.2287 (R/R 5.0:1 | +16.4% net = +819EUR)  [runner]
+
+ Regime x1.0 | convinzione x1.0
+ SIZING:  138 azioni = 4989EUR (10.0% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 168EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +67EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+==========================================================
+ FOREGROUND: sm +0.68 (ACCUMULAZIONE) | CORE | conf MEDIA | tier ALTA | FR
+==========================================================
+
+==========================================================
+ TRN.MI  |  Score: 0.167  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 10.2200   Stop: 9.8632
+ Target 1: 10.6482 (R/R 1.2:1 | +3.5% net = +73EUR)
+ Target 2: 11.2905 (R/R 3.0:1 | +9.8% net = +205EUR)
+ Target 3: 12.0042 (R/R 5.0:1 | +16.8% net = +351EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.42
+ SIZING:  205 azioni = 2095EUR (4.2% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 73EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.05% = +22EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! poco efficiente per conti piccoli: T1 netto +3.5% troppo vicino ai costi
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.66 (ACCUMULAZIONE) | CORE | conf BASSA | tier MEDIA | IT
+==========================================================
+
+==========================================================
+ ISP.MI  |  Score: 0.143  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 6.0300   Stop: 5.7772
+ Target 1: 6.3334 (R/R 1.2:1 | +4.8% net = +109EUR)
+ Target 2: 6.7885 (R/R 3.0:1 | +12.4% net = +278EUR)
+ Target 3: 7.2942 (R/R 5.0:1 | +20.8% net = +467EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.45
+ SIZING:  373 azioni = 2249EUR (4.5% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 94EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +35EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.62 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | IT
+==========================================================
+
+==========================================================
+ CA.PA  |  Score: 0.130  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 16.2550   Stop: 15.5287
+ Target 1: 17.1266 (R/R 1.2:1 | +5.0% net = +111EUR)
+ Target 2: 18.4339 (R/R 3.0:1 | +13.0% net = +292EUR)
+ Target 3: 19.8866 (R/R 5.0:1 | +21.9% net = +492EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.45
+ SIZING:  138 azioni = 2243EUR (4.5% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 100EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +30EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.58 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | FR
+==========================================================
+
+==========================================================
+ ENGI.PA  |  Score: 0.190  |  CONFIDENZA: ALTA
+==========================================================
+ Entry: 27.0600   Stop: 26.0411
+ Target 1: 28.2827 (R/R 1.2:1 | +4.1% net = +205EUR)
+ Target 2: 30.1167 (R/R 3.0:1 | +10.9% net = +543EUR)
+ Target 3: 32.1545 (R/R 5.0:1 | +18.4% net = +917EUR)  [runner]
+
+ Regime x1.0 | convinzione x1.0
+ SIZING:  184 azioni = 4979EUR (10.0% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 187EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +67EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+==========================================================
+ FOREGROUND: sm +0.53 (ACCUMULAZIONE) | CORE | conf ALTA | tier ALTA | FR
+==========================================================
+
+==========================================================
+ TEN.MI  |  Score: 0.129  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 25.0900   Stop: 23.8355
+ Target 1: 26.5954 (R/R 1.2:1 | +5.6% net = +125EUR)
+ Target 2: 29.3418 (R/R 3.39:1 | +16.6% net = +369EUR)
+ Target 3: 32.1764 (R/R 5.65:1 | +27.8% net = +622EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.45
+ SIZING:  89 azioni = 2233EUR (4.5% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 112EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +30EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.36 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | IT
+==========================================================
+
+==========================================================
+ AZM.MI  |  Score: 0.145  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 36.5800   Stop: 34.9898
+ Target 1: 38.4882 (R/R 1.2:1 | +4.5% net = +94EUR)
+ Target 2: 41.3506 (R/R 3.0:1 | +12.3% net = +257EUR)
+ Target 3: 44.5310 (R/R 5.0:1 | +21.0% net = +439EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.42
+ SIZING:  57 azioni = 2085EUR (4.2% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 91EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.05% = +22EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.34 (ACCUMULAZIONE) | CORE | conf BASSA | tier MEDIA | IT
+==========================================================
+
+==========================================================
+ SPM.MI  |  Score: 0.145  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 4.4020   Stop: 4.1819
+ Target 1: 4.7777 (R/R 1.71:1 | +8.1% net = +158EUR)
+ Target 2: 5.5290 (R/R 5.12:1 | +25.2% net = +490EUR)
+ Target 3: 6.2803 (R/R 8.53:1 | +42.3% net = +822EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.39
+ SIZING:  442 azioni = 1946EUR (3.9% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 97EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +26EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+==========================================================
+ FOREGROUND: sm +0.32 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+==========================================================
+
+==========================================================
+ ENEL.MI  |  Score: 0.164  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 10.0640   Stop: 9.7229
+ Target 1: 10.4733 (R/R 1.2:1 | +3.9% net = +75EUR)
+ Target 2: 11.0872 (R/R 3.0:1 | +10.0% net = +194EUR)
+ Target 3: 11.7693 (R/R 5.0:1 | +16.7% net = +325EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.39
+ SIZING:  193 azioni = 1942EUR (3.9% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 66EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +30EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+==========================================================
+ FOREGROUND: sm +0.30 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+==========================================================
+
+==========================================================
+ STMMI.MI  |  Score: 0.231  |  CONFIDENZA: ALTA
+==========================================================
+ Entry: 65.0500   Stop: 61.7975
+ Target 1: 71.8032 (R/R 2.08:1 | +10.2% net = +278EUR)
+ Target 2: 85.3097 (R/R 6.23:1 | +30.9% net = +845EUR)
+ Target 3: 98.8162 (R/R 10.38:1 | +51.7% net = +1413EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.55
+ SIZING:  42 azioni = 2732EUR (5.5% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 137EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +42EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+==========================================================
+ FOREGROUND: sm +0.14 (neutro) | SAT | conf ALTA | tier ALTA | IT
+==========================================================
+
+==========================================================
+ REC.MI  |  Score: 0.153  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 51.3000   Stop: 50.3000
+ Target 1: 52.5000 (R/R 1.2:1 | +1.9% net = +38EUR)
+ Target 2: 54.2999 (R/R 3.0:1 | +5.5% net = +106EUR)
+ Target 3: 56.2999 (R/R 5.0:1 | +9.3% net = +182EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.39
+ SIZING:  38 azioni = 1949EUR (3.9% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 38EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +26EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! poco efficiente per conti piccoli: T1 netto +1.9% troppo vicino ai costi
+==========================================================
+ FOREGROUND: sm +0.19 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+==========================================================
+
+==========================================================
+ FBK.MI  |  Score: 0.147  |  CONFIDENZA: BASSA
+==========================================================
+ Entry: 22.2400   Stop: 21.3049
+ Target 1: 23.3622 (R/R 1.2:1 | +4.3% net = +65EUR)
+ Target 2: 25.0454 (R/R 3.0:1 | +11.9% net = +178EUR)
+ Target 3: 26.9157 (R/R 5.0:1 | +20.3% net = +303EUR)  [runner]
+
+ Regime x1.0 | convinzione x0.3
+ SIZING:  67 azioni = 1490EUR (3.0% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 63EUR
+
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.05% = +16EUR
+
+ PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
+       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
+ CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
+         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
+==========================================================
+ FOREGROUND: sm +0.17 (neutro) | SAT | conf BASSA | tier MEDIA | IT
+==========================================================

@@ -1,0 +1,58 @@
+======================================================================================
+ PIANO D'AZIONE OPERATIVO — 2026-06-25  (capitale 50000 EUR)
+======================================================================================
+ Requisiti applicati (un titolo è IDONEO solo se li rispetta TUTTI):
+   R1 Gate tecnico: px>SMA200 e SMA50>SMA200            (implicito nello score_output)
+   R2 Regime di mercato del titolo = TREND_UP           (regime_filter.csv)
+   R3 Score nel top quintile (>= 0.169)               (coerente strategia top-20%)
+   R4 Smart Money (Foreground) NON in distribuzione      (sm_score >= 0)
+   R5 Confidenza >= MEDIA                                (liquidita' sufficiente)
+   R6 Volume affidabile                                  (validate_volume)
+   + DEDUP doppie quotazioni stesso emittente (es. STM Milano/Parigi): tenuta 1 sola.
+ Regime: IT=TREND_UP FR=TREND_UP US=TREND_UP | mult applicato per mercato: {'IT': 1.0, 'FR': 1.0, 'US': 1.0}
+
+ TITOLI IDONEI (tutti i requisiti soddisfatti): 1
+--------------------------------------------------------------------------------------
+  TICK      SCORE   SM$  FOREGROUND    CONF   MKT 
+  STMMI.MI  0.231  0.14  neutro        MEDIA  IT  
+
+======================================================================================
+ SCHEDE OPERATIVE — TITOLI IDONEI
+======================================================================================
+
+==========================================================
+ STMMI.MI  |  Score: 0.231  |  CONFIDENZA: MEDIA
+==========================================================
+ Entry: 65.0500   Stop: 61.7975
+ Target 1: 67.7236 (R/R 0.82:1)   Target 2: 70.3971 (R/R 1.64:1)
+
+ Regime di mercato: moltiplicatore rischio x1.0
+ SIZING:  76 azioni = 4944EUR (9.9% portaf.) (capped a 10% portafoglio)
+          Rischio massimo posizione: 247EUR
+
+ GUADAGNO ATTESO (netto costi 0.20%): +1.55% = +77EUR
+
+ PRO:  edge misurato su orizzonte 5gg (il tuo); win rate storico 74%
+ CONTRO: payoff <1 (perdite medie > vincite medie) -> stop NON negoziabile
+         edge validato solo in regime BULL; Sharpe CI95 [1.1-9.6] = stima imprecisa
+==========================================================
+ FOREGROUND: sm +0.14 (neutro) | volume affidabile=True
+======================================================================================
+
+--------------------------------------------------------------------------------------
+ QUASI-IDONEI (top quintile ma bocciati su almeno un requisito) — per trasparenza
+--------------------------------------------------------------------------------------
+  TICK      SCORE   SM$  CONF    requisiti falliti
+  GOOGL     0.294 -0.07  MEDIA   R4 smart(neutro)
+  EDEN.PA   0.202 -0.40  MEDIA   R4 smart(DISTRIBUZIONE)
+  CVX       0.190  0.00  BASSA   R5 conf BASSA
+  ENGI.PA   0.190  0.53  BASSA   R5 conf BASSA
+  VIE.PA    0.189  0.68  BASSA   R5 conf BASSA
+  MRK       0.188 -0.14  BASSA   R4 smart(neutro), R5 conf BASSA
+  PRY.MI    0.187 -0.23  BASSA   R4 smart(neutro), R5 conf BASSA
+  JNJ       0.184  0.38  BASSA   R5 conf BASSA
+  LR.PA     0.183 -0.29  BASSA   R4 smart(neutro), R5 conf BASSA
+  SU.PA     0.182 -0.17  BASSA   R4 smart(neutro), R5 conf BASSA
+  UCG.MI    0.179 -0.55  BASSA   R4 smart(DISTRIBUZIONE), R5 conf BASSA
+  XLI       0.178 -0.39  BASSA   R4 smart(DISTRIBUZIONE), R5 conf BASSA
+  GE        0.171  0.24  BASSA   R5 conf BASSA

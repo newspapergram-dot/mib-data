@@ -219,13 +219,283 @@ la barra di **oggi 25-giu**.
 - **Distribuzione (veto)**: **AAPL** (sm −1.00, ADL −94%), **AMZN** (−0.78), Stellantis
   (STLAM/STLAP), **MC.PA**, **LDO.MI**. EDEN.PA è in top score ma in distribuzione → cautela.
 
+### Addendum Run #4b — Piano C reso sorgente PRIMARIA in `fetch_data.py`
+- `fetch_data.py` riscritto: ordine sorgenti ora **1) Piano C (Yahoo v8 JSON) → 2) yfinance →
+  3) FMP/catena EU → 4) Borsa Italiana**. Logica isolata in `fetch_one()`; esecuzione sotto
+  `if __name__ == "__main__"` (importare il modulo non scarica più nulla — bug latente risolto).
+- `modules/fmp_source.get_eod_eu_robust`: ora se è indicata una finestra date usa
+  `period1`/`period2` (epoch) invece di `range`, così una richiesta su molti mesi non viene
+  troncata. Verificato: finestra 14m → 299 barre (prima ~60). Piano C primario su US/EU/indici OK.
+
+---
+
+## Run #5 — 2026-06-25 (collaudo end-to-end + piano d'azione + audit del processo)
+
+**Test del processo completo** con la nuova sorgente primaria:
+`fetch_data.py` (Piano C, 127/128 ticker in 82s) → `score_generator.py` → `regime_filter.py`
+→ filtro multi-requisito (`data/ACTION_PLAN.txt`).
+
+### Piano d'azione — requisiti applicati (idoneo solo se li rispetta TUTTI)
+R1 gate (px>SMA200 & SMA50>SMA200) · R2 regime mercato TREND_UP · R3 score top quintile
+(≥0.169) · R4 Smart Money non in distribuzione (sm≥0) · R5 confidenza ≥MEDIA · R6 volume
+affidabile · **+ dedup doppie quotazioni stesso emittente**.
+
+**Esito: 1 titolo idoneo → STMMI.MI** (STMicroelectronics, Milano; tenuta vs Parigi perché
+costo round-trip inferiore 0.20% vs 0.40%). Entry 65.05 · Stop 61.80 · T1 67.72 · T2 70.40 ·
+sizing 76 az ≈ 4.944€ (9.9%, x1.0) · rischio max 247€. Foreground neutro (sm +0.14), volume ok.
+Quasi-idonei bocciati quasi tutti su R5 (confidenza BASSA) o R4 (distribuzione: EDEN.PA, UCG.MI).
+
+### ERRORI TROVATI E CORRETTI nel processo
+1. **`regime_filter.py` __main__**: scaricava `mib_data.csv` da raw.githubusercontent/**main**
+   → crash `IncompleteRead` (file da 3.5MB troncato) **e** dati STALE (classificava il regime
+   sul branch main, non sul fresco locale). → FIX: legge `data/mib_data.csv` locale (remoto solo fallback).
+2. **`volume_tools.py` __main__**: identico bug di download da main. → FIX: legge locale.
+3. **Piano d'azione, doppia quotazione**: STMMI.MI e STMPA.PA sono lo STESSO emittente (ISIN
+   NL0000226223) → comparivano entrambi = doppia esposizione nascosta. → FIX: dedup per emittente.
+
+### MARGINI DI MIGLIORAMENTO (segnalati — scelte di design, non ancora applicate)
+4. **Confidenza mal calibrata vs scala score**: soglie assolute 0.20/0.45, ma gli score reali
+   sono compressi (max ~0.29) → quasi tutto "BASSA" e "ALTA" (≥0.45) non si raggiunge MAI →
+   R5 over-filtra. Proposta: soglie percentile-based o ricalibrate alla distribuzione.
+5. **R4 confine netto a 0**: GOOGL sm −0.07 (di fatto neutro) bocciato. Proposta: banda neutra
+   (pass se sm≥−0.15) + tier "alta convinzione" se sm≥+0.33 (accumulazione).
+6. **Score poco dispersivo** (tanh satura presto): il ranking discrimina poco; rivedere la
+   normalizzazione di `score_technical`.
+7. **Profondità storica** `MONTHS_BACK=14` (~298 barre): SMA200 ok ma con poco margine; valutare 18–24 mesi.
+8. **Smart Money non ancora validato nel backtest**: filtra ma manca la prova statistica
+   (correlazione col forward return) prima di pesarlo nello score.
+9. **Conflitto score↔Foreground su GOOGL**: #1 per score (trainato dal flow 13F 0.5, dato a 40+gg)
+   ma Smart Money neutro/negativo → valutare di pesare meno il 13F quando il volume contraddice.
+10. **Watchlist**: `BPSO.MI` dà 404 su Yahoo (probabile cambio simbolo) → aggiornare la lista.
+
+---
+
+## Run #6 — 2026-06-25 (obiettivi: portafoglio piu' ampio + take profit piu' alti)
+
+### Obiettivo 2 — TP piu' ampi e R/R favorevole (`modules/trade_proposal.py`)
+- I vecchi target fissi (+4.11% / +8.22%) davano **R/R 0.82** (si rischiava il 5% per puntarne il 4):
+  troppo bassi, e per conti piccoli i costi erodevano il margine.
+- Nuovi target **T1/T2/T3 = max(k·ATR, k·rischio)** con k_ATR=(3,6,10) e floor R/R=(1.5,3,5).
+  Gli ATR-multipli corrispondono a ~1σ/2σ/3σ sull'orizzonte di holding → laddering principiato.
+  Aggiunto **T3 "runner"** e, per ogni target, il **guadagno netto in % e in EUR** sulla posizione.
+  Flag di **efficienza per conti piccoli** (T1 netto deve battere nettamente i costi).
+  Es. STM: prima T1 +1.35%/+77€ → ora **T1 +15.4%/+760€, T2 +30.9%/+1530€, T3 +51.7%/+2556€**.
+- Aggiunti parametri `size_mult` (convinzione) e `pos_cap`. Backward-compatible (weekly_report OK).
+
+### Obiettivo 1 — portafoglio piu' ampio
+- **Universo ampliato**: +15 large cap USA liquide in `fetch_data.py` → **142 ticker** (80 gated).
+- **`portfolio_builder.py` (NUOVO)**: filtri MENO restrittivi + sizing per convinzione:
+  - R3 score top **meta'** (perc. 50) invece di top quintile; R4 **banda neutra** smart-money
+    (sm≥−0.15: esclude solo la distribuzione); confidenza/illiquidita' **scalano la size**, non escludono.
+  - tier su percentili dello score (calibrati ai dati) + bonus accumulazione − penalita' illiquidi.
+  - dedup per emittente; cap esposizione 85%, max 12 nomi.
+- **Risultato: da 1 → 12 titoli** (`data/PORTFOLIO.txt`), diversificati IT/FR/US, esposizione 85%.
+  Top per convinzione: AMAT, VIE.PA, TRN.MI, ISP.MI, ENGI.PA (tutti in accumulazione).
+  Potenziale netto (ottimistico): **+6.4% a T1, +13.2% a T2, +22.2% a T3** sul capitale.
+
+### Caveat onesto
+- TP piu' larghi = **hit-rate piu' basso** del 74% storico (misurato sui VECCHI target): il payoff
+  sale ma la probabilita' di toccare il target scende. **Da ri-validare nel backtest** prima di
+  fidarsi dei numeri di vincita storici con i nuovi target.
+
+---
+
+## Run #7 — 2026-06-25 (backtest + taratura moltiplicatori target sui risultati)
+
+### Backtest base ri-validato su dati freschi (142 ticker, `backtest_v3.py`)
+- Score NUOVO: Sharpe **1.89**, PF 3.03, win 68.3%, expectancy +3.09%, Spearman 10gg +0.086.
+- **Fix regime confermato** (sez.7): bull n=1016 / bear n=189 / unknown distinti (niente piu' copie).
+- Robustezza: PBO 0.000 (ok), WFE +2.34 (OOS>IS, ok), bootstrap Sharpe IC [0.61, 2.16];
+  **DSR 0.794 < 0.95** → edge reale ma non blindato (cautela multiple-testing).
+
+### Taratura target su simulazione PATH-BASED (`target_backtest.py`, NUOVO tool)
+Simulazione uscita target/stop/timeout su top-quintile; stop = repo (max -5%/2ATR).
+- **Sweep target singolo**: expectancy CRESCE col multiplo (coda fat-tail), hit% crolla
+  (m=1→64% hit/exp 0.14%; m=3→31%/0.99%; m=10→1%/2.09%). exp/sd picco ~6×ATR (N=10).
+- **Confronto laddered [0.5/0.25/0.25]** (exp% | med% | win% | exp/sd, N=10):
+  - (3,6,10) **exp-max**: 1.50 | −0.17 | 49.4 | 0.216  → expectancy massima ma mediana NEGATIVA
+  - **(2,6,10) SCELTO**: 1.27 | **+0.28** | **51.0** | 0.200
+  - (2,4,6) tight: 1.10 | +0.28 | 51.0 | 0.185
+- **Decisione**: default cambiati da (3,6,10) a **(2,6,10)** in `trade_proposal.py`. Si porta
+  T1 a 2×ATR ("hittable" ~50%): mediana per-trade da −0.17% a **+0.28%**, win 49%→51%, cedendo
+  ~15% di expectancy → curva piu' liscia, adatta a conti piccoli (obiettivo dell'utente).
+  T2/T3 (6,10) restano larghi: la coda dei vincitori e' dove sta l'expectancy. Chi vuole la
+  sola expectancy max usa (3,6,10) (un parametro).
+- `portfolio_builder.py` e schede rigenerati con i nuovi target; testo PRO/CONTRO aggiornato
+  (mediana ~0, edge nella coda, DSR<0.95).
+
+---
+
+## Run #8 — 2026-06-25 (validazione Smart Money + calibrazione confidenza)
+
+### Smart Money e' un predittore? (`sm_validate.py`, NUOVO tool, point-in-time)
+- **Spearman vs forward return netto**: score 10gg 0.086 | smart$ 10gg 0.037 (debole) ma 20gg
+  **0.078** (piu' forte sul lungo). **Il blend lineare 0.7·score+0.3·sm PEGGIORA il 10gg
+  (0.059 < 0.086)**: diluisce l'edge dello score.
+- **Ret medio per stato (10gg)**: accumulazione +0.99% (win 51%), distribuzione +0.88% (win 52%),
+  **neutro −0.245% (win 44%, il peggiore)** → lo stato grezzo non e' monotono col rendimento.
+- **DENTRO il top-quintile** invece: accumulazione **+3.14% (win 60%)** vs distribuzione
+  **+1.63% (win 40%)**, spread **+1.51%** → l'effetto e' un'INTERAZIONE col top-quintile.
+- **DECISIONE**: NON integrare lo Smart Money come componente lineare in `score_generator`
+  (peggiorerebbe il 10gg). Si tiene come **filtro di conferma/veto DENTRO la selezione**
+  (gia' cosi' in `portfolio_builder`). Risposta definitiva a una watch-list ricorrente: **no blend**.
+
+### Confidenza ricalibrata (`modules/trade_proposal.confidence_level`)
+- Le soglie assolute 0.45/0.20 rendevano ALTA **irraggiungibile** (max score osservato ~0.36,
+  p90~0.19) e quasi tutto BASSA. Nuove soglie hi=0.19 (~p90) / mid=0.13 (~p60), piu' parametri
+  opzionali per passare percentili live. Ora: **ALTA 9 / MEDIA 26 / BASSA 45** (prima ~tutto BASSA).
+- Portafoglio e schede rigenerati con la confidenza informativa.
+
+---
+
+## Run #9 — 2026-06-25 (modello operativo affidabile: 3 watch-list completate)
+
+Obiettivo: modello operativo **altamente affidabile**. Eseguiti i 3 punti aperti.
+
+### #3 — Backtest sez.7 segmentato sul PORTAFOGLIO selezionato (`backtest_v3.py`)
+- Prima segmentava TUTTI i segnali → VECCHIO==NUOVO. Ora filtra al top-quintile selezionato.
+- Diagnosi reale: **NUOVO bull** n=215 ret **+2.90%** hit 56.7% **Sharpe 4.58**; bear n=24 −1.24%
+  (campione piccolo). VECCHIO bull solo +0.25% hit 43%. → l'edge NUOVO e' reale e **bull-concentrato**
+  ⇒ il regime_filter (operare solo TREND_UP) e' la salvaguardia chiave, ora validata.
+
+### #1 — Smart Money come LEVA DI AFFIDABILITA' (test in `sm_validate.reliability()`)
+Filtro accumulazione (sm>=.33) sul top-quintile migliora OGNI metrica, monotono:
+| selezione (10gg) | n | win% | med% | Sharpe | PF |
+|---|---|---|---|---|---|
+| base top-quintile | 245 | 56.7 | 1.29 | 1.21 | 2.08 |
+| + accumulazione | 193 | **60.1** | **1.64** | **1.55** | **2.61** |
+(20gg: accumulazione win 59.6%, med +3.50%, PF 3.30.) → l'accumulazione e' la leva.
+- **`portfolio_builder` ora tiered**: accumulazione = **CORE** (piena size); neutro = **SAT**
+  (size ridotta ×0.55); distribuzione **esclusa**. Portafoglio: 12 nomi (9 CORE / 3 SAT),
+  esposizione 72% (piu' concentrata sul core affidabile). Ranking pesa SM > score.
+
+### #2 — Confidenza su percentili LIVE
+- `confidence_level(score, ticker, hi, mid)`: il builder passa hi=p90, mid=p60 della selezione
+  corrente. La confidenza in scheda torna informativa (ALTA/MEDIA/BASSA reali, non ~tutto BASSA).
+
+### Onesta' sull'affidabilita'
+Il modello e' **piu' affidabile** (filtro accumulazione validato + gate trend + regime filter),
+ma le metriche sono **in-sample** (un solo periodo 2025-04→2026-06, prevalentemente bull) e
+**DSR 0.794 < 0.95**; l'edge e' bull-concentrato con mediana per-trade modesta. Affidabilita'
+reale = trend gate + regime TREND_UP + accumulazione + stop disciplinato su MOLTE operazioni.
+Manca un test out-of-sample su un ciclo completo (incl. bear vero).
+
 ### Watch list per il prossimo run
-- [ ] Sorgente dati ora stabile su Yahoo v8: valutare di rendere il Piano C la fonte primaria in
-      `fetch_data.py` (yfinance richiede host extra non in allowlist).
-- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe al ribasso, mult → x0.5.
+- [ ] Out-of-sample / walk-forward su un ciclo che includa un vero bear (oggi pochi dati bear).
+- [ ] Tenere DSR>0.95 come obiettivo: ridurre i gradi di liberta' (meno configurazioni testate).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe, mult → x0.5 (gia' automatico).
 - [ ] Integrare `smart_money_signal` come 4° componente in `score_generator` (oggi overlay);
       validarlo prima nel backtest.
 - [ ] Ri-girare `backtest_v3.py` col regime corretto (Run #2) e misurare l'edge dello Smart Money.
+
+---
+
+## Run #10 — 2026-06-25 (validazione walk-forward OUT-OF-SAMPLE del modello)
+
+### `walkforward_oos.py` (NUOVO tool) — anchored walk-forward, no lookahead
+Modello operativo testato OOS: top-quintile (soglia stimata SOLO sull'IS precedente) +
+accumulazione (sm>=0.33) + uscita laddered a target (2,6,10). 4 finestre OOS sequenziali.
+
+| | n | win% | mean% | Sharpe | PF |
+|---|---|---|---|---|---|
+| IS (in-sample) | 193 | 54.4 | +1.52 | 1.20 | 1.84 |
+| **OOS (walk-fwd)** | 108 | **56.5** | **+2.31** | **1.55** | **2.25** |
+
+- **WFE = +1.52** (OOS ≥ IS, ben oltre ~0.5) → l'edge NON e' un artefatto in-sample nel periodo:
+  regge (anzi migliora) fuori campione. Per-fold: 3/4 positive (win 50/57/69%); 1 debole
+  (win 45%, mediana −3.91%, media +0.49%).
+
+### Limite onesto (ancora aperto)
+Periodo unico ~14 mesi **prevalentemente bull**: l'OOS prova la **stabilita' temporale**, NON un
+**ciclo completo con bear vero**. In bear l'edge NUOVO si indebolisce (sez.7) → il `regime_filter`
+(full size solo in TREND_UP) resta la salvaguardia. DSR 0.794 < 0.95 invariato.
+
+### Stato del modello operativo
+Strati: trend gate → regime TREND_UP → top-quintile → accumulazione (CORE/SAT) → stop + target
+laddered (2,6,10). In-sample E walk-forward OOS coerenti e positivi nel periodo disponibile.
+
+### Watch list per il prossimo run
+- [ ] Con dati bear disponibili: ripetere il walk-forward su un ciclo completo.
+- [ ] Tenere DSR>0.95: ridurre i gradi di liberta' (meno configurazioni testate).
+- [ ] Monitorare il regime US (S&P sul filo della SMA50): se rompe, mult → x0.5 (automatico).
+
+---
+
+## Run #11 — 2026-06-25 (FATTORI BEAR: test su ciclo completo 2018-2026)
+
+### Dati: storico lungo con bear veri (`fetch_long.py`, NUOVO)
+- Scaricato 2018→2026 via Yahoo v8 con prezzi **AGGIUSTATI** (split: NVDA/AMZN ecc.) →
+  `data/mib_data_long.csv` (142 ticker, 301k righe; gitignored, riproducibile). Include
+  **crash 2020 e bear 2022**.
+
+### Scoperta cruciale: il backtest a 14 mesi era ottimista in modo pericoloso
+- Sul ciclo completo la strategia GREZZA (top-quintile, no filtri) crolla:
+  **Sharpe 0.18, MaxDD −95.7%**, Spearman negativa. L'edge a 14 mesi (Sharpe 1.89) era in larga
+  parte un **artefatto bull**. Regime (sez.7 long): NUOVO bull Sharpe +1.37, **bear −0.48**.
+
+### I fattori bear funzionano (ma non rendono il modello bear-proof) — `bear_analysis.py` (NUOVO)
+Ciclo completo, MaxDD = metrica chiave:
+| modello | Sharpe | MaxDD |
+|---|---|---|
+| A) grezzo (no filtro) | 0.18 | −95.7% |
+| C) + regime + accumulazione | 0.57 | −66.7% |
+| C+stop (modello reale) | 0.75 | −45.7% |
+| **D) + trigger rapido SMA20** | **0.83** | **−33.0%** |
+- Lo **stop** e il **trigger rapido** sono i fattori che il portfolio_sim grezzo non cattura.
+  Insieme portano il MaxDD da −95.7% a −33.0% e lo Sharpe da 0.18 a 0.83.
+
+### Integrato il fattore bear nel modello live (`regime_filter.py`)
+- Aggiunto trigger **px>SMA20**: nuovo stato **PULLBACK (x0.5)** quando il prezzo perde la SMA20
+  pur restando in trend lungo → risk-off precoce che il filtro lento SMA50/200 mancava.
+- **Effetto live immediato**: **US → PULLBACK x0.5** (S&P sotto SMA20); IT/FR TREND_UP. Il
+  portafoglio dimezza l'esposizione USA (esposizione totale 72%→62%) in automatico.
+
+### Onesta'
+Anche con TUTTI i fattori bear, sul ciclo completo: **MaxDD −33%, Sharpe 0.83** — il modello
+resta **bull-favored**: i fattori bear **riducono il rischio di rovina, non lo eliminano**.
+DSR ancora <0.95. Per un vero salto servirebbe una logica long/short o hedge, non solo risk-off.
+
+### Watch list per il prossimo run
+- [ ] Valutare un overlay di hedge (es. ridurre a 0 o coprire l'indice) in TREND_DOWN conclamato.
+- [ ] Re-tarare i target/soglie sul ciclo COMPLETO (finora tarati su periodo bull).
+- [ ] DSR>0.95: ridurre i gradi di liberta'.
+
+---
+
+## Run #12 — 2026-06-25 (overlay di rischio: go-flat + index hedge sul ciclo completo)
+
+### `hedge_overlay.py` (NUOVO) — simulazione giornaliera (M2M) overlay, 2018-2026
+| overlay | MaxDD | Sharpe | CAGR |
+|---|---|---|---|
+| BASE (modello, no overlay) | −13.8% | 0.99 | 14.3% |
+| A) GO-FLAT in TREND_DOWN | −13.8% | 0.99 | 14.3% |
+| B1) HEDGE indice h=1.0 | −9.1% | 2.55 | 41.3% |
+| B2) HEDGE indice h=0.5 | −10.1% | 1.86 | 27.2% |
+
+### Letture oneste (cruciali)
+- **GO-FLAT e' REDUNDANTE**: A == BASE. Il filtro fast-regime tiene gia' il modello FUORI dai
+  downtrend (non ci sono posizioni da chiudere) → e' per questo che il MaxDD e' contenuto.
+  Il miglior overlay di rischio era gia' nel gate d'ingresso. (BASE DD −13.8% qui < −33% del
+  Run #11 perche' qui il regime-switch e' globale ^GSPC, piu' protettivo.)
+- **L'HEDGE riduce il drawdown** (−13.8%→−9/−10%) MA il boost di rendimento (Sharpe 2.55,
+  CAGR 41%) e' **sample-specific** (short dell'indice durante i crash 2020/2022): in mercati
+  laterali l'hedge fa **whipsaw e COSTA**. Va trattato come **ASSICURAZIONE, non alpha**.
+
+### Operativizzazione in `portfolio_builder.py`
+- **DEFAULT `include_pullback=False` = GO-FLAT** (piu' affidabile): si opera solo nei mercati
+  TREND_UP. **Live: US in PULLBACK → escluso**; portafoglio IT/FR, esposizione 62%, hedge non
+  necessario ("OVERLAY DI RISCHIO: nessuno").
+- **`include_pullback=True`**: si resta nei mercati PULLBACK a META' size (regime_mult 0.5) e il
+  report stampa la **raccomandazione di hedge** (es. US long 5196€ → short SPY ~2598€, h=0.5).
+
+### Conclusione overlay
+Per l'affidabilita' primaria, il DEFAULT e' **go-flat** (validato, DD piu' basso). L'hedge e'
+disponibile come overlay opzionale per chi vuole mantenere diversificazione in PULLBACK, con
+l'avvertenza che e' un costo-assicurazione, non un generatore di rendimento.
+
+### Watch list per il prossimo run
+- [ ] Re-tarare target/soglie sul ciclo COMPLETO (finora su periodo bull) e mirare DSR>0.95.
+- [ ] Valutare hedge per-mercato (CAC/FTSEMIB) oltre a S&P, se si usa include_pullback.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
