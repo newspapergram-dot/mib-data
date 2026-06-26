@@ -122,3 +122,20 @@
    skill consigliata: metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
 ====================================================================================
 
+====================================================================================
+ AUTO-AUDIT MODELLO — 2026-06-26 (ciclo di automiglioramento)
+====================================================================================
+ [BASSA] analisi    grafici mancanti per 3 nomi
+          -> azione: eseguire charts.charts_for_portfolio()
+          -> skill : /verify       (eseguire e osservare che il comportamento sia reale)
+ [NOTA ] diversif.  book 8/8 concentrato su EU (dichiarata nel piano, hedge di area disponibile)
+          -> azione: regione correlata: e' per regime (es. US in PULLBACK); monitorare il rischio macro comune; hedge di area come assicurazione opzionale
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+ [NOTA ] robustezza edge reale (PSR 0.98) ma DSR<0.95 sul ciclo completo
+          -> azione: size moderata: l'edge vive nel gate di regime+stop, non nel Sharpe; mai leverage
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+------------------------------------------------------------------------------------
+ PROSSIMA MOSSA (impatto piu' alto): [BASSA] grafici mancanti per 3 nomi -> eseguire charts.charts_for_portfolio()
+   skill consigliata: /verify       (eseguire e osservare che il comportamento sia reale)
+====================================================================================
+

@@ -25,7 +25,8 @@ SECTOR = {
     "SRG.MI": "Utility", "TRN.MI": "Utility", "ENEL.MI": "Utility", "A2A.MI": "Utility",
     "ENGI.PA": "Utility", "VIE.PA": "Utility", "EDF.PA": "Utility",
     "ISP.MI": "Banca", "BMPS.MI": "Banca", "BAMI.MI": "Banca", "UCG.MI": "Banca",
-    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca", "CS.PA": "Banca",
+    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca",
+    "CS.PA": "Assicuraz",
     "AZM.MI": "Finanza", "G.MI": "Assicuraz",
     "TEN.MI": "Oil&Gas", "SPM.MI": "Oil&Gas", "ENI.MI": "Oil&Gas",
     "STMMI.MI": "Tech", "STMPA.PA": "Tech",
@@ -33,6 +34,7 @@ SECTOR = {
     "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
     "PRY.MI": "Industriale", "RMS.PA": "Lusso", "MC.PA": "Lusso",
     "RACE.MI": "Auto", "STLAM.MI": "Auto", "STLAP.PA": "Auto",
+    "MB.MI": "Banca", "TIT.MI": "Telecom", "AC.PA": "Hospitality",
 }
 MAX_PER_SECTOR = 3
 

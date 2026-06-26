@@ -855,5 +855,78 @@ solo le componenti con dato reale; `None` se nessuna fonte copre il ticker. `app
 - [ ] Quando US torna TREND_UP: sleeve unicorni attivo + nomi US entrano.
 - [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
 
+## Run #22 — 2026-06-26 (score_technical ↔ score_new alignment)
+
+**Obiettivo:** allineare la funzione di scoring live (`score_technical`) a quella validata
+nel backtest (`score_new` di `backtest_v3.py`), eliminando la divergenza che faceva
+generare ranking diversi tra live e backtest.
+
+### Cosa ho fatto
+
+1. **Riscritto `score_technical()`** — identica logica a `score_new`:
+   - Breakout (+0.55 se price > max(high) ultimi 20gg + trend_up)
+   - ADX threshold (+0.35 se >=40, +0.15 se >=25, entrambi con trend_up)
+   - Momentum 3 mesi (0.15 * tanh(mom3m/30))
+   - RSI penalty (-0.20 se >75 e no breakout)
+   - Gate: price>SMA200 AND SMA50>SMA200 (altrimenti -0.3)
+
+2. **Aggiunto breakout e mom3m a `calculate_technical_indicators()`**:
+   - `rh20 = h.iloc[-21:-1].max()` — range high 20gg escluso oggi
+   - `breakout = bool(c.iloc[-1] > rh20)` — breakout classico
+   - `mom3m = (c[-1]/c[-63] - 1) * 100` — momentum 3 mesi (allineato backtest)
+
+3. **Esclusi indici e ETF dal scoring** (`NON_EQUITY`):
+   - Indici: FTSEMIB.MI, ^FCHI, ^STOXX50E, ^GSPC, ^NDX, ^VIX
+   - ETF settoriali: SPY, XLF, XLE, XLK, XLV, XLY, XLP, XLU, XLI, XLB, XLRE, XLC
+   - Questi servono per regime/rotazione, non sono candidati operativi.
+
+4. **Corretto settore CS.PA**: era mappato "Banca" ma CS.PA = AXA SA (Assicuraz, non banca).
+   Fix: CS.PA → "Assicuraz". Ha liberato un posto Banca, ISP.MI (sm +0.62 CORE) entra.
+
+5. **Aggiunti settori mancanti**: MB.MI=Banca, TIT.MI=Telecom, AC.PA=Hospitality
+   (sia in `portfolio_builder.py` che in `self_improve.py`).
+
+### Risultato
+
+**Score distribution** (66 equity-only candidati):
+- min=-0.425  p25=0.009  **p50=0.075**  p75=0.273  max=0.713
+- IQR=0.264 (distribuzione BIMODALE: breakout ≥0.55, non-breakout <0.15)
+
+**Portfolio** (9 nomi, 7 settori distinti, 55% esposizione):
+
+| Ticker   | Nome                 | Score | SM    | Ruolo | Settore     |
+|----------|----------------------|-------|-------|-------|-------------|
+| CS.PA    | AXA SA               | 0.713 | +0.73 | CORE  | Assicuraz   |
+| BNP.PA   | BNP Paribas          | 0.611 | +0.59 | CORE  | Banca       |
+| BMPS.MI  | Banca MPS            | 0.268 | +0.69 | CORE  | Banca       |
+| ENEL.MI  | Enel                 | 0.555 | +0.30 | SAT   | Utility     |
+| PST.MI   | Poste Italiane       | 0.451 | +0.38 | CORE  | Servizi     |
+| ISP.MI   | Intesa Sanpaolo      | 0.078 | +0.62 | CORE  | Banca       |
+| AC.PA    | Accor                | 0.612 | +0.13 | SAT   | Hospitality |
+| TIT.MI   | Telecom Italia       | 0.439 | +0.05 | SAT   | Telecom     |
+| STMMI.MI | STMicroelectronics   | 0.280 | +0.14 | SAT   | Tech        |
+
+Guadagno atteso: T1 +2.6% / T2 +6.9% / T3 +11.7%. Rischio: 55% esposto, stop disciplinato.
+
+### Differenze chiave vs pre-allineamento
+- **Scoring bimodale**: breakout names (score ≥0.55) separati nettamente dai non-breakout.
+  Questo e' corretto: nel backtest, il breakout (+0.55) e' il driver dominante dell'edge.
+- **8→9 nomi** (dopo fix CS.PA settore): meno nomi del precedente 12 perche' la soglia
+  breakout e' selettiva. Esposizione 55% vs 56% — il modello non forza il fully invested.
+- **5 CORE / 4 SAT**: bilanciato. CS.PA e BNP.PA sono i CORE a piu' alta convinzione.
+- **US esclusi** (PULLBACK go-flat): corretto. US names (UNH 0.423, LLY 0.414) sarebbero
+  ben scorati ma il regime le blocca.
+
+### Auto-audit
+- Severita' massima: BASSA (grafici mancanti). Nessuna criticita' ALTA o MEDIA.
+- Concentrazione area EU 100%: dichiarata nel piano (US in PULLBACK), hedge opzionale.
+- Edge reale (PSR 0.98), DSR<0.95: size moderata confermata.
+
+### Watch list
+- [ ] Quando US torna TREND_UP: UNH (0.846 tecnico), LLY (0.827), GOOGL (0.097+flow) entrano.
+- [ ] CS.PA RSI 93.2: breakout legittimo ma estremo. Monitorare per reversal post-breakout.
+- [ ] BMPS.MI RSI 88.8: stessa nota. Lo stop protegge.
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
