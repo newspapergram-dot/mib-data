@@ -373,4 +373,27 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    default (DD piu' basso); hedge/stay-invested come flag esplicito con avvertenza sui costi.
 
 ---
+
+## Lezione #13 — 2026-06-25 — Non si tara via il rumore, e il DSR si può ingannare
+
+**Evidenza.**
+- I 4 set di moltiplicatori di target danno risultati quasi identici sul ciclo completo
+  (mean ~0.27%/trade, MaxDD −37/−40%, PF 1.18): cio' che sembrava una leva (i target) sul
+  campione bull e' rumore sul ciclo completo. Cambiare avrebbe significato overfittare al rumore.
+- Il DSR e' uscito ~0.99 ("supera 0.95"), ma e' in parte gonfiato: poche config quasi identiche
+  → sr0 minuscolo; trade sovrapposti → T effettivo < n. Il numero reale di prove nel progetto e' >>4.
+  L'edge full-cycle sottostante e' sottile (Sharpe giornaliero 0.12).
+
+**Regola.**
+1. **Se piu' valori di un parametro danno lo stesso risultato, NON tararlo: e' rumore.** Tieni il
+   default piu' sensato e non inseguire la terza cifra decimale: e' overfitting travestito da tuning.
+2. **Il DSR (e ogni metrica anti-overfit) si puo' ingannare**: testando poche alternative simili
+   (sr0 basso) o usando osservazioni sovrapposte (T gonfiato). Per onesta': conta TUTTE le prove
+   fatte, usa osservazioni il piu' indipendenti possibile, e diffida di un DSR alto con Sharpe basso.
+3. **Quando l'edge e' sottile, l'affidabilita' viene dai controlli di rischio, non dallo Sharpe.**
+   Filtri di regime, stop, go-flat, sizing per convinzione: limitano la rovina anche se l'edge e' modesto.
+4. **Per un edge piu' forte serve un SEGNALE nuovo, non un'altra taratura.** Esaurita la spremitura
+   dei parametri, il progresso arriva da informazione nuova (fattori/dati), validata full-cycle.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

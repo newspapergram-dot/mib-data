@@ -498,4 +498,39 @@ l'avvertenza che e' un costo-assicurazione, non un generatore di rendimento.
 - [ ] Valutare hedge per-mercato (CAC/FTSEMIB) oltre a S&P, se si usa include_pullback.
 
 ---
+
+## Run #13 — 2026-06-25 (ri-taratura target sul ciclo completo + DSR onesto)
+
+### `full_cycle_tune.py` (NUOVO) — taratura sul modello operativo, 2018-2026
+Testato un set PICCOLO a-priori (4 config) per limitare il multiple-testing. Risultato:
+| config | mean%/trade | win% | MaxDD% | PF | DSR(giorn.) |
+|---|---|---|---|---|---|
+| (2,6,10) attuale | 0.27 | 51.9 | −39.5 | 1.18 | 0.989 |
+| (3,6,10) | 0.30 | 50.0 | −36.7 | 1.19 | 0.996 |
+| (2,5,8) | 0.26 | 51.9 | −39.8 | 1.17 | 0.988 |
+| (2,4,6) | 0.26 | 51.9 | −39.4 | 1.18 | 0.989 |
+
+### Conclusioni
+1. **I moltiplicatori sono EQUIVALENTI sul ciclo completo** (differenze nel rumore): la taratura
+   dei target NON e' la leva. **Mantengo (2,6,10)** (mediana positiva e win-rate migliori per conti
+   piccoli); (3,6,10) e' marginalmente meglio su MaxDD/DSR ma dentro il rumore → non vale cambiare.
+2. **DSR > 0.95 e' raggiunto (0.989) ma in parte e' GAMING**: alto perche' (a) ho testato poche
+   config quasi identiche (sr0 minuscolo) e (b) i trade si sovrappongono (T effettivo < n).
+   Il numero REALE di configurazioni provate nel progetto e' >> 4 → il DSR onesto e' piu' basso.
+3. **L'edge full-cycle e' SOTTILE**: ~0.27%/trade, PF 1.18, Sharpe giornaliero 0.12, MaxDD −37%.
+   Molto piu' debole dell'impressione bull-only (Sharpe 1.89). L'affidabilita' del modello NON
+   viene da uno Sharpe robusto alto, ma dai **controlli di rischio** (regime/accumulazione/stop/
+   go-flat/sizing per convinzione) che limitano la rovina.
+
+### Verdetto sul "modello altamente affidabile"
+C'e' un **tetto strutturale**: l'edge sottostante e' modesto e bull-favored. L'ingegneria fatta
+(filtri condizionali, stop, target ATR/R, go-flat, hedge opzionale, dedup) lo rende OPERABILE e
+ne limita il drawdown, ma non lo trasforma in un sistema high-Sharpe all-weather. Onesta' > numeri belli.
+
+### Watch list per il prossimo run
+- [ ] Per un edge piu' forte servirebbe un segnale nuovo (non un'altra taratura): es. fattori
+      cross-sectional (quality/momentum robusti), o dati alternativi — da validare full-cycle.
+- [ ] Tracciare il numero REALE di configurazioni provate per un DSR onesto.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
