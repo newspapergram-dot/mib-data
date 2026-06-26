@@ -83,10 +83,14 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
         cont = Counter("EU" if m in ("IT", "FR") else "US" for m in mkts)
         top_c, nc = cont.most_common(1)[0]
         if nc / len(mkts) > 0.85 and len(set(mkts)) > 1:
-            findings.append(("MEDIA", "diversif.", f"book {nc}/{len(mkts)} concentrato su {top_c} "
-                             f"(0 esposizione all'altra area)",
-                             "regione correlata: e' per regime (es. US in PULLBACK) ma monitorare "
-                             "il rischio macro comune; valutare hedge indice di area", "stats"))
+            # se il piano DICHIARA gia' la concentrazione (con hedge di area opzionale) e' un
+            # rischio gestito -> NOTA; altrimenti e' una criticita' operativa -> MEDIA.
+            acknowledged = "CONCENTRAZIONE DI AREA" in txt
+            sev = "NOTA" if acknowledged else "MEDIA"
+            tail = " (dichiarata nel piano, hedge di area disponibile)" if acknowledged else ""
+            findings.append((sev, "diversif.", f"book {nc}/{len(mkts)} concentrato su {top_c}{tail}",
+                             "regione correlata: e' per regime (es. US in PULLBACK); monitorare il "
+                             "rischio macro comune; hedge di area come assicurazione opzionale", "stats"))
 
     # 4) QUALITA' DEI NOMI (confidenza/distribuzione) ----------------------
     n_bassa = len(re.findall(r"conf BASSA", txt))

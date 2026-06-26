@@ -277,6 +277,22 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         w("   (assicurazione: attendersi un COSTO in fasi laterali; togliere l'hedge al ritorno TREND_UP)")
     else:
         w(" OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).")
+    # CONCENTRAZIONE DI AREA: se quasi tutta l'esposizione e' su un'unica regione (EU=IT+FR vs US),
+    # il book e' correlato a uno shock macro comune anche con piu' "mercati". E' spesso una
+    # conseguenza del gate (es. US in PULLBACK -> 0 US), non un errore: si DICHIARA il rischio
+    # residuo e si offre l'hedge di AREA come assicurazione opzionale (costo, non alpha — L#12).
+    if expo_mkt:
+        eu_expo = sum(v for m, v in expo_mkt.items() if m in ("IT", "FR"))
+        us_expo = expo_mkt.get("US", 0.0)
+        tot = eu_expo + us_expo
+        if tot > 0 and max(eu_expo, us_expo) / tot >= 0.85 and exposure > 0:
+            area = "EU (IT+FR)" if eu_expo >= us_expo else "US"
+            idx = "Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi)" if area.startswith("EU") else "SPY (o SH inverso)"
+            dom = max(eu_expo, us_expo)
+            w(f" CONCENTRAZIONE DI AREA: {dom/capital*100:.0f}% del capitale su {area} "
+              f"(0 sull'altra area, per regime).")
+            w(f"   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short {idx} "
+              f"~{0.5*dom:.0f}EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).")
     w("")
     # SLEEVE HIGH-BETA UNICORNI (satellite separato dal core, gated su iper-crescita PIT).
     w("-" * 92)
