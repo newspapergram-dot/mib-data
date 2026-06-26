@@ -104,11 +104,6 @@ def _metrics_for_year(ts, end_date):
     ocf = g("ocf"); ca = g("current_assets"); cl = g("current_liabilities")
     cash = g("cash"); ltd = g("long_term_debt"); eq = g("stockholders_equity")
     eps = g("eps_diluted")
-    def _ratio(a, b, lo=-5.0, hi=1.5):
-        if a is None or not b:
-            return None
-        m = a / b
-        return m if (b > 0 and lo < m <= hi) else (a / b if b > 0 else None)
     net_margin = (ni / rev) if (ni is not None and rev and rev > 0) else None
     ocf_margin = (ocf / rev) if (ocf is not None and rev and rev > 0) else None
     current_ratio = (ca / cl) if (ca is not None and cl and cl != 0) else None

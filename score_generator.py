@@ -113,7 +113,7 @@ def score_technical(indicators):
 # ============================================================================
 
 def score_flow_13f(ticker, f13_df):
-    """Segnale 13F: conta quanti guru hanno il titolo."""
+    """Segnale 13F: conta quanti guru hanno il titolo. None = no data."""
     try:
         ticker_to_issuer = {
             "AAPL": "APPLE INC", "MSFT": "MICROSOFT CORP", "NVDA": "NVIDIA CORPORATION",
@@ -123,35 +123,35 @@ def score_flow_13f(ticker, f13_df):
             "STM": "STMICROELECTRONICS", "STMMI.MI": "STMICROELECTRONICS",
         }
         issuer = ticker_to_issuer.get(ticker, ticker.upper())
-        
+
         if f13_df.empty:
-            return 0.0
-        
+            return None
+
         matches = f13_df[f13_df["issuer"].str.contains(issuer, case=False, na=False)]
         if matches.empty:
-            return 0.0
-        
+            return None
+
         guru_count = matches["guru"].nunique()
         return float(np.clip(guru_count / 3.0, 0, 1))
     except Exception:
-        return 0.0
+        return None
 
 def score_flow_insider(ticker, ins_df):
-    """Segnale insider: +1 cluster, -0.5 vendite discrezionali, 0 neutro."""
+    """Segnale insider: +1 cluster, -0.5 vendite discrezionali. None = no data."""
     try:
         if ins_df.empty:
-            return 0.0
-        
+            return None
+
         match = ins_df[ins_df["ticker"] == ticker]
         if match.empty:
-            return 0.0
-        
+            return None
+
         return float(match.iloc[0].get("signal", 0))
     except Exception:
-        return 0.0
+        return None
 
 def score_flow_short(ticker, short_fr_df):
-    """Segnale short: contrarian."""
+    """Segnale short: contrarian. None = no data."""
     try:
         if not short_fr_df.empty:
             matches = short_fr_df[short_fr_df["Emetteur / issuer"].str.contains(
@@ -163,21 +163,26 @@ def score_flow_short(ticker, short_fr_df):
                         return -0.5
                 except Exception:
                     pass
-        return 0.0
+                return 0.0
+        return None
     except Exception:
-        return 0.0
+        return None
 
 def score_flow(ticker, f13_df, ins_df, short_fr_df):
-    """Combina tutti i segnali di flow."""
+    """Combina segnali di flow. None se nessuna fonte ha dati per il ticker."""
     try:
-        s_13f = score_flow_13f(ticker, f13_df) * 0.5
-        s_ins = score_flow_insider(ticker, ins_df) * 0.4
-        s_short = score_flow_short(ticker, short_fr_df) * 0.1
-        
-        combined = s_13f + s_ins + s_short
+        s_13f = score_flow_13f(ticker, f13_df)
+        s_ins = score_flow_insider(ticker, ins_df)
+        s_short = score_flow_short(ticker, short_fr_df)
+        parts = [(v, w) for v, w in [(s_13f, 0.5), (s_ins, 0.4), (s_short, 0.1)]
+                 if v is not None]
+        if not parts:
+            return None
+        wsum = sum(w for _, w in parts)
+        combined = sum(v * w for v, w in parts) / wsum
         return float(np.clip(combined, -1.0, 1.0))
     except Exception:
-        return 0.0
+        return None
 
 # ============================================================================
 # PARTE 3: ORCHESTRATORE PRINCIPALE
@@ -256,7 +261,7 @@ def generate_scores(mib_data_path="data/mib_data.csv",
                     "ticker": tk,
                     "score": round(final_score, 3),
                     "segnale_tecnico": round(sig_tech, 3),
-                    "segnale_flow": round(sig_flow, 3),
+                    "segnale_flow": round(sig_flow, 3) if sig_flow is not None else 0.0,
                     "segnale_decayed": round(decayed["technical"], 3),
                     "price": tech_ind.get("last_price"),
                     "rsi": tech_ind.get("rsi"),

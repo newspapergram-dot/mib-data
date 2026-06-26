@@ -3,3 +3,4 @@ __pycache__/
 data/mib_data_long.csv
 data/backtest_report_long.csv
 data/mib_data_unicorns.csv
+charts/*.png

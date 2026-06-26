@@ -482,4 +482,53 @@ una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiez
    "non comprare" e' una decisione, non un fallimento del tool.
 
 ---
+
+## Lezione #16 — 2026-06-26 — Misura il modello che OPERI, non il segnale grezzo; e PSR != DSR
+
+**Evidenza.**
+- Stesso periodo (ciclo completo 2018-2026), due numeri opposti a seconda di COSA misuri:
+  - top-quintile GREZZO (no gate regime, no accumulazione, no stop): Sharpe **0.17**, MaxDD **-95.7%**;
+  - modello OPERATIVO (go-flat regime UP + top-quintile + accumulazione + stop): Sharpe **1.00**,
+    MaxDD **-13.8%**, CAGR +14.4%. Stesso edge sottostante, ma il modello e' i FILTRI, non il segnale.
+- **PSR 0.977 ma DSR 0.86-0.92**: l'edge e' quasi certamente reale (Sharpe vero >0) MA non supera la
+  soglia di multiple-testing. PSR e DSR rispondono a domande diverse: "lo Sharpe e' >0?" vs "e' >0
+  dopo aver corretto per quante strategie ho provato?". Un edge puo' essere reale e non blindato.
+- Le metriche a 14 mesi (Sharpe 1.89) erano un artefatto bull: sul ciclo completo il profilo onesto
+  e' Sharpe ~1.0. Il numero piu' alto non era piu' vero, era solo su meno (e migliori) dati.
+
+**Regola.**
+1. **Backtesta il modello che OPERI, non il segnale grezzo.** Gate di regime, filtro di conferma e
+   stop FANNO parte del modello: misurarli fuori da' una diagnosi falsa (Sharpe 0.17 vs 1.0). Se la
+   pipeline misura il grezzo, costruisci la serie del modello reale (M2M giornaliera) e valuta quella.
+2. **PSR e DSR non sono intercambiabili.** PSR>0.95 dice "edge reale"; DSR>0.95 dice "robusto a
+   multiple-testing". Riporta entrambi: un edge reale-ma-non-blindato si OPERA, ma a size moderata.
+3. **Non gamare il DSR.** Il DSR dipende dal numero di trial N: riportalo a piu' N (6/10/15) e giudica
+   dal piu' severo. Ridurre N "per far passare la soglia" e' barare; ridurre i gradi di liberta' VERI
+   del modello (meno knob) e' lecito e riduce anche l'overfit.
+4. **Se l'edge non e' blindato, la protezione e' la DISCIPLINA, non il leverage.** Size moderata +
+   gate di regime + stop sono cio' che rende operabile un edge bull-concentrato con DSR<0.95. Il
+   profitto composto vive nel non-rovinarsi, non nell'alzare la posta su un Sharpe non blindato.
+
+---
+
+## Lezione #17 — 2026-06-26 — "No data" != "segnale negativo" nella combinazione multi-sorgente
+
+**Evidenza.**
+- `score_flow` ritornava 0.0 quando nessuna fonte (13F/insider/short) copriva un ticker. Poi
+  `combine_signals = mean(technical, flow=0)` dimezzava lo score. L'intero universo EU + i piccoli
+  US avevano score artificialmente compressi (IQR 0.086, mediana 0.116). Dopo il fix: IQR 0.193,
+  mediana 0.200 (+72%). I nomi con forte accumulazione ma senza copertura 13F (SRG.MI, BMPS.MI)
+  passavano sotto p50 e venivano esclusi dal portafoglio a causa del bug.
+- Errore classico: confondere l'assenza di informazione con un dato reale e usarlo per penalizzare.
+
+**Regola.**
+1. **Se una fonte non copre un ticker, il segnale e' `None`, non 0.** Zero e' "ho cercato, il dato
+   e' neutro"; `None` e' "non ho dato per giudicare". La media ponderata deve ignorare il `None`,
+   non includerlo come zero.
+2. **Verifica che il modulo di aggregazione (combine_signals) salti i `None`.** Se fa la media
+   semplice con 0, i ticker meno coperti sono penalizzati in modo invisibile.
+3. **L'auto-audit deve distinguere cause strutturali da actionable.** "6/12 BASSA" e' un allarme
+   diverso se 4 sono illiquidi (strutturale, size gia' ridotta) vs 6 per score (problema di calibrazione).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

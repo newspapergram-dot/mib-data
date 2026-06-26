@@ -21,6 +21,21 @@ from modules.fundamentals import _load_pit_csv, pit_quality_score
 
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
 
+SECTOR = {
+    "SRG.MI": "Utility", "TRN.MI": "Utility", "ENEL.MI": "Utility", "A2A.MI": "Utility",
+    "ENGI.PA": "Utility", "VIE.PA": "Utility", "EDF.PA": "Utility",
+    "ISP.MI": "Banca", "BMPS.MI": "Banca", "BAMI.MI": "Banca", "UCG.MI": "Banca",
+    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca", "CS.PA": "Banca",
+    "AZM.MI": "Finanza", "G.MI": "Assicuraz",
+    "TEN.MI": "Oil&Gas", "SPM.MI": "Oil&Gas", "ENI.MI": "Oil&Gas",
+    "STMMI.MI": "Tech", "STMPA.PA": "Tech",
+    "CA.PA": "Retail", "PST.MI": "Servizi", "REC.MI": "Pharma",
+    "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
+    "PRY.MI": "Industriale", "RMS.PA": "Lusso", "MC.PA": "Lusso",
+    "RACE.MI": "Auto", "STLAM.MI": "Auto", "STLAP.PA": "Auto",
+}
+MAX_PER_SECTOR = 3
+
 
 def _load_fundamentals():
     """Merge fondamentali per il fq tier: USA (SEC PIT) + EU (Yahoo best-effort).
@@ -207,7 +222,11 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
 
     budget = exposure_cap * capital
     picked, exposure = [], 0.0
+    sec_count = {}
     for r in elig.itertuples():
+        sec = SECTOR.get(r.ticker, "Altro")
+        if sec_count.get(sec, 0) >= MAX_PER_SECTOR:
+            continue
         p = propose(r.ticker, entry=r.price, atr14=r.atr, score=r.score, capital=capital,
                     regime_mult=mult_by_mkt.get(r.mkt, 0.5), size_mult=r.size_mult)
         p["confidence"] = r.conf      # confidenza con soglie LIVE (percentili)
@@ -215,6 +234,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
             continue
         picked.append((r, p))
         exposure += p["pos_value"]
+        sec_count[sec] = sec_count.get(sec, 0) + 1
         if len(picked) >= max_names:
             break
 
@@ -231,7 +251,9 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w("=" * 92)
     w(" MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.")
     w(" Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.")
-    w(f" Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).")
+    w(" ROBUSTEZZA CICLO COMPLETO 2018-2026 (robustness_consolidate): Sharpe 1.0, MaxDD -13.8%,")
+    w("   CAGR +14%, PSR 0.98 (edge REALE) ma DSR<0.95 (non blindato) -> SIZE MODERATA, mai leverage:")
+    w("   il profitto si protegge col gate di regime + STOP, non con un Sharpe alto (bull-concentrato).")
     w(" QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).")
     w("   Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati")
     w("   NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).")
@@ -275,6 +297,22 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         w("   (assicurazione: attendersi un COSTO in fasi laterali; togliere l'hedge al ritorno TREND_UP)")
     else:
         w(" OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).")
+    # CONCENTRAZIONE DI AREA: se quasi tutta l'esposizione e' su un'unica regione (EU=IT+FR vs US),
+    # il book e' correlato a uno shock macro comune anche con piu' "mercati". E' spesso una
+    # conseguenza del gate (es. US in PULLBACK -> 0 US), non un errore: si DICHIARA il rischio
+    # residuo e si offre l'hedge di AREA come assicurazione opzionale (costo, non alpha — L#12).
+    if expo_mkt:
+        eu_expo = sum(v for m, v in expo_mkt.items() if m in ("IT", "FR"))
+        us_expo = expo_mkt.get("US", 0.0)
+        tot = eu_expo + us_expo
+        if tot > 0 and max(eu_expo, us_expo) / tot >= 0.85 and exposure > 0:
+            area = "EU (IT+FR)" if eu_expo >= us_expo else "US"
+            idx = "Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi)" if area.startswith("EU") else "SPY (o SH inverso)"
+            dom = max(eu_expo, us_expo)
+            w(f" CONCENTRAZIONE DI AREA: {dom/capital*100:.0f}% del capitale su {area} "
+              f"(0 sull'altra area, per regime).")
+            w(f"   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short {idx} "
+              f"~{0.5*dom:.0f}EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).")
     w("")
     # SLEEVE HIGH-BETA UNICORNI (satellite separato dal core, gated su iper-crescita PIT).
     w("-" * 92)

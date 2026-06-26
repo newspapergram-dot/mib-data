@@ -2,21 +2,24 @@
 BACKTEST ISTITUZIONALE v3 — Swing Copilot EU+USA
 Dati: 2018-01-02 → 2026-06-25
 Ticker: 142 | Orizzonti: (5, 10, 20)
+Fondamentali PIT: 124 ticker SEC EDGAR (point-in-time)
 ======================================================================
 
 >>> COSTRUZIONE SEGNALI — score VECCHIO <<<
     Segnali prodotti: 31644
+    Con fondamentali PIT: 17986 (57%)
 
 >>> COSTRUZIONE SEGNALI — score NUOVO <<<
     Segnali prodotti: 31644
+    Con fondamentali PIT: 17986 (57%)
 
 ──────────────────────────────────────────────────────────────────────
 1. CORRELAZIONE SPEARMAN score↔rendimento (netto)
 ──────────────────────────────────────────────────────────────────────
                   VECCHIO        NUOVO
-   5gg netto        -0.0139      -0.0030
-  10gg netto        -0.0227      -0.0064
-  20gg netto        -0.0295      -0.0103
+   5gg netto        -0.0140      -0.0037
+  10gg netto        -0.0227      -0.0073
+  20gg netto        -0.0296      -0.0108
 
 ──────────────────────────────────────────────────────────────────────
 2. SIMULAZIONE PORTAFOGLIO (hold 10gg, top 20%, netto)
@@ -24,37 +27,37 @@ Ticker: 142 | Orizzonti: (5, 10, 20)
 
   SCORE VECCHIO:
     Trade:          6329
-    Profitto netto: +2069.7%
-    Equity finale:  €2,169,666
-    Max Drawdown:   -95.1%
-    Sharpe ann:     +0.40
+    Profitto netto: +2221.6%
+    Equity finale:  €2,321,557
+    Max Drawdown:   -94.9%
+    Sharpe ann:     +0.41
     Sortino ann:    +0.59
     Calmar:         +0.08
     Profit Factor:  1.27
-    Expectancy:     +0.472%
+    Expectancy:     +0.478%
     Win Rate:       57.0%
     CVaR 95%:       -14.32%
     Max Consec.Loss:15
-    Time Underwater:483 barre
-    Recovery Factor:21.77
+    Time Underwater:484 barre
+    Recovery Factor:23.41
     Tail Ratio:     1.03
 
   SCORE NUOVO:
     Trade:          6329
-    Profitto netto: +12.8%
-    Equity finale:  €112,776
+    Profitto netto: +10.6%
+    Equity finale:  €110,566
     Max Drawdown:   -95.7%
-    Sharpe ann:     +0.18
+    Sharpe ann:     +0.17
     Sortino ann:    +0.22
     Calmar:         +0.00
     Profit Factor:  1.12
-    Expectancy:     +0.207%
-    Win Rate:       56.8%
-    CVaR 95%:       -16.26%
+    Expectancy:     +0.205%
+    Win Rate:       56.7%
+    CVaR 95%:       -16.27%
     Max Consec.Loss:14
-    Time Underwater:993 barre
-    Recovery Factor:0.13
-    Tail Ratio:     1.02
+    Time Underwater:997 barre
+    Recovery Factor:0.11
+    Tail Ratio:     1.03
 
 ──────────────────────────────────────────────────────────────────────
 3. DEFLATED SHARPE RATIO (correzione multiple testing)
@@ -62,23 +65,23 @@ Ticker: 142 | Orizzonti: (5, 10, 20)
 
   VECCHIO: N_configurazioni=15, SR₀=+0.027
     PSR(bench=0): 1.000  (soglia >0.95)
-    DSR:          0.889  (soglia >0.95 → ✗ NON PASSA)
-    MinTRL:       1484 barre (5.9 anni)
+    DSR:          0.887  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       1500 barre (6.0 anni)
 
   NUOVO: N_configurazioni=15, SR₀=+0.050
     PSR(bench=0): 1.000  (soglia >0.95)
-    DSR:          0.947  (soglia >0.95 → ✗ NON PASSA)
-    MinTRL:       539 barre (2.1 anni)
+    DSR:          0.938  (soglia >0.95 → ✗ NON PASSA)
+    MinTRL:       554 barre (2.2 anni)
 
 ──────────────────────────────────────────────────────────────────────
 4. WALK-FORWARD ANALYSIS (anchored, 6 finestre)
 ──────────────────────────────────────────────────────────────────────
-  VECCHIO: WFE=+1.31 (soglia >0.50)
-    Ret medio IS: +0.231%
-    Ret medio OOS: +0.302%
-  NUOVO: WFE=+3.28 (soglia >0.50)
-    Ret medio IS: +0.154%
-    Ret medio OOS: +0.506%
+  VECCHIO: WFE=+1.33 (soglia >0.50)
+    Ret medio IS: +0.230%
+    Ret medio OOS: +0.305%
+  NUOVO: WFE=+3.38 (soglia >0.50)
+    Ret medio IS: +0.147%
+    Ret medio OOS: +0.496%
 
 ──────────────────────────────────────────────────────────────────────
 5. PROBABILITY OF BACKTEST OVERFITTING (CSCV, S=8)
@@ -89,20 +92,20 @@ Ticker: 142 | Orizzonti: (5, 10, 20)
 ──────────────────────────────────────────────────────────────────────
 6. BLOCK BOOTSTRAP (IC 95% su Sharpe e MaxDD, score NUOVO)
 ──────────────────────────────────────────────────────────────────────
-  Sharpe ann: stima +0.35 | IC95% [+0.22, +0.51]
-  MaxDD:      stima -98.7% | IC95% [-99.9%, -87.9%]
+  Sharpe ann: stima +0.35 | IC95% [+0.21, +0.50]
+  MaxDD:      stima -98.7% | IC95% [-99.9%, -88.0%]
 
 ──────────────────────────────────────────────────────────────────────
 7. PERFORMANCE PER REGIME (bull / bear via SPY/SMA200) — sul PORTAFOGLIO selezionato
 ──────────────────────────────────────────────────────────────────────
 
   VECCHIO:
-    bull    : n=5624 | ret +0.242% | hit 52.7% | Sharpe +0.59
-    bear    : n= 578 | ret +1.334% | hit 60.6% | Sharpe +2.10
+    bull    : n=5623 | ret +0.239% | hit 52.7% | Sharpe +0.58
+    bear    : n= 579 | ret +1.341% | hit 60.6% | Sharpe +2.11
     unknown : n= 127 | ret -2.041% | hit 48.0% | Sharpe -4.01
 
   NUOVO:
-    bull    : n=5694 | ret +0.529% | hit 54.8% | Sharpe +1.37
+    bull    : n=5694 | ret +0.522% | hit 54.8% | Sharpe +1.35
     bear    : n= 509 | ret -0.288% | hit 55.4% | Sharpe -0.48
     unknown : n= 126 | ret -0.056% | hit 60.3% | Sharpe -0.16
 
@@ -110,6 +113,27 @@ Ticker: 142 | Orizzonti: (5, 10, 20)
 8. SENSITIVITY — Sharpe netto (griglia holding × soglia, score NUOVO)
 ──────────────────────────────────────────────────────────────────────
             tq=0.70  tq=0.75  tq=0.80  tq=0.85  tq=0.90
-  hold= 5gg     +0.22     +0.25     +0.29     +0.30     +0.38 
-  hold=10gg     +0.31     +0.32     +0.35     +0.31     +0.48 
-  hold=20gg     +0.36     +0.36     +0.39     +0.29     +0.40 
+  hold= 5gg     +0.22     +0.24     +0.28     +0.29     +0.37 
+  hold=10gg     +0.31     +0.32     +0.35     +0.30     +0.47 
+  hold=20gg     +0.36     +0.36     +0.39     +0.29     +0.39 
+
+──────────────────────────────────────────────────────────────────────
+9. FONDAMENTALI POINT-IN-TIME (SEC EDGAR) — filtro qualita' sul score NUOVO
+──────────────────────────────────────────────────────────────────────
+  Segnali con PIT: 17986/31644 (57%)
+
+  Spearman pit_quality ↔ fwd_10_net (top quintile): -0.0030
+
+  Performance per terzile qualita' PIT (top quintile, hold 10gg):
+     terzile      n     ret%     win%   Sharpe
+  (terzili non calcolabili: troppo pochi valori distinti)
+
+  Confronto top quintile: tutti vs qualita' PIT >= 0.60:
+              tutti: n=6329 ret=+0.446% win=55.0% Sharpe=+0.35
+        PIT >= 0.60: n=3019 ret=+0.726% win=56.7% Sharpe=+0.57
+        PIT >= 0.80: n=2145 ret=+0.708% win=56.6% Sharpe=+0.57
+
+  Net margin come filtro (top quintile):
+        nm > 0 (profittevole): n=3043 ret=+0.597% win=55.7%
+                    nm >= 10%: n=1863 ret=+0.420% win=54.9%
+          nm < 0 (in perdita): n= 133 ret=+1.850% win=53.4%

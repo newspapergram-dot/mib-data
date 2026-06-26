@@ -19,9 +19,12 @@ def decay_weight(signal_type: str, age_days: float) -> float:
     return 0.0 if w < DECAY_FLOOR else w
 
 def apply_decay(components: dict, ages: dict) -> dict:
-    """Applica decay a ciascun componente. Fail-safe."""
+    """Applica decay a ciascun componente. Fail-safe. None passati inalterati."""
     out = {}
     for k, v in components.items():
+        if v is None:
+            out[k] = None
+            continue
         try:
             out[k] = v * decay_weight(k, ages.get(k, 0))
         except Exception:

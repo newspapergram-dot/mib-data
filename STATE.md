@@ -729,4 +729,131 @@ Obiettivo impostato: rendere il modello operativo un cercatore di profitto. Due 
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #19 — 2026-06-26 (4 note operative: nomi, automiglioramento, skill, grafici)
+
+Quattro richieste dell'utente, tutte chiuse + auto-review.
+
+### #1 — Nomi azienda (`company_names.py`)
+- Mappa ticker->nome: SEC entity (USA) + Yahoo longName (EU), cache `data/ticker_names.csv` (143
+  ticker). Wired in `execution_sheet` (colonna AZIENDA): i ticker ora sono cercabili (Terna,
+  Carrefour, Intesa Sanpaolo, Engie, Poste, Recordati, STMicroelectronics, Saipem, Air Liquide...).
+
+### #4 — Analisi grafica reintegrata (`charts.py`)
+- Trovato `charts.py` (candlestick + SMA/BB/RSI/MACD/OBV via mplfinance). **Bug Lezione #5**: leggeva
+  da `raw.githubusercontent/main` -> corretto a LETTURA LOCALE. Nuova `charts_for_portfolio()` grafica
+  i SOLI titoli selezionati col nome azienda nel titolo. 12 grafici/sessione in `charts/` (PNG gitignored).
+
+### #2 — Ciclo di automiglioramento (`self_improve.py`)
+- Auto-audit post-raccomandazione: freschezza dati, disciplina rischio, concentrazione (mercato E
+  CONTINENTE), qualita' nomi, assunzioni non blindate, copertura grafici. Scrive `data/IMPROVEMENT_LOG.txt`
+  + sceglie la "prossima mossa" a impatto piu' alto. Sessione oggi: book 100% EU flaggato (US PULLBACK),
+  frontiera = DSR<0.95.
+
+### #3 — Skill che migliorano le skill
+- `self_improve` mappa OGNI criticita' -> skill che la risolve (/code-review, /simplify, /verify,
+  /security-review, metodo statistico). E **eseguito davvero `/code-review`** sul codice nuovo: 5 fix
+  applicati (il piu' importante: `execution_sheet` non perde piu' silenziosamente una posizione dal
+  foglio rischio; parsing per-scheda con campi indipendenti + segnalazione schede incomplete).
+
+### Loop operativo completo della sessione (profit-seeker)
+`fetch_data -> score_generator -> regime_filter -> portfolio_builder -> execution_sheet -> charts -> self_improve`
+Ogni sessione: genera il piano + foglio rischio + grafici + si auto-critica e indica il prossimo miglioramento.
+
+### Watch list
+- [ ] Prossima mossa dell'auto-audit: consolidare DSR>0.95 (ridurre gradi di liberta', walk-forward ciclo completo).
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
+
+## Run #20 — 2026-06-26 (consolidamento robustezza: DSR del modello OPERATIVO sul ciclo completo)
+
+Prossima mossa indicata dall'auto-audit: consolidare la robustezza (DSR>0.95). Eseguita con analisi
+precisa, evitando di "gamare" il numero.
+
+### Il problema misurato
+- `backtest_v3` sez.2-3 calcola Sharpe/DSR sul top-quintile **GREZZO** (no gate regime, no
+  accumulazione, no stop): sul ciclo 2018-2026 da' Sharpe **0.17 / MaxDD -95.7%** (conferma L#11).
+  Ma NON e' cio' che si opera. Misurare il segnale grezzo invece del modello = diagnosi sbagliata.
+
+### `robustness_consolidate.py` (NUOVO) — DSR del modello che si OPERA davvero
+- Riusa la serie M2M giornaliera del modello operativo (go-flat regime UP + top-quintile +
+  accumulazione, da hedge_overlay) sul ciclo completo: **1022 giorni op., 2164 trade, 2019-2026**.
+- Pannello: **Sharpe 1.00 | MaxDD -13.8% | CAGR +14.4% | PSR 0.977 | MinTRL 2.8 anni**.
+- DSR a conteggi-trial multipli (anti-gaming, si guarda il N piu' severo): **0.924 (N=6) ->
+  0.855 (N=15)** -> NON supera 0.95.
+- Output: `data/ROBUSTNESS_PANEL.txt`.
+
+### Verdetto onesto (chiude la watch-list DSR)
+- L'edge e' **REALE** (PSR 0.98 = Sharpe vero quasi certamente >0; Sharpe 1.0 / MaxDD -13.8% su un
+  ciclo CON bear 2020/2022) ma **non blindato** a multiple-testing (DSR<0.95). Non si forza il numero.
+- Implicazione operativa (gia' nel modello): **size MODERATA, mai leverage**; il profitto si protegge
+  col **gate di regime + STOP**, non con un Sharpe alto. Aggiornati header di `portfolio_builder` e la
+  nota di `self_improve` perche' citino queste metriche REALISTICHE di ciclo completo (non le
+  bull-gonfiate 14-mesi: Sharpe 1.89 era artefatto di periodo).
+
+### Watch list
+- [ ] DSR>0.95 non raggiungibile onestamente con i dati attuali: rivedere solo se arriva piu' storia
+      o si riducono i gradi di liberta' del modello senza intaccare l'edge. Per ora: chiuso, size moderata.
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
+
+## Run #21 — 2026-06-26 (fix score compression: flow=0 bug + auto-audit migliorato)
+
+Prossima mossa indicata dall'auto-audit Run #20: "6/12 nomi a confidenza BASSA → score compresso".
+
+### Bug trovato e corretto: `score_flow` trattava "no data" come "segnale negativo"
+
+**Causa radice**: `score_flow_13f`, `_insider`, `_short` ritornavano **0.0** sia per "nessun dato
+disponibile" (EU, small cap senza copertura 13F/insider) sia per "dato trovato, valore neutro".
+Poi `combine_signals = mean(technical, flow=0)` **dimezzava lo score** di ogni ticker senza
+copertura flow — la maggior parte dell'universo EU + molti US.
+
+**Fix**: le sotto-funzioni ora ritornano `None` quando non trovano dati. `score_flow` aggrega
+solo le componenti con dato reale; `None` se nessuna fonte copre il ticker. `apply_decay` passa
+`None` inalterato. `combine_signals` (gia' predisposto) ignora i `None` e usa solo il tecnico.
+
+**Effetto sulla distribuzione**:
+| metrica | PRIMA | DOPO |
+|---|---|---|
+| mediana score | 0.116 | **0.200** |
+| IQR | 0.086 | **0.193** (+124%) |
+| p90 | 0.190 | **0.356** |
+| max | 0.356 | **0.599** |
+
+### Effetto sul portafoglio
+- **ENTRATI**: SRG.MI (Snam, sm +0.82 CORE) e BMPS.MI (Monte Paschi, sm +0.69 CORE) — avevano
+  score dimezzato sotto p50, ora sopra → selezionati per la forte accumulazione.
+- **USCITI**: REC.MI e FBK.MI — SAT con bassa convinzione, spinti fuori dal cap 12 dai nuovi CORE.
+- **Composizione**: da 7 CORE / 5 SAT a **9 CORE / 3 SAT** (piu' concentrato sulla parte affidabile).
+- **Rischio**: 2.61% a stop (OK <6%), R/R T2 3.42.
+
+### Auto-audit migliorato
+- `self_improve.py` ora distingue BASSA-per-illiquidita' (strutturale, size gia' ridotta) da
+  BASSA-per-score (actionable). Risultato: 6/12 BASSA = **4 illiquidi** (SRG.MI, TRN.MI, BMPS.MI,
+  AZM.MI: costi alti, ma selezionati per accumulation → BASSA e' un avviso corretto) + **2 per score**
+  (CA.PA 0.242, TEN.MI 0.241 marginalmente sotto p60=0.253). La diagnosi "score compresso" ora punta
+  al problema reale, non a un artefatto illiquidita'.
+
+### Cap settoriale (Run #21b)
+- **Analisi correlazione**: Snam-Terna 0.82, Intesa-Azimut 0.76, Tenaris-Saipem 0.62. Il book
+  pre-cap aveva 5/12 utility = 42% → diversificazione illusoria su 3 cluster.
+- **`portfolio_builder`**: aggiunto `SECTOR` map + `MAX_PER_SECTOR=3`. Risultato: 7 settori
+  distinti, max 25% per settore. Da 5 utility → 3 (SRG.MI, VIE.PA, TRN.MI); ENGI.PA (4a utility)
+  sacrificata per diversificazione, REC.MI e FBK.MI entrano come settori sotto-rappresentati.
+- **`self_improve`**: nuovo check concentrazione settoriale (soglia >35%).
+- **Trade-off**: ENGI.PA era CORE ad alta convinzione (score 0.355, sm 0.53) ma utility #4. La
+  perdita di rendimento atteso e' compensata dal minor rischio di cluster. Mercato: 10/12 IT (FR ha
+  molti nomi in distribuzione → bloccati dal filtro SM, strutturalmente corretto).
+- Esposizione: 56%, rischio a stop 2.30%, R/R T2 3.48. Composizione: 8 CORE / 4 SAT.
+
+### Watch list
+- [ ] 10/12 IT: concentrazione mercato strutturale (FR in distribuzione). Monitorare.
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo + nomi US entrano.
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
