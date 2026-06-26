@@ -569,4 +569,14 @@ disponibile in questo ambiente.
 - [ ] Finche' l'edge resta modesto: priorita' alla GESTIONE DEL RISCHIO (gia' solida), non a nuovi segnali.
 
 ---
+
+## Run #15 — 2026-06-25 (consolidamento: README operativo)
+
+Creato **`README.md`**: documento operativo che consolida tutto — modello a strati, pipeline di
+esecuzione, mappa dei file/strumenti, performance validata (bull vs ciclo completo), fattori bear,
+overlay di rischio, **limiti onesti** (bull-favored, edge sottile, DSR fragile, niente fondamentali
+PIT) e roadmap. Punto d'ingresso unico per chi usa o mantiene il sistema; rimanda a `STATE.md`
+(cronologia) e `FINANCIAL_SKILLS.md` (lezioni) per il "perché" delle scelte.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
