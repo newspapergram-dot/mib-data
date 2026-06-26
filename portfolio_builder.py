@@ -67,6 +67,72 @@ def _fundamental_tier(tk, pit_rows, defensive=False):
     return mult, label
 
 
+def _unicorn_satellite(capital, p50, regime_by_mkt, mult_by_mkt, ok_regimes,
+                       budget_left, sleeve_cap=0.15, max_uni=3,
+                       sleeve_path="data/unicorn_sleeve.csv",
+                       px_path="data/mib_data_unicorns.csv"):
+    """Sleeve HIGH-BETA unicorni, validato in unicorn_validate (Run #17).
+
+    Regola validata: un segnale momentum su un unicorno e' edge SOLO se il nome e' ANCORA in
+    iper-crescita (rev YoY>=25% PIT); i growth decelerati sono trappole momentum (ret bull neg).
+    Gli unicorni come gruppo DILUISCONO il modello (Sharpe 0.15 vs 0.64 mega-cap) -> qui NON
+    entrano nell'universo core: sono un satellite separato, GATED e a size ridotta (high-beta).
+
+    Gate: hypergrowth (da unicorn_sleeve.csv) AND momentum >= p50 (stessa soglia core) AND
+    regime USA operabile AND non in distribuzione (sm>=-0.15) AND volume affidabile.
+    Sizing: pos_cap 5% (meta' del core) + size_mult 0.5 (high-beta) + regime_mult del mercato US.
+    Esposizione totale del sleeve limitata a `sleeve_cap` del capitale.
+
+    Ritorna lista di (info_dict, proposal). Vuota se il file manca, il regime USA non e'
+    operabile, o nessun nome passa il gate (output legittimo: niente da comprare, L#5).
+    """
+    if "US" not in [m for m in regime_by_mkt] or regime_by_mkt.get("US") not in ok_regimes:
+        return []   # unicorni sono USA: se US non operabile (es. go-flat in PULLBACK), niente sleeve
+    if not (os.path.exists(sleeve_path) and os.path.exists(px_path)):
+        return []
+    import csv as _csv
+    with open(sleeve_path) as f:
+        sleeve = {r["ticker"]: r for r in _csv.DictReader(f)}
+    px = pd.read_csv(px_path, parse_dates=["date"]).sort_values(["ticker", "date"])
+
+    cands = []
+    for tk, srow in sleeve.items():
+        hyper = str(srow.get("hypergrowth", "")).strip().lower() in ("true", "1")
+        try:
+            mom = float(srow.get("mom_score") or "nan")
+        except ValueError:
+            mom = float("nan")
+        if not hyper or not (mom >= p50):
+            continue                       # gate crescita + momentum (soglia core)
+        d = px[px.ticker == tk].sort_values("date")
+        if len(d) < 30:
+            continue
+        sm = smart_money_signal(d)
+        smv = sm["score"] if sm["score"] is not None else 0.0
+        vq = validate_volume(d.tail(60))
+        if smv < -0.15 or not bool(vq["reliable"]):
+            continue                       # non in distribuzione + volume affidabile
+        rev_yoy = srow.get("rev_yoy", "")
+        cands.append(dict(ticker=tk, score=mom, sm=round(smv, 2),
+                          rev_yoy=(float(rev_yoy) if rev_yoy not in ("", "None") else None),
+                          price=float(d.close.iloc[-1]),
+                          atr=float(atr_wilder(d.high, d.low, d.close, 14).iloc[-1]),
+                          sm_label=sm["label"].split(" (")[0]))
+    cands.sort(key=lambda c: c["score"], reverse=True)
+
+    sleeve_budget = min(budget_left, sleeve_cap * capital)
+    picked, spent = [], 0.0
+    for c in cands[:max_uni]:
+        p = propose(c["ticker"], entry=c["price"], atr14=c["atr"], score=c["score"],
+                    capital=capital, regime_mult=mult_by_mkt.get("US", 0.5),
+                    size_mult=0.5, pos_cap=0.05)   # high-beta: meta' cap, meta' size
+        if p["shares"] <= 0 or spent + p["pos_value"] > sleeve_budget:
+            continue
+        picked.append((c, p))
+        spent += p["pos_value"]
+    return picked
+
+
 def _market_of(tk):
     if tk.endswith(".MI"):
         return "IT"
@@ -83,6 +149,7 @@ def _dual_group(tk):
 
 
 def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=False,
+          include_unicorns=True,
           px_path="data/mib_data.csv", score_path="data/score_output.csv",
           regime_path="data/regime_filter.csv", out_path="data/PORTFOLIO.txt"):
     # include_pullback=False (DEFAULT, piu' affidabile) = GO-FLAT: si opera solo nei mercati
@@ -151,6 +218,12 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         if len(picked) >= max_names:
             break
 
+    # SLEEVE high-beta unicorni (satellite separato, gated su iper-crescita PIT; vedi Run #17).
+    uni_picked = []
+    if include_unicorns:
+        uni_picked = _unicorn_satellite(capital, p50, regime_by_mkt, mult_by_mkt,
+                                        _ok_regimes, budget_left=budget - exposure)
+
     L = []
     w = L.append
     w("=" * 92)
@@ -203,10 +276,33 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     else:
         w(" OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).")
     w("")
+    # SLEEVE HIGH-BETA UNICORNI (satellite separato dal core, gated su iper-crescita PIT).
+    w("-" * 92)
+    if uni_picked:
+        uni_expo = sum(p["pos_value"] for _, p in uni_picked)
+        ut1 = sum(p["g1_eur"] for _, p in uni_picked)
+        w(f" SLEEVE HIGH-BETA UNICORNI: {len(uni_picked)} nomi | esposizione {uni_expo:.0f} EUR "
+          f"({uni_expo/capital*100:.0f}%) — satellite, size ridotta (gate: momentum + rev YoY>=25% PIT)")
+        w(f" {'TICK':9s}{'MOM':>6s}{'SM$':>6s}{'REVyoy':>8s}{'AZ':>5s}{'VALORE':>9s}{'T1%':>7s}{'T2%':>7s}{'T3%':>7s}")
+        for c, p in uni_picked:
+            ry = "N/A" if c["rev_yoy"] is None else f"{c['rev_yoy']*100:.0f}%"
+            w(f" {c['ticker']:9s}{c['score']:6.3f}{c['sm']:6.2f}{ry:>8s}{p['shares']:5d}"
+              f"{p['pos_value']:9.0f}{p['g1_pct']:7.1f}{p['g2_pct']:7.1f}{p['g3_pct']:7.1f}")
+        w(" (HIGH-BETA: validato come edge SOLO se ancora in iper-crescita; size dimezzata, stop non negoziabile.)")
+    else:
+        _why = ("regime USA non operabile (go-flat)" if regime_by_mkt.get("US") not in _ok_regimes
+                else "nessun unicorno passa il gate momentum+iper-crescita oggi")
+        w(f" SLEEVE HIGH-BETA UNICORNI: nessun nome ({_why}).")
+    w("")
     w("=" * 92); w(" SCHEDE OPERATIVE"); w("=" * 92)
     for r, p in picked:
         w(""); w(render(p))
         w(f" FOREGROUND: sm {r.sm:+.2f} ({r.sm_label}) | {r.role} | FQ {r.fq} | conf {r.conf} | tier {r.tier} | {r.mkt}")
+        w("=" * 58)
+    for c, p in uni_picked:
+        w(""); w(render(p))
+        w(f" UNICORNO HIGH-BETA: mom {c['score']:+.3f} | sm {c['sm']:+.2f} ({c['sm_label']}) | "
+          f"rev YoY {'N/A' if c['rev_yoy'] is None else format(c['rev_yoy']*100, '.0f')+'%'} | satellite size ridotta")
         w("=" * 58)
 
     txt = "\n".join(L) + "\n"

@@ -703,4 +703,30 @@ Prezzi 2018-2026 (Yahoo v8, 33 candidati score>=50) + score momentum validato + 
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #18 — 2026-06-26 (GOAL profit-seeker: sleeve unicorni operativo + hook ESEF pronto)
+
+Obiettivo impostato: rendere il modello operativo un cercatore di profitto. Due wiring richiesti.
+
+### (a) Sleeve high-beta unicorni nel modello operativo (`portfolio_builder._unicorn_satellite`)
+- Consuma `data/unicorn_sleeve.csv` (gate crescita PIT da unicorn_validate) + `data/mib_data_unicorns.csv`
+  (prezzi) — nessuna chiamata SEC nel hot path. Gate: iper-crescita (rev YoY>=25%) AND momentum>=p50
+  (soglia core) AND regime USA operabile AND non distribuzione AND volume affidabile.
+- Satellite SEPARATO dal core (gli unicorni come gruppo diluiscono, Run #17): pos_cap 5% (meta'),
+  size_mult 0.5 (high-beta), esposizione sleeve <=15% capitale, max 3 nomi. Default `include_unicorns=True`.
+- Verificato: in go-flat (US PULLBACK) sleeve VUOTO (disciplina di regime); con include_pullback=True
+  entra **DDOG (rev +28%) + AFRM (+39%)** a size ridotta (~2% esposizione). Sezione dedicata in PORTFOLIO.txt.
+
+### (b) Hook ESEF pronto-ma-gated (`fundamentals_eu_esef.py`)
+- `filings.xbrl.org` ancora BLOCCATO (allowlist). Scritto hook pronto (pattern "codice pronto, leva =
+  allowlist"): `probe()` / `esef_filing_dates(lei)` per le DATE DI FILING REALI (rimpiazzerebbero il
+  lag +120gg approssimato di fundamentals_eu, rendendo il PIT-EU 2020+ esatto). Degrada a None con
+  messaggio chiaro; parsing difensivo NON testato (host bloccato). Limite strutturale: ESEF solo FY2020+.
+
+### Watch list
+- [ ] Quando US torna TREND_UP: lo sleeve unicorni entra a piena (mezza) size — monitorare DDOG/AFRM/ANET.
+- [ ] Attivare `fundamentals_eu_esef` aggiungendo `filings.xbrl.org` all'allowlist (true-PIT EU 2020+).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
