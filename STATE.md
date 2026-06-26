@@ -498,4 +498,235 @@ l'avvertenza che e' un costo-assicurazione, non un generatore di rendimento.
 - [ ] Valutare hedge per-mercato (CAC/FTSEMIB) oltre a S&P, se si usa include_pullback.
 
 ---
+
+## Run #13 — 2026-06-26 (fondamentali Point-In-Time da SEC EDGAR: raccolta, backtest, integrazione)
+
+**Sblocco fonte.** L'utente ha aggiunto `www.sec.gov` e `data.sec.gov` all'allowlist di
+egress. Verificato raggiungibile → costruita una pipeline di fondamentali **point-in-time**
+(con data di FILING, non di periodo → zero lookahead) dai dati XBRL ufficiali SEC.
+
+### #1 — Raccolta (`fundamentals_pit.py`, NUOVO)
+- Fonte: `data.sec.gov/api/xbrl/companyfacts/CIK*.json` (gratuita, no API key, UA con email).
+- 45/45 ticker USA della watchlist, da 10-K/10-Q: revenue, net income, EPS, gross/operating
+  income, balance sheet completo, OCF; metriche derivate (net/gross/OCF margin, current ratio,
+  cash/LT-debt, ROE, D/E, EPS growth YoY e CAGR 5Y).
+- Output: `data/fundamentals_pit.csv` (snapshot) + `data/fundamentals_pit_history.csv`
+  (2821 osservazioni storiche per backtest). Rispetta rate limit SEC (10 req/s).
+- Robustezza: retry+backoff, JSON grandi (GOOGL/JNJ ~4MB), numeri complessi (INTC) gestiti.
+
+### #2 — Backtest PIT (`backtest_v3.py`, sez.9 NUOVA)
+- Ogni segnale associato ai fondamentali **as-of filed <= data segnale** (`pit_lookup`).
+- `pit_quality_score`: 5 criteri soft (nm>0, nm>=10%, current>=1, ocf>0, roe>=10%), normalizzato.
+- Risultato sul top-quintile (hold 10gg): **PIT>=0.60 → ret +3.30% / Sharpe 1.50** (vs base
+  +2.49% / 1.21); **net margin>=10% → ret +4.86% / win 60%**. Il filtro fondamentale MIGLIORA.
+  Caveat: campioni piccoli (n=35-57), in-sample; usare come leva, non come veto rigido.
+
+### #3 — Integrazione live (`portfolio_builder.py` + `modules/fundamentals.py`)
+- **`modules/fundamentals.py`**: SEC EDGAR diventa **fonte primaria USA** (Finnhub/yfinance
+  fallback; analisti/earnings ancora da Finnhub). EU invariato (yfinance).
+- **`portfolio_builder.py`**: leva di size `fq_mult` da `_fundamental_tier` (Q+ piena size,
+  Q/Q- ridotta; USA only, EU=`n/d` neutro). Colonna FQ in tabella e scheda.
+- `pit_quality_score` **centralizzato** in `modules/fundamentals.py`, importato da backtest e
+  builder (una sola definizione, no drift). Coerente con Lezione #8/#9: filtro CONDIZIONATO /
+  leva di size, NON blend lineare nello score; e Lezione #6: scala la size, non escludere.
+- **Effetto live (oggi)**: US in PULLBACK → go-flat esclude i nomi USA → portafoglio tutto EU
+  (`n/d`), leva inattiva su questa selezione. Verificato su `include_pullback=True`: la leva
+  morde (AMAT/GE Q+ piena; **INTC fq=0.40 → Q → size ×0.85**, unico non profittevole tagliato).
+
+### Watch list per il prossimo run
+- [ ] Validare il filtro PIT su un ciclo COMPLETO con bear (oggi in-sample bull, n piccolo).
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve fonte ESEF/altra per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
+
+## Run #14 — 2026-06-26 (validazione filtro PIT su ciclo completo: e' una leva DIFENSIVA)
+
+**Obiettivo:** chiudere la watch-list di Run #13 — il filtro qualita' fondamentale regge su un
+ciclo con bear, o e' (come lo score) bull-concentrato?
+
+### Dati
+- Rigenerato `data/mib_data_long.csv` (2018-2026, prezzi aggiustati, 301k righe, 142 ticker)
+  via `fetch_long.py` (Yahoo v8 ancora in allowlist). PIT history copre 2009-2026 (45 ticker USA).
+
+### `pit_validate.py` (NUOVO tool) — segmentazione per regime
+- Segnali score NUOVO sul ciclo completo; fondamentali PIT con filed <= data segnale; regime
+  bull/bear via ^GSPC/SMA200; confronto top-quintile USA base vs +PIT>=0.60, DENTRO ogni regime.
+
+### SCOPERTA: la qualita' fondamentale e' una leva DIFENSIVA, non un miglioramento universale
+| regime | filtro PIT>=0.60 vs base (10gg / 20gg) | verdetto |
+|---|---|---|
+| BULL | ret -0.28% / -0.50%, Sharpe -0.16 / -0.11 | **PEGGIORA** |
+| BEAR | ret +0.63% / +0.82%, win +3.7% / +3.5%, Sharpe +0.48 / +0.34 | **AIUTA** |
+- Spearman pit_quality↔ritorno: bull ~0 (-0.02), **bear +0.16/+0.19**. Flight-to-quality nel
+  risk-off; nel momentum bull anche i nomi a qualita' bassa corrono -> penalizzarli costa.
+- **Il +3.30% del backtest sez.9 era un artefatto del solo sotto-periodo bull a 14 mesi.** Sul
+  ciclo completo PIT>=0.60 sta SOTTO il base USA (0.70 vs 0.91 a 10gg): senza segmentare, fuorviante.
+- Anomalia onesta: `net margin < 0` (in perdita) ha i ritorni piu' alti (n=61, +4.23%/+8.66%,
+  PF 3-5) = effetto high-beta/turnaround dentro il momentum, NON qualita'. Alta varianza, rischioso.
+
+### Correzione dell'integrazione (Run #13 era mis-specificato)
+- `portfolio_builder._fundamental_tier` ora **regime-conditional**: la leva morde SOLO nei mercati
+  NON in TREND_UP (`defensive=True`); in TREND_UP resta NEUTRA (label informativo, size piena).
+  Coerente con la validazione: non penalizzare la qualita' bassa quando il momentum la premia.
+- Verificato: INTC (in perdita) TREND_UP -> x1.0 (neutro), PULLBACK -> x0.85 (difensivo morde);
+  i Q+ sempre pieni. Nel default go-flat (solo TREND_UP) la leva e' di fatto neutra by design;
+  si attiva con include_pullback=True (quando si sceglie di restare in mercati risk-off).
+
+### Watch list per il prossimo run
+- [ ] Campione bear ancora piccolo (n=168 top-quintile USA): riconfermare quando ci saranno piu' dati.
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve ESEF/altra fonte per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
+
+## Run #15 — 2026-06-26 (estensione universo USA: screener "unicorni" da SEC EDGAR)
+
+**Domanda dell'utente:** si possono estendere i ticker USA per individuare potenziali "unicorni"?
+**Risposta:** si', quasi gratis — la SEC copre TUTTI i filer USA (company_tickers.json, ~10k),
+quindi i fondamentali costano solo rate-limit, non un piano API.
+
+### `unicorn_screener.py` (NUOVO tool)
+- Universo candidati: ~52 growth USA mid/small-cap fuori dai 45 mega-cap (cloud/AI/cyber/fintech/
+  consumer/biotech/semis), estendibile. Foreign issuer (20-F: ARM, NU) saltati senza errore.
+- Profilo "unicorno" da SEC: crescita ricavi (CAGR 3Y + YoY), gross margin scalabile e in
+  miglioramento (leva operativa), dimensione contenuta (spazio di crescita), bilancio. Score 0-100.
+- **Estrazione annuale robusta** (lezione di data-hygiene): il campo `fy` di companyfacts e' l'anno
+  del FILING, non del periodo -> si usano `start`/`end`, durata ~365gg, chiave su anno di `end`,
+  dedup per filing recente, priorita' tra concetti. Fix: PODD GM da 184% (bug) a 72% (reale);
+  recuperati CRWD/UBER/HOOD/XYZ che usavano concetti revenue non standard.
+
+### Top candidati (profilo fondamentale, NON validato sui ritorni)
+PLTR 88.8 · ELF 80.9 · CELH 79.1 · BILL 77.4 · S 75.3 · PODD 69.0 · GTLB 68.0 · DDOG 65.5 ·
+UPST 65.0 · ZS 64.8. Sanity: PLTR in cima (iper-growth profittevole), giganti come UBER
+declassati (rev $52B -> nessun bonus dimensione). Output: `data/unicorn_candidates.csv`.
+
+### Onesta' (cruciale)
+- E' uno screener di SCOPERTA, NON un segnale di alpha: nessuna prova statistica che il profilo
+  predica i ritorni. La validazione Run #14 avverte: i nomi high-growth/non profittevoli (S, RIVN,
+  LCID, SNOW) sono ESPLOSIVI ma HIGH-BETA (crollano per primi in bear). Ogni candidato va passato
+  dal gate momentum + regime + stop del modello prima di operare. Lista da indagare, non da eseguire.
+- Per integrarli davvero nel modello servirebbe: prezzi nel pipeline (gia' fattibile via Yahoo v8)
+  + backtest del profilo come fattore. Non fatto: per ora resta tool di scoperta separato.
+
+### Watch list per il prossimo run
+- [ ] Se si vuole operare gli unicorni: aggiungere i top al `TICKERS` di fetch_data e backtestare.
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve ESEF/altra fonte per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
+
+## Run #16 — 2026-06-26 (fondamentali EU best-effort + riconferma bear con piu' dati)
+
+**Obiettivo:** chiudere le due watch-list aperte: (1) estendere i fondamentali all'EU; (2)
+riconfermare il filtro PIT difensivo (Run #14) su un campione bear piu' ampio.
+
+### #1 — `fundamentals_eu.py` (NUOVO): copertura EU best-effort
+- Limite strutturale confermato: per l'EU NON esiste un equivalente gratuito di data.sec.gov
+  (ESEF non ha API aggregata aperta). Unico ripiego praticabile: endpoint pubblico Yahoo
+  fundamentals-timeseries (host query1, in allowlist) — verificato funzionante su .MI/.PA/.AS.
+- **NON e' PIT vero** (da dichiarare sempre): `asOfDate` = fine periodo, valori RESTATED. Per il
+  backtest si approssima la disponibilita' = fine periodo + **120gg** (lag regolatorio EU,
+  Transparency Directive) per evitare lookahead. Fonte `yahoo_ts`, form `AR` (vs SEC PIT vero).
+- Risultato: **79/80 ticker EU** (solo BPSO.MI ko), 317 osservazioni (~4 anni, limite Yahoo ->
+  copre il bear 2022 ma non 2018/2020). Metriche sensate: RMS nm 28%/ROE 24%, RNO/STLA in perdita,
+  banche current_ratio N/A. Output: `data/fundamentals_eu.csv` + `data/fundamentals_eu_history.csv`.
+- Wiring: `backtest_v3.load_pit` fonde la storia EU (schema identico); `portfolio_builder` fonde
+  lo snapshot EU -> i nomi EU ora hanno un fq tier reale (Q+/Q/Q-) invece di `n/d`. La leva resta
+  DIFENSIVA: in TREND_UP neutra (label informativo), morde solo in PULLBACK (RNO->x0.85, STLA->x0.70).
+
+### #2 — Riconferma del filtro difensivo con piu' dati (124 ticker con fondamentali, bear n 168->276)
+| | Run #14 (US-only) | Run #16 (US+EU) |
+|---|---|---|
+| BEAR 10gg (PIT>=0.60 vs base) | +0.63% / Sharpe +0.48 | **+0.18% / +0.17** (aiuta) |
+| BEAR 20gg | +0.82% / +0.34 | **+0.09% / +0.04** (aiuta) |
+| BULL 10/20gg | peggiora | neutro / peggiora |
+- **Il SEGNO regge** (qualita' = leva difensiva: aiuta in bear, neutra/contro in bull) -> l'integrazione
+  regime-conditional e' confermata nella direzione. **Ma le magnitudini si ridimensionano molto**: la
+  stima US-only era ottimistica (classico effetto L#11). Spearman ~0 in entrambi i regimi -> e' un
+  debole effetto-SOGLIA, non un predittore monotono. Non sovrastimare; tenere come leva prudente.
+- Caveat: i +108 segnali bear aggiunti sono in larga parte EU 2022 (restated/lag-approx, piu' rumorosi),
+  un solo episodio bear. La riconferma rafforza il segno, non promuove il fattore a edge forte.
+
+### Watch list per il prossimo run
+- [ ] Bear ancora concentrato (2020 US + 2022): servono piu' episodi per stringere le stime.
+- [ ] EU solo ~4 anni (limite Yahoo): per backtest PIT-EU piu' profondo serve fonte ESEF storica.
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
+
+## Run #17 — 2026-06-26 (EU PIT profondo: bloccato; integrazione unicorni: backtest del profilo)
+
+Due punti in ordine.
+
+### #1 — EU PIT piu' profondo: NON ottenibile ora (limite strutturale + allowlist)
+- Fonte naturale per il PIT-EU vero: `filings.xbrl.org` (repository ESEF di XBRL International, con
+  API JSON). **Bloccato dall'allowlist di egress** (ProxyError al CONNECT, stesso pattern L#3/#4).
+- Limite STRUTTURALE oltre l'accesso: il mandato ESEF parte da **FY2020** -> la storia EU pre-2020
+  NON esiste in forma XBRL standardizzata in nessuna fonte gratuita. Quindi anche sbloccando l'host
+  si otterrebbe al massimo 2020+ (true PIT, meglio del lag-approx Yahoo, ma non piu' profondo).
+- Decisione: non si fabbrica. Leva = aggiungere `filings.xbrl.org` all'allowlist (per true-PIT EU
+  2020+); profondita' pre-2020 EU resta strutturalmente impossibile. Resta Yahoo (~4 anni) come base.
+
+### #2 — `unicorn_validate.py` (NUOVO): gli unicorni sono tradeable nel modello?
+Prezzi 2018-2026 (Yahoo v8, 33 candidati score>=50) + score momentum validato + crescita ricavi
+**POINT-IN-TIME da SEC** (filed<=data segnale) + segmentazione per regime.
+
+**Risultati (top-quintile, netto):**
+| selezione (10gg / 20gg) | mean% | Sharpe |
+|---|---|---|
+| unicorni top-quintile | +0.34 / +1.05 | 0.15 / 0.22 |
+| mega-cap top-quintile (confronto) | +0.89 / +2.01 | 0.64 / 0.68 |
+
+- **Buttare gli unicorni nell'universo DILUISCE il modello** (Sharpe 0.15-0.22 vs 0.64-0.68): sono
+  high-beta, piu' rumorosi. Un dump indiscriminato peggiora l'edge.
+- **Il gate di CRESCITA PIT e' il separatore** (dentro il top-quintile):
+  - BULL: iper-crescita (rev YoY>=25%) +0.60%/+1.58% vs crescita decelerata (<25%) **-0.68%/+0.06%**
+    -> i nomi a crescita svanita sono **trappole momentum** (ritorno bull negativo).
+  - BEAR: iper-crescita +2.68%/+4.37% (win 56-64%) vs bassa +1.34%/+0.51%. Crescita premiata di piu'
+    nel risk-off (Spearman crescita↔ritorno bear +0.12/+0.20 vs bull +0.05).
+- **Verdetto**: NON aggiungere gli unicorni al `TICKERS` operativo (diluirebbe il modello validato).
+  Trattarli come **SLEEVE high-beta GATED**: un segnale momentum su un unicorno vale solo se il nome
+  e' ANCORA in iper-crescita (rev YoY>=25% PIT); size ridotta, dentro il gate di regime.
+
+### Artefatto operativo: `unicorn_validate.live_sleeve()` -> `data/unicorn_sleeve.csv`
+- Applica il gate ai dati correnti. **Oggi: 0 nomi passano** — i leader di momentum (FTNT/PANW/CRWD)
+  hanno crescita decelerata (<25%, la trappola), gli iper-cresciti (DDOG 28%/AFRM 39%/NET 30%) non
+  sono in top-quintile di momentum ora. "Nessun unicorno da comprare oggi" e' un risultato onesto
+  (L#5), non un bug: il gate rifiuta sia le trappole sia i growth senza momentum.
+- Report completo: `data/unicorn_validate.txt`. Prezzi in `data/mib_data_unicorns.csv` (gitignored).
+
+### Watch list per il prossimo run
+- [ ] Sleeve unicorni: ricontrollare quando un iper-grower (rev YoY>=25%) entra in momentum top-quintile.
+- [ ] Se si vuole operare lo sleeve: wiring opzionale in portfolio_builder come satellite a size ridotta.
+- [ ] EU true-PIT 2020+: possibile solo con `filings.xbrl.org` in allowlist.
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
+
+## Run #18 — 2026-06-26 (GOAL profit-seeker: sleeve unicorni operativo + hook ESEF pronto)
+
+Obiettivo impostato: rendere il modello operativo un cercatore di profitto. Due wiring richiesti.
+
+### (a) Sleeve high-beta unicorni nel modello operativo (`portfolio_builder._unicorn_satellite`)
+- Consuma `data/unicorn_sleeve.csv` (gate crescita PIT da unicorn_validate) + `data/mib_data_unicorns.csv`
+  (prezzi) — nessuna chiamata SEC nel hot path. Gate: iper-crescita (rev YoY>=25%) AND momentum>=p50
+  (soglia core) AND regime USA operabile AND non distribuzione AND volume affidabile.
+- Satellite SEPARATO dal core (gli unicorni come gruppo diluiscono, Run #17): pos_cap 5% (meta'),
+  size_mult 0.5 (high-beta), esposizione sleeve <=15% capitale, max 3 nomi. Default `include_unicorns=True`.
+- Verificato: in go-flat (US PULLBACK) sleeve VUOTO (disciplina di regime); con include_pullback=True
+  entra **DDOG (rev +28%) + AFRM (+39%)** a size ridotta (~2% esposizione). Sezione dedicata in PORTFOLIO.txt.
+
+### (b) Hook ESEF pronto-ma-gated (`fundamentals_eu_esef.py`)
+- `filings.xbrl.org` ancora BLOCCATO (allowlist). Scritto hook pronto (pattern "codice pronto, leva =
+  allowlist"): `probe()` / `esef_filing_dates(lei)` per le DATE DI FILING REALI (rimpiazzerebbero il
+  lag +120gg approssimato di fundamentals_eu, rendendo il PIT-EU 2020+ esatto). Degrada a None con
+  messaggio chiaro; parsing difensivo NON testato (host bloccato). Limite strutturale: ESEF solo FY2020+.
+
+### Watch list
+- [ ] Quando US torna TREND_UP: lo sleeve unicorni entra a piena (mezza) size — monitorare DDOG/AFRM/ANET.
+- [ ] Attivare `fundamentals_eu_esef` aggiungendo `filings.xbrl.org` all'allowlist (true-PIT EU 2020+).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

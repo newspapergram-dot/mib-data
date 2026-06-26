@@ -1,0 +1,53 @@
+ticker,entity,unicorn_score,rev_latest,rev_cagr_3y,rev_cagr_5y,rev_yoy,gross_margin,gm_trend_3y,net_margin,cash_to_lt_debt,profile,n_years
+PLTR,Palantir Technologies Inc.,88.8,4475446000.0,0.3292,0.3258,0.5618,0.8237,0.038,0.3631,,crescita ricavi 56% (iper-growth); gross margin 82% (software-like); margine in salita (+3.8pp/3Y); mid-cap; profittevole in crescita,8
+ELF,"e.l.f. Beauty, Inc.",80.9,1636472000.0,0.414,0.3876,0.2459,0.7072,0.0328,0.0161,0.34,crescita ricavi 41% (iper-growth); gross margin 71% (software-like); margine in salita (+3.3pp/3Y); small-cap (ampio spazio); profittevole in crescita,11
+CELH,"CELSIUS HOLDINGS, INC.",79.1,2515269000.0,0.5671,0.8065,0.8554,0.5039,0.0894,0.0429,0.82,crescita ricavi 86% (iper-growth); gross margin 50%; margine in salita (+8.9pp/3Y); mid-cap; profittevole in crescita,9
+BILL,"BILL HOLDINGS, INC.",77.4,1462570000.0,0.3158,0.5614,0.1336,0.814,0.0398,0.0163,0.54,crescita ricavi 32%; gross margin 81% (software-like); margine in salita (+4.0pp/3Y); small-cap (ampio spazio); profittevole in crescita,8
+S,"SENTINELONE, INC",75.3,1001278000.0,0.3336,0.6083,0.2189,0.7412,0.0827,-0.4502,,"crescita ricavi 33%; gross margin 74% (software-like); margine in salita (+8.3pp/3Y); small-cap (ampio spazio); non profittevole (nm -45%, high-beta)",7
+PODD,INSULET CORPORATION,69.0,2708100000.0,0.369,0.2453,0.3073,0.7163,-0.047,0.0912,0.63,crescita ricavi 37%; gross margin 72% (software-like); mid-cap; profittevole in crescita,17
+GTLB,GITLAB INC.,68.0,955224000.0,0.3106,0.4439,0.2581,0.8736,-0.0046,-0.0586,,"crescita ricavi 31%; gross margin 87% (software-like); small-cap (ampio spazio); non profittevole (nm -6%, high-beta)",7
+DDOG,"Datadog, Inc.",65.5,3427158000.0,0.2695,0.4153,0.2768,0.7996,0.0066,0.0314,,crescita ricavi 28%; gross margin 80% (software-like); margine in salita (+0.7pp/3Y); mid-cap; profittevole in crescita,9
+UPST,"Upstart Holdings, Inc.",65.0,1043857000.0,0.0479,0.3549,0.6399,,,0.0513,,crescita ricavi 64% (iper-growth); small-cap (ampio spazio); profittevole in crescita,7
+ZS,"ZSCALER, INC.",64.8,2673115000.0,0.3481,0.4403,0.2331,0.7687,-0.0092,-0.0155,0.85,"crescita ricavi 35%; gross margin 77% (software-like); mid-cap; non profittevole (nm -2%, high-beta)",10
+RIVN,"Rivian Automotive, Inc. / DE",63.3,5387000000.0,0.4811,,0.0839,0.0267,1.9103,-0.6768,0.64,"crescita ricavi 48% (iper-growth); margine in salita (+191.0pp/3Y); mid-cap; non profittevole (nm -68%, high-beta)",7
+HUBS,"HubSpot, Inc.",61.2,3131266000.0,0.2185,0.2881,0.1917,0.8376,0.0156,0.0147,,crescita ricavi 22%; gross margin 84% (software-like); margine in salita (+1.6pp/3Y); mid-cap; profittevole in crescita,14
+ANET,"Arista Networks, Inc.",60.7,9005700000.0,0.2715,0.3119,0.286,0.6406,0.0299,0.3899,,crescita ricavi 29%; gross margin 64%; margine in salita (+3.0pp/3Y); mid-cap; profittevole in crescita,14
+FROG,JFrog Ltd.,60.1,531840000.0,0.2384,0.2866,0.2412,0.7679,-0.0097,-0.135,,"crescita ricavi 24%; gross margin 77% (software-like); small-cap (ampio spazio); non profittevole (nm -14%, high-beta)",8
+HOOD,"Robinhood Markets, Inc.",60.0,4473000000.0,0.4879,0.361,0.5158,,,0.421,,crescita ricavi 52% (iper-growth); mid-cap; profittevole in crescita,7
+LCID,"Lucid Group, Inc.",60.0,1353790000.0,0.3057,2.2094,0.6758,,,-1.993,0.34,"crescita ricavi 68% (iper-growth); small-cap (ampio spazio); non profittevole (nm -199%, high-beta)",7
+CRWD,"CROWDSTRIKE HOLDINGS, INC.",59.9,4812005000.0,0.2901,0.4064,0.2171,0.7467,0.0149,-0.0338,6.1,"crescita ricavi 29%; gross margin 75% (software-like); margine in salita (+1.5pp/3Y); mid-cap; non profittevole (nm -3%, high-beta)",9
+NET,"CLOUDFLARE, INC.",59.7,2167937000.0,0.3051,0.3813,0.2985,0.7451,-0.0163,-0.0472,,"crescita ricavi 31%; gross margin 75% (software-like); mid-cap; non profittevole (nm -5%, high-beta)",9
+SNOW,SNOWFLAKE INC.,58.7,4683946000.0,0.3138,0.5123,0.2916,0.6717,0.0191,-0.2843,,"crescita ricavi 31%; gross margin 67%; margine in salita (+1.9pp/3Y); mid-cap; non profittevole (nm -28%, high-beta)",8
+ESTC,Elastic N.V.,57.7,1739331000.0,0.1762,0.2337,0.1726,0.7607,0.0382,0.2114,1.35,crescita ricavi modesta 18%; gross margin 76% (software-like); margine in salita (+3.8pp/3Y); small-cap (ampio spazio),10
+TEAM,Atlassian Corporation,55.7,5215304000.0,0.23,,0.1966,0.8284,-0.01,-0.0492,1.15,"crescita ricavi 23%; gross margin 83% (software-like); mid-cap; non profittevole (nm -5%, high-beta)",5
+OKTA,"Okta, Inc.",55.0,2919000000.0,0.1625,0.2844,0.1184,0.7736,0.0674,0.0805,,crescita ricavi modesta 16%; gross margin 77% (software-like); margine in salita (+6.7pp/3Y); mid-cap,11
+SMCI,"SUPER MICRO COMPUTER, INC.",54.0,21972042000.0,0.6171,0.4576,0.4659,0.1106,-0.0434,0.0477,15.07,crescita ricavi 62% (iper-growth); profittevole in crescita,16
+FTNT,"FORTINET, INC.",53.9,6799600000.0,0.1546,0.2125,0.1417,0.8046,0.0502,0.2726,4.48,crescita ricavi modesta 15%; gross margin 80% (software-like); margine in salita (+5.0pp/3Y); mid-cap,16
+PATH,"UiPath, Inc.",53.7,1610572000.0,0.1501,0.2153,0.1265,0.8317,0.0018,0.1753,,crescita ricavi modesta 15%; gross margin 83% (software-like); margine in salita (+0.2pp/3Y); small-cap (ampio spazio),7
+FSLR,"First Solar, Inc.",53.6,5219376000.0,0.2584,0.14,0.2409,0.4062,0.3796,0.2928,9.96,crescita ricavi 26%; margine in salita (+38.0pp/3Y); mid-cap; profittevole in crescita,18
+PANW,"PALO ALTO NETWORKS, INC",53.3,9221500000.0,0.1879,0.2203,0.1487,0.7341,0.0465,0.123,1.19,crescita ricavi modesta 19%; gross margin 73% (software-like); margine in salita (+4.7pp/3Y); mid-cap,15
+PD,"PAGERDUTY, INC.",52.9,492546000.0,0.0993,0.1819,0.0536,0.8495,0.0394,0.352,0.5,crescita ricavi modesta 10%; gross margin 85% (software-like); margine in salita (+3.9pp/3Y); small-cap (ampio spazio),9
+MDB,"MONGODB, INC.",52.7,2463797000.0,0.2426,0.3307,0.2279,0.7175,-0.0105,-0.0289,4.78,"crescita ricavi 24%; gross margin 72% (software-like); mid-cap; non profittevole (nm -3%, high-beta)",11
+U,UNITY SOFTWARE INC.,52.0,1849648000.0,0.0996,0.1908,0.0201,0.7417,0.0598,-0.2178,,"crescita ricavi modesta 10%; gross margin 74% (software-like); margine in salita (+6.0pp/3Y); small-cap (ampio spazio); non profittevole (nm -22%, high-beta)",8
+AFRM,"Affirm Holdings, Inc.",51.4,1113966000.0,0.2582,0.3218,0.3486,,,0.0468,0.19,crescita ricavi 35%; small-cap (ampio spazio); profittevole in crescita,7
+VEEV,Veeva Systems Inc.,51.3,3195311000.0,0.1403,0.1688,0.1634,0.7553,0.038,0.2844,,crescita ricavi modesta 16%; gross margin 76% (software-like); margine in salita (+3.8pp/3Y); mid-cap,15
+DKNG,DRAFTKINGS INC.,50.4,6054525000.0,0.3929,0.5802,0.2699,,,0.0006,,crescita ricavi 39%; mid-cap; profittevole in crescita,6
+TOST,"Toast, Inc.",50.2,6153000000.0,0.311,0.4953,0.2405,0.2589,0.0718,0.0556,,crescita ricavi 31%; margine in salita (+7.2pp/3Y); mid-cap; profittevole in crescita,7
+CART,MAPLEBEAR INC.,46.0,3742000000.0,0.1362,,0.1078,0.737,0.0193,0.1195,,crescita ricavi modesta 14%; gross margin 74% (software-like); margine in salita (+1.9pp/3Y); mid-cap,5
+NVCR,NovoCure Limited,44.7,655353000.0,0.0681,0.058,0.0828,0.7454,-0.0411,-0.2079,0.45,"crescita ricavi modesta 8%; gross margin 75% (software-like); small-cap (ampio spazio); non profittevole (nm -21%, high-beta)",13
+DOCU,"DOCUSIGN, INC.",43.1,3219500000.0,0.0857,0.1725,0.0816,0.794,0.0071,0.096,,crescita ricavi modesta 9%; gross margin 79% (software-like); margine in salita (+0.7pp/3Y); mid-cap,10
+COIN,"Coinbase Global, Inc.",42.9,7181325000.0,0.31,0.4124,0.094,,,0.1755,1.72,crescita ricavi 31%; mid-cap; profittevole in crescita,7
+RBLX,Roblox Corporation,42.2,4890551000.0,0.3002,0.3956,0.3577,,,-0.2178,1.18,"crescita ricavi 36%; mid-cap; non profittevole (nm -22%, high-beta)",7
+SOFI,"SoFi Technologies, Inc.",40.8,619353000.0,0.1799,0.4307,0.231,,,0.7771,0.62,crescita ricavi 23%; small-cap (ampio spazio); profittevole in crescita,7
+DXCM,"DEXCOM, INC.",40.4,4662000000.0,0.1701,0.1933,0.156,0.601,-0.0461,0.1794,385.59,crescita ricavi modesta 17%; gross margin 60%; mid-cap,17
+RXRX,"RECURSION PHARMACEUTICALS, INC.",39.2,74681000.0,0.233,0.7991,0.2692,,,,905.22,crescita ricavi 27%; small-cap (ampio spazio),7
+ENPH,"Enphase Energy, Inc.",37.8,1472985000.0,-0.1419,0.1372,0.1072,0.4664,0.0483,0.1169,0.87,crescita ricavi modesta 11%; margine in salita (+4.8pp/3Y); small-cap (ampio spazio),16
+TTD,"TRADE DESK, INC.",35.2,2896284000.0,0.2244,0.2821,0.1847,,,0.1531,,crescita ricavi 22%; mid-cap; profittevole in crescita,12
+DASH,"DOORDASH, INC.",34.1,13717000000.0,0.2773,0.3658,0.2793,,,0.0682,,crescita ricavi 28%; profittevole in crescita,8
+TWLO,TWILIO INC.,33.3,5067220000.0,0.0982,0.2353,0.1366,0.4892,0.0152,0.0067,0.55,crescita ricavi modesta 14%; margine in salita (+1.5pp/3Y); mid-cap,12
+ROKU,"Roku, Inc.",30.6,4737251000.0,0.1486,0.2165,0.1518,0.4379,-0.023,0.0187,,crescita ricavi modesta 15%; mid-cap,11
+XYZ,"Block, Inc.",29.3,24193683000.0,0.1133,0.2056,0.003,0.4282,0.0864,0.054,1.67,crescita ricavi modesta 11%; margine in salita (+8.6pp/3Y),12
+UBER,"UBER TECHNOLOGIES, INC.",16.5,52017000000.0,0.1773,0.361,0.1828,,,0.1933,0.53,crescita ricavi modesta 18%,9
+GEV,GE Vernova Inc.,16.2,38068000000.0,0.0868,,0.0897,0.1979,0.0813,0.1283,,crescita ricavi modesta 9%; margine in salita (+8.1pp/3Y),4
+ABNB,"Airbnb, Inc.",16.0,12241000000.0,0.1338,0.2937,0.1026,,,0.2051,2.84,crescita ricavi modesta 13%,7
+AI,"C3.ai, Inc.",15.5,250268000.0,-0.0211,0.0644,-0.3567,0.3092,-0.3672,-1.8795,,"crescita ricavi modesta -2%; small-cap (ampio spazio); non profittevole (nm -188%, high-beta)",8

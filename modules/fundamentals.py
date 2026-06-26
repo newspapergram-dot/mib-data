@@ -321,8 +321,101 @@ def screen_summary_line(screen):
            (f", {len(na)} non valutabili" if na else "")
 
 # ---------------------------------------------------------------------------
-# FONTE USA — Finnhub (gratuito) con fallback yfinance
+# FONTE USA — SEC EDGAR PIT (primaria) con fallback Finnhub/yfinance
 # ---------------------------------------------------------------------------
+
+_PIT_CACHE = None
+
+def _load_pit_csv(path="data/fundamentals_pit.csv"):
+    """Carica il CSV PIT in un dict {ticker: row_dict}. Cachato per sessione."""
+    global _PIT_CACHE
+    if _PIT_CACHE is not None:
+        return _PIT_CACHE
+    _PIT_CACHE = {}
+    if not os.path.exists(path):
+        return _PIT_CACHE
+    import csv
+    with open(path, newline="") as f:
+        for row in csv.DictReader(f):
+            _PIT_CACHE[row["ticker"]] = row
+    return _PIT_CACHE
+
+
+def pit_quality_score(row):
+    """Score di qualita' fondamentale [0, 1] da una riga PIT (dict o pandas row).
+
+    Definizione CANONICA, condivisa tra backtest_v3 (validazione storica PIT) e
+    portfolio_builder (selezione live), per evitare drift fra le due. Criteri soft:
+      1. net_margin > 0  (profittevole)
+      2. net_margin >= 0.10 (margine solido)
+      3. current_ratio >= 1.0 (solvibilita' a breve)
+      4. ocf_margin > 0  (genera cassa)
+      5. roe >= 0.10 (ritorno sull'equity decente)
+    Ritorna frazione criteri-passati/criteri-disponibili, o None se nessun dato.
+    I criteri non valutabili (campo assente) NON contano: dato mancante != fallimento.
+    """
+    if row is None:
+        return None
+    get = row.get if hasattr(row, "get") else (lambda k, d=None: row[k] if k in row else d)
+    nm = _num(get("net_margin"))
+    cr = _num(get("current_ratio"))
+    ocfm = _num(get("ocf_margin"))
+    roe = _num(get("roe"))
+
+    available = passed = 0
+    if nm is not None:
+        available += 2
+        if nm > 0:
+            passed += 1
+        if nm >= 0.10:
+            passed += 1
+    if cr is not None:
+        available += 1
+        if cr >= 1.0:
+            passed += 1
+    if ocfm is not None:
+        available += 1
+        if ocfm > 0:
+            passed += 1
+    if roe is not None:
+        available += 1
+        if roe >= 0.10:
+            passed += 1
+    if available == 0:
+        return None
+    return passed / available
+
+
+def fetch_us_sec(ticker):
+    """Fondamentali USA da SEC EDGAR PIT (data/fundamentals_pit.csv).
+    Ritorna dict nello schema del modulo, oppure None se il ticker non e' nel CSV."""
+    pit = _load_pit_csv()
+    row = pit.get(ticker)
+    if not row:
+        return None
+
+    out = {"ticker": ticker, "source": "sec_edgar", "asof_date": row.get("filed_date", ""),
+           "pe": None, "forward_pe": None, "eps": None, "market_cap": None,
+           "revenue": None, "currency": "USD", "next_earnings": None,
+           "analyst_consensus": None, "price_asof": None,
+           "peg": None, "eps_growth_5y": None, "net_margin": None,
+           "ocf_margin": None, "current_ratio": None, "cash_to_lt_debt": None,
+           "insider_net_buying": None, "insider_ownership": None,
+           "_is_financial": None}
+
+    out["eps"] = _num(row.get("eps_diluted"))
+    out["revenue"] = _num(row.get("revenue"))
+    out["market_cap"] = _num(row.get("total_assets"))
+    out["net_margin"] = _num(row.get("net_margin"))
+    out["ocf_margin"] = _num(row.get("ocf_margin"))
+    out["current_ratio"] = _num(row.get("current_ratio"))
+    out["cash_to_lt_debt"] = _num(row.get("cash_to_lt_debt"))
+    out["eps_growth_5y"] = _num(row.get("eps_cagr_5y"))
+    out["_is_financial"] = is_financial(ticker)
+
+    return out
+
+
 def _finnhub_get(path, params):
     import requests
     key = os.environ.get("FINNHUB_API_KEY", "")
@@ -338,7 +431,13 @@ def _finnhub_get(path, params):
     return None
 
 def fetch_us(ticker):
-    """Fondamentali USA via Finnhub (primario). Ritorna dict grezzo + analisti + screening."""
+    """Fondamentali USA: SEC EDGAR PIT (primario) -> Finnhub (fallback).
+    Se SEC ha i dati, li usa come base e integra solo analisti/earnings da Finnhub."""
+    sec = fetch_us_sec(ticker)
+    if sec and sec.get("eps") is not None:
+        _enrich_from_finnhub(sec, ticker)
+        return sec
+
     out = {"ticker": ticker, "source": "finnhub", "asof_date": datetime.date.today().isoformat(),
            "pe": None, "forward_pe": None, "eps": None, "market_cap": None,
            "revenue": None, "currency": "USD", "next_earnings": None,
@@ -398,6 +497,25 @@ def fetch_us(ticker):
             out["next_earnings"] = sorted(future, key=lambda e: e["date"])[0]["date"]
 
     return out
+
+def _enrich_from_finnhub(out, ticker):
+    """Integra il dict SEC con analisti e earnings date da Finnhub (se disponibile)."""
+    rec = _finnhub_get("stock/recommendation", {"symbol": ticker})
+    if rec and isinstance(rec, list) and rec:
+        latest = rec[0]
+        out["analyst_consensus"] = {
+            "buy": latest.get("buy"), "hold": latest.get("hold"),
+            "sell": latest.get("sell"), "strongBuy": latest.get("strongBuy"),
+            "strongSell": latest.get("strongSell"), "period": latest.get("period"),
+        }
+    cal = _finnhub_get("calendar/earnings", {"symbol": ticker})
+    if cal and cal.get("earningsCalendar"):
+        future = [e for e in cal["earningsCalendar"]
+                  if e.get("date", "") >= datetime.date.today().isoformat()]
+        if future:
+            out["next_earnings"] = sorted(future, key=lambda e: e["date"])[0]["date"]
+    out["insider_ownership"] = _yf_insider_ownership(ticker)
+
 
 def _finnhub_cashflow_balance(ticker):
     """

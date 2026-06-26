@@ -373,4 +373,113 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    default (DD piu' basso); hedge/stay-invested come flag esplicito con avvertenza sui costi.
 
 ---
+
+## Lezione #13 — 2026-06-26 — Fondamentali POINT-IN-TIME o non sono fondamentali; e una sola definizione canonica
+
+**Evidenza.**
+- I fondamentali raccolti per data di PERIODO (es. "FY2025") sono lookahead travestito: al
+  momento del segnale il mercato NON aveva ancora quel bilancio. La fonte XBRL SEC espone la
+  **data di FILING** (`filed`): usando quella (`pit_lookup`: filed <= data segnale) il backtest
+  e' onesto. La storia PIT (`fundamentals_pit_history.csv`, 2821 obs) esiste apposta.
+- Validazione (backtest sez.9, top-quintile 10gg): il filtro qualita' fondamentale **migliora**
+  il sottoinsieme — PIT>=0.60 ret +3.30%/Sharpe 1.50 (vs base +2.49%/1.21); net margin>=10%
+  ret +4.86%/win 60%. Coerente con L#9: l'affidabilita' e' un prodotto di filtri condizionali.
+- Caveat onesto: campioni piccoli (n=35-57), in-sample bull. Quindi integrato come **leva di
+  size**, non come veto rigido ne' come blend lineare (L#8: il blend lineare degrada lo score).
+- La stessa formula di quality score serviva a DUE chiamanti (backtest + builder live): tenerne
+  due copie = drift garantito. Centralizzata una sola `pit_quality_score` in `modules/fundamentals`.
+
+**Regola.**
+1. **Un fondamentale senza data di filing non e' usabile nel backtest.** Aggancia OGNI dato
+   contabile al momento in cui e' diventato pubblico (`filed`), mai alla fine del periodo
+   contabile: altrimenti e' lookahead. Se la fonte non da' la data di filing, non e' point-in-time.
+2. **Il dato fondamentale mancante e' NEUTRO, mai un veto.** SEC copre solo gli USA: gli EU
+   restano `n/d` e passano a size piena (N/A != penalita', come per i criteri settoriali in
+   `build_screen`). Penalizzare l'assenza di dato e' fabbricare un segnale che non esiste.
+3. **Qualita' fondamentale = leva di size su un filtro condizionato, non blend nello score.**
+   Validala DENTRO la selezione (top-quintile) e usala per scalare la size (Q+ piena, Q/Q-
+   ridotta), come gia' fatto per lo Smart Money. Non sommarla linearmente al ranking.
+4. **Una sola definizione canonica per ogni metrica condivisa.** Se backtest e produzione usano
+   lo stesso score, deve vivere in UN posto solo (qui `modules/fundamentals.pit_quality_score`),
+   importato da entrambi: due copie divergono e il live smette di misurare cio' che hai validato.
+5. **La fonte ufficiale batte gli aggregatori a pagamento, quando raggiungibile.** SEC EDGAR e'
+   gratis, completo e autorevole per gli USA: e' diventato fonte primaria (Finnhub/yfinance
+   fallback). Come per Yahoo v8 (L#4), bastava il dominio in allowlist, non piu' codice.
+
+---
+
+## Lezione #14 — 2026-06-26 — Un effetto medio nasconde il regime: la qualita' fondamentale e' DIFENSIVA
+
+**Evidenza.**
+- Il filtro qualita' fondamentale PIT sembrava un miglioramento universale (backtest sez.9,
+  14 mesi bull: PIT>=0.60 ret +3.30%/Sharpe 1.50). Validato sul **ciclo completo 2018-2026**
+  e **segmentato per regime**, il quadro si ribalta:
+  - BULL: il filtro PIT>=0.60 **PEGGIORA** (ret -0.28%/-0.50%, Sharpe -0.16/-0.11 a 10/20gg).
+  - BEAR: il filtro **AIUTA** (ret +0.63%/+0.82%, win +3.7%/+3.5%, Sharpe +0.48/+0.34).
+  - Spearman pit_quality↔ritorno: bull ~0, **bear +0.16/+0.19**. E' flight-to-quality: i
+    fondamentali proteggono nel risk-off; nel momentum rialzista anche la qualita' bassa corre.
+- Sul ciclo completo (non segmentato) PIT>=0.60 sta SOTTO il base USA (0.70 vs 0.91 a 10gg):
+  l'effetto medio e' negativo perche' DOMINATO dalle barre bull. Il +3.30% era un artefatto
+  del solo sotto-periodo bull a 14 mesi — esattamente il rischio di L#11 (backtest senza bear).
+- Anomalia: `net margin < 0` (in perdita) ha i ritorni TOP (n=61, +4.23%/+8.66%, PF 3-5) =
+  high-beta/turnaround dentro il momentum, non qualita'. Alta varianza: segnale rischioso, non edge.
+
+**Regola.**
+1. **Un effetto medio puo' avere SEGNO OPPOSTO nei due regimi.** Prima di integrare un fattore,
+   segmenta per regime (bull/bear): una media positiva su un campione bull-dominato puo' nascondere
+   un danno in bull e un beneficio in bear (o viceversa). Mai validare un fattore solo sull'aggregato.
+2. **La qualita' fondamentale e' una leva DIFENSIVA, non un miglioramento universale.** Applicala
+   dove serve (regimi risk-off / non-TREND_UP), tienila NEUTRA dove il momentum premia la bassa
+   qualita' (TREND_UP). Una leva right-in-bear / wrong-in-bull va resa condizionale al regime.
+3. **Ricorda L#11 ogni volta che un filtro "funziona".** Se la validazione e' su un periodo
+   mono-regime (qui i 14 mesi bull della sez.9), il risultato vale SOLO per quel regime. Ri-testa
+   sul ciclo completo prima di scolpire la conclusione nel modello.
+4. **Una validazione che corregge un'integrazione gia' fatta e' un successo, non un fallimento**
+   (estende L#8). Run #13 aveva applicato la leva sempre; Run #14 l'ha resa difensiva. Meglio
+   correggere su evidenza che lasciare un mis-fit "perche' era gia' integrato".
+5. **Distingui edge da high-beta.** Ritorni altissimi su un sotto-gruppo piccolo e rischioso
+   (qui i nomi in perdita) sono di solito beta/coda, non un fattore da sfruttare: alta varianza,
+   crolla per primo in un bear vero. Non confondere la coda fortunata con un segnale.
+
+**Aggiornamento Run #16 (riconferma con piu' dati).** Allargato il campione (US PIT + EU,
+bear n 168->276), il SEGNO del filtro difensivo regge (aiuta in bear, neutro/contro in bull) ma
+le MAGNITUDINI crollano: bear 10gg da +0.63%/Sharpe+0.48 a **+0.18%/+0.17**; Spearman ~0 in
+entrambi i regimi. Conferma il punto 3 nella sua forma piu' forte: la stima US-only era ottimistica.
+La leva resta direzionalmente giusta (difensiva, regime-conditional) ma e' DEBOLE (effetto-soglia,
+non monotono): tienila come leva prudente, non come edge. Un'altra prova che piu' dati raffreddano
+una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiezza si sgonfia.
+
+---
+
+## Lezione #15 — 2026-06-26 — Allargare l'universo non e' gratis: piu' nomi diluiscono se non li filtri
+
+**Evidenza.**
+- Tentazione: aggiungere ~33 "unicorni" growth (alto unicorn_score) al `TICKERS` per piu' rendimento.
+  Backtest (unicorn_validate, 2018-2026, score momentum validato sugli unicorni):
+  - unicorni top-quintile: ret +0.34%/+1.05% (10/20gg), **Sharpe 0.15/0.22**;
+  - mega-cap top-quintile (stesso modello): ret +0.89%/+2.01%, **Sharpe 0.64/0.68**.
+  -> dump indiscriminato di high-beta **DILUISCE** l'edge (Sharpe quasi triplo sui mega-cap).
+- Ma DENTRO il top-quintile, un GATE point-in-time separa nettamente: iper-crescita (rev YoY>=25%
+  PIT) vs crescita decelerata (<25%):
+  - BULL: +0.60%/+1.58% vs **-0.68%/+0.06%** (i nomi a crescita svanita = trappole momentum);
+  - BEAR: +2.68%/+4.37% (win 56-64%) vs +1.34%/+0.51%. Spearman crescita↔ritorno bear +0.12/+0.20.
+
+**Regola.**
+1. **Piu' ticker != piu' edge.** Allargare l'universo con nomi high-beta non filtrati abbassa lo
+   Sharpe del sistema: il rumore aggiunto supera il segnale. Misura SEMPRE l'effetto sull'edge
+   (Sharpe, non solo il rendimento medio) prima di ampliare la watchlist operativa.
+2. **Se aggiungi high-beta, aggiungi anche il gate che li rende edge.** Per gli unicorni il gate e'
+   la crescita ricavi PIT (>=25%): senza, il momentum su un growth decelerato e' una trappola.
+   Con, e' uno SLEEVE valido (ma high-beta -> satellite a size ridotta, dentro il gate di regime).
+3. **Il profilo "growth" e' un gate point-in-time, non un'etichetta statica.** Un nome era un
+   unicorno; conta se lo e' ANCORA alla data del segnale (rev YoY corrente, da SEC filed<=data).
+   La crescita passata non si compra: si compra quella ancora in corso.
+4. **Uno screener di scoperta (L precedenti su unicorn_screener) NON e' un segnale finche' non lo
+   backtesti.** Il profilo fondamentale alto non basta: solo il backtest ha detto DOVE (gate
+   crescita) e COME (satellite high-beta) usarlo. Scoperta -> validazione -> regola operativa.
+5. **Zero candidati che passano il gate e' un output legittimo** (ribadisce L#5). Oggi 0 unicorni
+   passano (i leader di momentum hanno crescita svanita, gli iper-cresciti non hanno momentum):
+   "non comprare" e' una decisione, non un fallimento del tool.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
