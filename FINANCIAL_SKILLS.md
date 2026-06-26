@@ -396,4 +396,28 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    dei parametri, il progresso arriva da informazione nuova (fattori/dati), validata full-cycle.
 
 ---
+
+## Lezione #14 — 2026-06-25 — Un fattore "accademicamente solido" va comunque validato NEL TUO sistema
+
+**Evidenza.**
+- Il momentum 12-1 (fattore robusto in letteratura) era l'unico con correlazione full-cycle
+  positiva (+0.027) e quintile top migliore (+1.11%). Sembrava il candidato giusto.
+- Ma dentro il modello operativo reale (regime + stop + uscita laddered) NON ha aggiunto valore:
+  rankare per momentum ha RADDOPPIATO il drawdown (−37%→−63%, i titoli ad alto momentum crashano
+  di piu'), e combinare score+momentum ha peggiorato lo Sharpe (0.19). Il low-vol era addirittura
+  negativo short-term. Decisione: non integrare nulla.
+
+**Regola.**
+1. **"Validato in letteratura" ≠ "valido nel tuo sistema".** Un fattore va testato CON la tua
+   esecuzione reale (stop, target, costi, universo, orizzonte), non solo come correlazione grezza.
+   Un edge che sparisce con lo stop non e' un edge per te.
+2. **Guarda il drawdown, non solo il rendimento medio.** Il momentum aveva mean simile ma DD doppio:
+   stesso ritorno, rischio di rovina molto peggiore. Il fattore "migliore" puo' essere il piu' pericoloso.
+3. **Non aggiungere complessita' senza beneficio robusto dimostrato.** Tre fattori testati, zero
+   integrati: e' il risultato corretto, non un fallimento. La disciplina del "NO" protegge il sistema.
+4. **Conosci il tetto del tuo edge.** Quando spremere prezzo/volume non produce piu' nulla di
+   robusto, il progresso richiede INFORMAZIONE NUOVA (fondamentali point-in-time, dati alternativi),
+   non un'altra trasformazione degli stessi dati. E, nel frattempo, l'affidabilita' la dà il rischio.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

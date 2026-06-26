@@ -533,4 +533,40 @@ ne limita il drawdown, ma non lo trasforma in un sistema high-Sharpe all-weather
 - [ ] Tracciare il numero REALE di configurazioni provate per un DSR onesto.
 
 ---
+
+## Run #14 — 2026-06-25 (ricerca di un fattore SOLIDO, validato full-cycle)
+
+### `factor_validate.py` (NUOVO) — fattori cross-sectional da prezzo, 2018-2026 (31.205 segnali)
+Testati point-in-time i fattori piu' documentati: momentum 12-1, momentum 6m, low-vol (1/vol60).
+- **Spearman vs fwd return (full-cycle)**: score breakout **−0.008** (negativo!), mom6 −0.008,
+  **invvol −0.057** (low-vol PEGGIORA short-term), **mom12_1 +0.027** (unico positivo).
+- **Quintili (10gg)**: mom12_1 Q5 +1.11% vs Q1 +0.62%; invvol monotono DECRESCENTE (low-vol peggio).
+
+### Ma il fattore NON regge nell'esecuzione reale (laddered + stop)
+| selezione full-cycle (regime-up) | Sharpe | MaxDD | PF |
+|---|---|---|---|
+| top-quintile per SCORE | 0.35 | −36.9% | 1.18 |
+| top-quintile per MOM12_1 | 0.33 | **−63.0%** | 1.17 |
+| score≥p70 AND mom≥p70 | 0.19 | −43.6% | 1.09 |
+- Rankare per momentum **raddoppia il drawdown** (i titoli ad alto momentum crashano di piu');
+  combinare score+momentum **peggiora** (Sharpe 0.19). Il +0.21% standalone non sopravvive a stop/laddered.
+
+### DECISIONE (disciplinata): NON integrare alcun fattore
+Nessun fattore da prezzo validato migliora il modello operativo full-cycle in modo robusto.
+Coerente con la disciplina (una validazione che dice NO e' un successo): non aggiungo complessita'
+senza beneficio dimostrato. invvol scartato (negativo); mom12_1 troppo debole e peggiora il DD.
+
+### Conclusione solida del progetto
+Gli **elementi solidi** del processo sono i **controlli di rischio** (gate di trend, regime +
+trigger rapido SMA20, stop, go-flat, accumulazione, sizing per convinzione, dedup), validati
+full-cycle: riducono il MaxDD da −96% a ~−33/−37%. L'**edge di rendimento** ha un tetto strutturale
+(modesto, bull-favored) e NON si sblocca spremendo segnali di prezzo. Per alzarlo davvero serve
+**informazione nuova** (fondamentali point-in-time, dati alternativi), validata full-cycle — non
+disponibile in questo ambiente.
+
+### Watch list per il prossimo run
+- [ ] Procurare fondamentali STORICI point-in-time (per testare quality/value senza lookahead).
+- [ ] Finche' l'edge resta modesto: priorita' alla GESTIONE DEL RISCHIO (gia' solida), non a nuovi segnali.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
