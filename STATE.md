@@ -579,4 +579,40 @@ ciclo con bear, o e' (come lo score) bull-concentrato?
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #15 — 2026-06-26 (estensione universo USA: screener "unicorni" da SEC EDGAR)
+
+**Domanda dell'utente:** si possono estendere i ticker USA per individuare potenziali "unicorni"?
+**Risposta:** si', quasi gratis — la SEC copre TUTTI i filer USA (company_tickers.json, ~10k),
+quindi i fondamentali costano solo rate-limit, non un piano API.
+
+### `unicorn_screener.py` (NUOVO tool)
+- Universo candidati: ~52 growth USA mid/small-cap fuori dai 45 mega-cap (cloud/AI/cyber/fintech/
+  consumer/biotech/semis), estendibile. Foreign issuer (20-F: ARM, NU) saltati senza errore.
+- Profilo "unicorno" da SEC: crescita ricavi (CAGR 3Y + YoY), gross margin scalabile e in
+  miglioramento (leva operativa), dimensione contenuta (spazio di crescita), bilancio. Score 0-100.
+- **Estrazione annuale robusta** (lezione di data-hygiene): il campo `fy` di companyfacts e' l'anno
+  del FILING, non del periodo -> si usano `start`/`end`, durata ~365gg, chiave su anno di `end`,
+  dedup per filing recente, priorita' tra concetti. Fix: PODD GM da 184% (bug) a 72% (reale);
+  recuperati CRWD/UBER/HOOD/XYZ che usavano concetti revenue non standard.
+
+### Top candidati (profilo fondamentale, NON validato sui ritorni)
+PLTR 88.8 · ELF 80.9 · CELH 79.1 · BILL 77.4 · S 75.3 · PODD 69.0 · GTLB 68.0 · DDOG 65.5 ·
+UPST 65.0 · ZS 64.8. Sanity: PLTR in cima (iper-growth profittevole), giganti come UBER
+declassati (rev $52B -> nessun bonus dimensione). Output: `data/unicorn_candidates.csv`.
+
+### Onesta' (cruciale)
+- E' uno screener di SCOPERTA, NON un segnale di alpha: nessuna prova statistica che il profilo
+  predica i ritorni. La validazione Run #14 avverte: i nomi high-growth/non profittevoli (S, RIVN,
+  LCID, SNOW) sono ESPLOSIVI ma HIGH-BETA (crollano per primi in bear). Ogni candidato va passato
+  dal gate momentum + regime + stop del modello prima di operare. Lista da indagare, non da eseguire.
+- Per integrarli davvero nel modello servirebbe: prezzi nel pipeline (gia' fattibile via Yahoo v8)
+  + backtest del profilo come fattore. Non fatto: per ora resta tool di scoperta separato.
+
+### Watch list per il prossimo run
+- [ ] Se si vuole operare gli unicorni: aggiungere i top al `TICKERS` di fetch_data e backtestare.
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve ESEF/altra fonte per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
