@@ -33,6 +33,86 @@ except ImportError:
 EMC = 0.5772156649015329          # costante di Eulero-Mascheroni
 
 # ─────────────────────────────────────────────────────────────────────────────
+# FONDAMENTALI POINT-IN-TIME (SEC EDGAR)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def load_pit(path="data/fundamentals_pit_history.csv"):
+    """Carica la storia PIT e costruisce un lookup point-in-time per ticker.
+    Ritorna un dict {ticker: DataFrame ordinato per filed} o {} se il file manca."""
+    if not os.path.exists(path):
+        return {}
+    df = pd.read_csv(path)
+    if df.empty:
+        return {}
+    df["filed"] = pd.to_datetime(df["filed"])
+    out = {}
+    for tk, g in df.groupby("ticker"):
+        out[tk] = g.sort_values("filed").reset_index(drop=True)
+    return out
+
+
+def pit_lookup(pit_data, ticker, as_of_date):
+    """Dato un ticker e una data, ritorna la riga PIT piu' recente con filed <= as_of_date.
+    Ritorna un dict con le metriche o None se non disponibile."""
+    if ticker not in pit_data:
+        return None
+    df = pit_data[ticker]
+    mask = df["filed"] <= pd.Timestamp(as_of_date)
+    if not mask.any():
+        return None
+    return df[mask].iloc[-1].to_dict()
+
+
+def pit_quality_score(pit_row):
+    """Score di qualita' fondamentale [0, 1] da una riga PIT.
+    Criteri soft (ogni criterio soddisfatto = +1 punto, normalizzato):
+      1. net_margin > 0 (profittevole)
+      2. net_margin >= 0.10 (margine solido)
+      3. current_ratio >= 1.0 (solvibilita' a breve)
+      4. ocf_margin > 0 (genera cassa)
+      5. roe > 0.10 (ritorno sull'equity decente)
+    Ritorna None se non ci sono dati sufficienti."""
+    if pit_row is None:
+        return None
+    def _n(v):
+        try:
+            f = float(v)
+            return f if not (np.isnan(f) or np.isinf(f)) else None
+        except (ValueError, TypeError):
+            return None
+
+    nm = _n(pit_row.get("net_margin"))
+    cr = _n(pit_row.get("current_ratio"))
+    ocfm = _n(pit_row.get("ocf_margin"))
+    roe = _n(pit_row.get("roe"))
+
+    available = 0
+    passed = 0
+
+    if nm is not None:
+        available += 2
+        if nm > 0:
+            passed += 1
+        if nm >= 0.10:
+            passed += 1
+    if cr is not None:
+        available += 1
+        if cr >= 1.0:
+            passed += 1
+    if ocfm is not None:
+        available += 1
+        if ocfm > 0:
+            passed += 1
+    if roe is not None:
+        available += 1
+        if roe >= 0.10:
+            passed += 1
+
+    if available == 0:
+        return None
+    return passed / available
+
+# ─────────────────────────────────────────────────────────────────────────────
 # SEZIONE 1 — SCORE FUNCTIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -261,13 +341,14 @@ def block_bootstrap(r, fn, block=10, n_boot=2000, seed=42):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def build_signals(px, score_fn, horizons=(5, 10, 20),
-                  step=5, comm_bps=5.0, slip_bps=2.0):
+                  step=5, comm_bps=5.0, slip_bps=2.0, pit_data=None):
     """
     Costruisce i segnali con fill realistico:
     - score calcolato al close di t (usa dati fino a t incluso)
     - ingresso simulato al close di t+1 (evita lookahead)
     - rendimento misurato da close(t+1) a close(t+1+hz)
     - costi: commissioni + slippage in bps (round-trip)
+    - pit_data: se fornito, aggiunge pit_quality (fondamentali PIT point-in-time)
     """
     cost = (comm_bps + slip_bps) / 1e4 * 2     # round-trip
     recs = []
@@ -284,7 +365,6 @@ def build_signals(px, score_fn, horizons=(5, 10, 20),
             s = score_fn(c, h, l, t)
             if s is None:
                 continue
-            # Fill al close di t+1 (prossima barra disponibile)
             entry = float(c.iloc[t+1])
             rec   = {"ticker": tk, "t": t+1, "date": dates.iloc[t+1], "score": s}
             for hz in horizons:
@@ -295,6 +375,13 @@ def build_signals(px, score_fn, horizons=(5, 10, 20),
                 ret_net   = ret_gross - cost
                 rec[f"fwd_{hz}_gross"] = ret_gross * 100
                 rec[f"fwd_{hz}_net"]   = ret_net   * 100
+            if pit_data:
+                pit_row = pit_lookup(pit_data, tk, dates.iloc[t+1])
+                rec["pit_quality"] = pit_quality_score(pit_row)
+                if pit_row is not None:
+                    rec["pit_net_margin"] = pit_row.get("net_margin")
+                    rec["pit_current_ratio"] = pit_row.get("current_ratio")
+                    rec["pit_roe"] = pit_row.get("roe")
             recs.append(rec)
     return pd.DataFrame(recs)
 
@@ -403,12 +490,16 @@ def walk_forward(signals, col, hz, n_windows=6, top_q=0.80):
 
 def run(px_path="data/mib_data.csv",
         out_csv="data/backtest_report.csv",
-        out_txt="data/backtest_summary.txt"):
+        out_txt="data/backtest_summary.txt",
+        pit_path="data/fundamentals_pit_history.csv"):
 
     px = pd.read_csv(px_path)
     px["date"] = pd.to_datetime(px["date"])
     px = px.dropna(subset=["close"])
     print(f"[backtest] {len(px)} righe caricati, {px['ticker'].nunique()} ticker", flush=True)
+
+    pit_data = load_pit(pit_path)
+    print(f"[backtest] PIT fondamentali: {len(pit_data)} ticker caricati", flush=True)
 
     horizons = (5, 10, 20)
     lines    = []          # raccoglie il report testuale
@@ -421,13 +512,18 @@ def run(px_path="data/mib_data.csv",
     log("BACKTEST ISTITUZIONALE v3 — Swing Copilot EU+USA")
     log(f"Dati: {px['date'].min().date()} → {px['date'].max().date()}")
     log(f"Ticker: {px['ticker'].nunique()} | Orizzonti: {horizons}")
+    if pit_data:
+        log(f"Fondamentali PIT: {len(pit_data)} ticker SEC EDGAR (point-in-time)")
     log("="*70)
 
     for name, sfn in [("VECCHIO", score_old), ("NUOVO", score_new)]:
         log(f"\n>>> COSTRUZIONE SEGNALI — score {name} <<<")
-        sig = build_signals(px, sfn, horizons=horizons)
+        sig = build_signals(px, sfn, horizons=horizons, pit_data=pit_data or None)
         all_dfs[name] = sig
         log(f"    Segnali prodotti: {len(sig)}")
+        if pit_data and "pit_quality" in sig.columns:
+            n_pit = sig["pit_quality"].notna().sum()
+            log(f"    Con fondamentali PIT: {n_pit} ({n_pit*100/len(sig):.0f}%)")
 
     # ── CONFRONTO POTERE PREDITTIVO ──────────────────────────────────────────
     log("\n" + "─"*70)
@@ -575,6 +671,76 @@ def run(px_path="data/mib_data.csv",
                 sr = r.mean()/(r.std(ddof=1)+1e-12)*np.sqrt(252/hz)
                 row += f"  {sr:>+7.2f} "
         log(row)
+
+    # ── FONDAMENTALI POINT-IN-TIME (SEC EDGAR) ──────────────────────────────
+    if pit_data and "pit_quality" in all_dfs.get("NUOVO", pd.DataFrame()).columns:
+        log("\n" + "─"*70)
+        log("9. FONDAMENTALI POINT-IN-TIME (SEC EDGAR) — filtro qualita' sul score NUOVO")
+        log("─"*70)
+        sig = all_dfs["NUOVO"].copy()
+        col = "fwd_10_net"
+        if col in sig.columns:
+            has_pit = sig["pit_quality"].notna()
+            log(f"  Segnali con PIT: {has_pit.sum()}/{len(sig)} ({has_pit.mean()*100:.0f}%)")
+            thr = sig["score"].quantile(0.80)
+            top = sig[sig["score"] >= thr].copy()
+
+            # a) Correlazione pit_quality vs forward return
+            pit_top = top[top["pit_quality"].notna()]
+            if len(pit_top) > 10:
+                corr = pit_top[["pit_quality", col]].corr(method="spearman").iloc[0, 1]
+                log(f"\n  Spearman pit_quality ↔ fwd_10_net (top quintile): {corr:+.4f}")
+
+            # b) Performance per terzile di qualita' PIT
+            if len(pit_top) > 20:
+                log(f"\n  Performance per terzile qualita' PIT (top quintile, hold 10gg):")
+                log(f"  {'terzile':>10s} {'n':>6s} {'ret%':>8s} {'win%':>8s} {'Sharpe':>8s}")
+                try:
+                    pit_top["pit_tercile"] = pd.qcut(pit_top["pit_quality"], 3,
+                                                      labels=["bassa", "media", "alta"],
+                                                      duplicates="drop")
+                    for terc in ["bassa", "media", "alta"]:
+                        sub = pit_top[pit_top["pit_tercile"] == terc]
+                        if len(sub) < 5:
+                            continue
+                        r = sub[col].values / 100.0
+                        mu = r.mean() * 100
+                        wr = (r > 0).mean() * 100
+                        sr = (r.mean() / (r.std(ddof=1) + 1e-12)) * np.sqrt(252 / 10)
+                        log(f"  {terc:>10s} {len(sub):>6d} {mu:>+8.3f} {wr:>8.1f} {sr:>+8.2f}")
+                except Exception:
+                    log("  (terzili non calcolabili: troppo pochi valori distinti)")
+
+            # c) Confronto: top quintile CON vs SENZA filtro qualita' PIT
+            if len(pit_top) > 20:
+                log(f"\n  Confronto top quintile: tutti vs qualita' PIT >= 0.60:")
+                for label, subset in [("tutti", top),
+                                       ("PIT >= 0.60", top[top["pit_quality"] >= 0.60]),
+                                       ("PIT >= 0.80", top[top["pit_quality"] >= 0.80])]:
+                    if len(subset) < 5:
+                        log(f"    {label:>15s}: N/A (n={len(subset)})")
+                        continue
+                    r = subset[col].values / 100.0
+                    mu = r.mean() * 100
+                    wr = (r > 0).mean() * 100
+                    sr = (r.mean() / (r.std(ddof=1) + 1e-12)) * np.sqrt(252 / 10)
+                    log(f"    {label:>15s}: n={len(subset):>4d} ret={mu:+.3f}% win={wr:.1f}% Sharpe={sr:+.2f}")
+
+            # d) Net margin come filtro: profittevoli vs non profittevoli
+            if "pit_net_margin" in top.columns:
+                top_nm = top[top["pit_net_margin"].notna()].copy()
+                if len(top_nm) > 20:
+                    log(f"\n  Net margin come filtro (top quintile):")
+                    for label, mask in [("nm > 0 (profittevole)", top_nm["pit_net_margin"].astype(float) > 0),
+                                         ("nm >= 10%", top_nm["pit_net_margin"].astype(float) >= 0.10),
+                                         ("nm < 0 (in perdita)", top_nm["pit_net_margin"].astype(float) < 0)]:
+                        sub = top_nm[mask]
+                        if len(sub) < 3:
+                            continue
+                        r = sub[col].values / 100.0
+                        mu = r.mean() * 100
+                        wr = (r > 0).mean() * 100
+                        log(f"    {label:>25s}: n={len(sub):>4d} ret={mu:+.3f}% win={wr:.1f}%")
 
     # ── SALVATAGGIO ──────────────────────────────────────────────────────────
     os.makedirs(os.path.dirname(out_csv), exist_ok=True)
