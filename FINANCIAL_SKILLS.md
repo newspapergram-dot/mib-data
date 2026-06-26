@@ -420,4 +420,27 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    non un'altra trasformazione degli stessi dati. E, nel frattempo, l'affidabilita' la dà il rischio.
 
 ---
+
+## Lezione #15 — 2026-06-25 — Point-in-time vuol dire "data di deposito", non "data del periodo"
+
+**Evidenza.**
+- Procurare fondamentali "storici" non basta: per evitare il lookahead serve la **data in cui il
+  dato e' diventato PUBBLICO** (filing). I bilanci si depositano 1-3 mesi dopo la fine del periodo;
+  usare la data di fine periodo regalerebbe informazione futura.
+- Le fonti differiscono molto: FMP-TTM da' solo lo snapshot CORRENTE (zero storia PIT); Yahoo
+  fundamentals-timeseries da' la data di FINE periodo (no filing) e poca storia; **SEC EDGAR
+  companyfacts** da' i valori con il campo `filed` → e' la fonte PIT corretta (e gratuita) per gli USA.
+
+**Regola.**
+1. **Per un fattore fondamentale, allinea sempre sulla data di DEPOSITO** (o, se manca, applica un
+   lag prudente di ~75-90 giorni dopo la fine del periodo). Mai usare il dato il giorno in cui il
+   periodo si chiude.
+2. **Distingui snapshot corrente da serie storica PIT.** Un endpoint che da' "i fondamentali" di
+   oggi non serve a backtestare: serve la serie con le date di disponibilita'.
+3. **SEC EDGAR `companyfacts` e' il riferimento PIT gratuito USA** (campo `filed`); per EU servono
+   fonti dedicate (spesso a pagamento). Conoscere la fonte giusta evita backtest inquinati.
+4. **Se la fonte e' bloccata, prepara il codice e dichiara il lever** (qui: allowlist SEC), non
+   ripiegare su un dato sbagliato (fine-periodo) pur di "avere qualcosa".
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

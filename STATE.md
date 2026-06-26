@@ -579,4 +579,35 @@ PIT) e roadmap. Punto d'ingresso unico per chi usa o mantiene il sistema; rimand
 (cronologia) e `FINANCIAL_SKILLS.md` (lezioni) per il "perché" delle scelte.
 
 ---
+
+## Run #16 — 2026-06-25 (fondamentali point-in-time: procurati? bloccati; codice pronto)
+
+### Tutte le fonti PIT full-cycle sono bloccate in questo ambiente
+- **FMP storico** (income-statement/ratios period=quarter o annual): **gated** sul piano (solo
+  snapshot TTM corrente, inutile per il point-in-time).
+- **SEC EDGAR** `companyfacts` (la fonte gratuita CORRETTA, valori con data di deposito `filed`):
+  **proxy 403** — `www.sec.gov`/`data.sec.gov` non in allowlist di egress.
+- **Yahoo fundamentals-timeseries**: raggiungibile ma **rate-limited (429)** e profondita' solo
+  ~4 anni (quarterly ~5 punti) → **non copre il ciclo 2018-2026**.
+
+### Fatto: `fundamentals_pit.py` (NUOVO) — pronto a girare
+Costruisce un pannello PIT da **SEC companyfacts** (10-K annuali con `filed` = data di
+disponibilita', niente lookahead) per i titoli USA, calcola fattori **quality** (ROE, net margin,
+leverage) e **value** (earnings yield = EPS/prezzo), e li **valida full-cycle** vs forward return
+(Spearman + quintili) su `mib_data_long.csv`. Degrada con grazia se SEC non e' raggiungibile —
+**nessun dato fabbricato**.
+
+### Lever necessario (lato utente, come fu per Yahoo)
+Aggiungere all'allowlist di egress: **`www.sec.gov`** e **`data.sec.gov`**. Poi:
+```
+python3 fundamentals_pit.py          # fetch SEC + validazione full-cycle
+```
+→ produrro' la validazione PIT di quality/value e diro' onestamente se aggiungono edge robusto.
+
+### Watch list per il prossimo run
+- [ ] **Quando SEC e' in allowlist**: eseguire `fundamentals_pit.py`, validare quality/value PIT
+      full-cycle, e integrare SOLO se migliorano robustamente il modello (altrimenti NO, vedi L#14).
+- [ ] In alternativa: piano FMP con storico, o un feed fondamentali EU (oggi assente).
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
