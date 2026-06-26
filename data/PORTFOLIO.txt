@@ -4,8 +4,9 @@
  MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.
  Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.
  Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).
- QUALITA' FONDAMENTALE PIT (SEC EDGAR, sez.9 backtest): Q+ (fq>=.6) piena size, Q/Q- size
-   ridotta; USA only (EU=n/d, neutro). Backtest top-quintile: PIT>=.6 ret +3.30%/Sharpe 1.50.
+ QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).
+   Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati
+   NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).
  Score top-meta' (>= 0.124); confidenza su percentili LIVE; dedup emittente.
  Universo 142 ticker, 80 gated. Regime: IT=TREND_UP FR=TREND_UP US=PULLBACK
 

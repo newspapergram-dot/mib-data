@@ -539,4 +539,44 @@ egress. Verificato raggiungibile → costruita una pipeline di fondamentali **po
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #14 — 2026-06-26 (validazione filtro PIT su ciclo completo: e' una leva DIFENSIVA)
+
+**Obiettivo:** chiudere la watch-list di Run #13 — il filtro qualita' fondamentale regge su un
+ciclo con bear, o e' (come lo score) bull-concentrato?
+
+### Dati
+- Rigenerato `data/mib_data_long.csv` (2018-2026, prezzi aggiustati, 301k righe, 142 ticker)
+  via `fetch_long.py` (Yahoo v8 ancora in allowlist). PIT history copre 2009-2026 (45 ticker USA).
+
+### `pit_validate.py` (NUOVO tool) — segmentazione per regime
+- Segnali score NUOVO sul ciclo completo; fondamentali PIT con filed <= data segnale; regime
+  bull/bear via ^GSPC/SMA200; confronto top-quintile USA base vs +PIT>=0.60, DENTRO ogni regime.
+
+### SCOPERTA: la qualita' fondamentale e' una leva DIFENSIVA, non un miglioramento universale
+| regime | filtro PIT>=0.60 vs base (10gg / 20gg) | verdetto |
+|---|---|---|
+| BULL | ret -0.28% / -0.50%, Sharpe -0.16 / -0.11 | **PEGGIORA** |
+| BEAR | ret +0.63% / +0.82%, win +3.7% / +3.5%, Sharpe +0.48 / +0.34 | **AIUTA** |
+- Spearman pit_quality↔ritorno: bull ~0 (-0.02), **bear +0.16/+0.19**. Flight-to-quality nel
+  risk-off; nel momentum bull anche i nomi a qualita' bassa corrono -> penalizzarli costa.
+- **Il +3.30% del backtest sez.9 era un artefatto del solo sotto-periodo bull a 14 mesi.** Sul
+  ciclo completo PIT>=0.60 sta SOTTO il base USA (0.70 vs 0.91 a 10gg): senza segmentare, fuorviante.
+- Anomalia onesta: `net margin < 0` (in perdita) ha i ritorni piu' alti (n=61, +4.23%/+8.66%,
+  PF 3-5) = effetto high-beta/turnaround dentro il momentum, NON qualita'. Alta varianza, rischioso.
+
+### Correzione dell'integrazione (Run #13 era mis-specificato)
+- `portfolio_builder._fundamental_tier` ora **regime-conditional**: la leva morde SOLO nei mercati
+  NON in TREND_UP (`defensive=True`); in TREND_UP resta NEUTRA (label informativo, size piena).
+  Coerente con la validazione: non penalizzare la qualita' bassa quando il momentum la premia.
+- Verificato: INTC (in perdita) TREND_UP -> x1.0 (neutro), PULLBACK -> x0.85 (difensivo morde);
+  i Q+ sempre pieni. Nel default go-flat (solo TREND_UP) la leva e' di fatto neutra by design;
+  si attiva con include_pullback=True (quando si sceglie di restare in mercati risk-off).
+
+### Watch list per il prossimo run
+- [ ] Campione bear ancora piccolo (n=168 top-quintile USA): riconfermare quando ci saranno piu' dati.
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve ESEF/altra fonte per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

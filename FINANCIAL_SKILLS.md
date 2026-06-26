@@ -407,4 +407,39 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    fallback). Come per Yahoo v8 (L#4), bastava il dominio in allowlist, non piu' codice.
 
 ---
+
+## Lezione #14 — 2026-06-26 — Un effetto medio nasconde il regime: la qualita' fondamentale e' DIFENSIVA
+
+**Evidenza.**
+- Il filtro qualita' fondamentale PIT sembrava un miglioramento universale (backtest sez.9,
+  14 mesi bull: PIT>=0.60 ret +3.30%/Sharpe 1.50). Validato sul **ciclo completo 2018-2026**
+  e **segmentato per regime**, il quadro si ribalta:
+  - BULL: il filtro PIT>=0.60 **PEGGIORA** (ret -0.28%/-0.50%, Sharpe -0.16/-0.11 a 10/20gg).
+  - BEAR: il filtro **AIUTA** (ret +0.63%/+0.82%, win +3.7%/+3.5%, Sharpe +0.48/+0.34).
+  - Spearman pit_quality↔ritorno: bull ~0, **bear +0.16/+0.19**. E' flight-to-quality: i
+    fondamentali proteggono nel risk-off; nel momentum rialzista anche la qualita' bassa corre.
+- Sul ciclo completo (non segmentato) PIT>=0.60 sta SOTTO il base USA (0.70 vs 0.91 a 10gg):
+  l'effetto medio e' negativo perche' DOMINATO dalle barre bull. Il +3.30% era un artefatto
+  del solo sotto-periodo bull a 14 mesi — esattamente il rischio di L#11 (backtest senza bear).
+- Anomalia: `net margin < 0` (in perdita) ha i ritorni TOP (n=61, +4.23%/+8.66%, PF 3-5) =
+  high-beta/turnaround dentro il momentum, non qualita'. Alta varianza: segnale rischioso, non edge.
+
+**Regola.**
+1. **Un effetto medio puo' avere SEGNO OPPOSTO nei due regimi.** Prima di integrare un fattore,
+   segmenta per regime (bull/bear): una media positiva su un campione bull-dominato puo' nascondere
+   un danno in bull e un beneficio in bear (o viceversa). Mai validare un fattore solo sull'aggregato.
+2. **La qualita' fondamentale e' una leva DIFENSIVA, non un miglioramento universale.** Applicala
+   dove serve (regimi risk-off / non-TREND_UP), tienila NEUTRA dove il momentum premia la bassa
+   qualita' (TREND_UP). Una leva right-in-bear / wrong-in-bull va resa condizionale al regime.
+3. **Ricorda L#11 ogni volta che un filtro "funziona".** Se la validazione e' su un periodo
+   mono-regime (qui i 14 mesi bull della sez.9), il risultato vale SOLO per quel regime. Ri-testa
+   sul ciclo completo prima di scolpire la conclusione nel modello.
+4. **Una validazione che corregge un'integrazione gia' fatta e' un successo, non un fallimento**
+   (estende L#8). Run #13 aveva applicato la leva sempre; Run #14 l'ha resa difensiva. Meglio
+   correggere su evidenza che lasciare un mis-fit "perche' era gia' integrato".
+5. **Distingui edge da high-beta.** Ritorni altissimi su un sotto-gruppo piccolo e rischioso
+   (qui i nomi in perdita) sono di solito beta/coda, non un fattore da sfruttare: alta varianza,
+   crolla per primo in un bear vero. Non confondere la coda fortunata con un segnale.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
