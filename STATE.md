@@ -729,4 +729,41 @@ Obiettivo impostato: rendere il modello operativo un cercatore di profitto. Due 
 - [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
 
 ---
+
+## Run #19 — 2026-06-26 (4 note operative: nomi, automiglioramento, skill, grafici)
+
+Quattro richieste dell'utente, tutte chiuse + auto-review.
+
+### #1 — Nomi azienda (`company_names.py`)
+- Mappa ticker->nome: SEC entity (USA) + Yahoo longName (EU), cache `data/ticker_names.csv` (143
+  ticker). Wired in `execution_sheet` (colonna AZIENDA): i ticker ora sono cercabili (Terna,
+  Carrefour, Intesa Sanpaolo, Engie, Poste, Recordati, STMicroelectronics, Saipem, Air Liquide...).
+
+### #4 — Analisi grafica reintegrata (`charts.py`)
+- Trovato `charts.py` (candlestick + SMA/BB/RSI/MACD/OBV via mplfinance). **Bug Lezione #5**: leggeva
+  da `raw.githubusercontent/main` -> corretto a LETTURA LOCALE. Nuova `charts_for_portfolio()` grafica
+  i SOLI titoli selezionati col nome azienda nel titolo. 12 grafici/sessione in `charts/` (PNG gitignored).
+
+### #2 — Ciclo di automiglioramento (`self_improve.py`)
+- Auto-audit post-raccomandazione: freschezza dati, disciplina rischio, concentrazione (mercato E
+  CONTINENTE), qualita' nomi, assunzioni non blindate, copertura grafici. Scrive `data/IMPROVEMENT_LOG.txt`
+  + sceglie la "prossima mossa" a impatto piu' alto. Sessione oggi: book 100% EU flaggato (US PULLBACK),
+  frontiera = DSR<0.95.
+
+### #3 — Skill che migliorano le skill
+- `self_improve` mappa OGNI criticita' -> skill che la risolve (/code-review, /simplify, /verify,
+  /security-review, metodo statistico). E **eseguito davvero `/code-review`** sul codice nuovo: 5 fix
+  applicati (il piu' importante: `execution_sheet` non perde piu' silenziosamente una posizione dal
+  foglio rischio; parsing per-scheda con campi indipendenti + segnalazione schede incomplete).
+
+### Loop operativo completo della sessione (profit-seeker)
+`fetch_data -> score_generator -> regime_filter -> portfolio_builder -> execution_sheet -> charts -> self_improve`
+Ogni sessione: genera il piano + foglio rischio + grafici + si auto-critica e indica il prossimo miglioramento.
+
+### Watch list
+- [ ] Prossima mossa dell'auto-audit: consolidare DSR>0.95 (ridurre gradi di liberta', walk-forward ciclo completo).
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
