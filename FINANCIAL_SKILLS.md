@@ -373,4 +373,38 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    default (DD piu' basso); hedge/stay-invested come flag esplicito con avvertenza sui costi.
 
 ---
+
+## Lezione #13 — 2026-06-26 — Fondamentali POINT-IN-TIME o non sono fondamentali; e una sola definizione canonica
+
+**Evidenza.**
+- I fondamentali raccolti per data di PERIODO (es. "FY2025") sono lookahead travestito: al
+  momento del segnale il mercato NON aveva ancora quel bilancio. La fonte XBRL SEC espone la
+  **data di FILING** (`filed`): usando quella (`pit_lookup`: filed <= data segnale) il backtest
+  e' onesto. La storia PIT (`fundamentals_pit_history.csv`, 2821 obs) esiste apposta.
+- Validazione (backtest sez.9, top-quintile 10gg): il filtro qualita' fondamentale **migliora**
+  il sottoinsieme — PIT>=0.60 ret +3.30%/Sharpe 1.50 (vs base +2.49%/1.21); net margin>=10%
+  ret +4.86%/win 60%. Coerente con L#9: l'affidabilita' e' un prodotto di filtri condizionali.
+- Caveat onesto: campioni piccoli (n=35-57), in-sample bull. Quindi integrato come **leva di
+  size**, non come veto rigido ne' come blend lineare (L#8: il blend lineare degrada lo score).
+- La stessa formula di quality score serviva a DUE chiamanti (backtest + builder live): tenerne
+  due copie = drift garantito. Centralizzata una sola `pit_quality_score` in `modules/fundamentals`.
+
+**Regola.**
+1. **Un fondamentale senza data di filing non e' usabile nel backtest.** Aggancia OGNI dato
+   contabile al momento in cui e' diventato pubblico (`filed`), mai alla fine del periodo
+   contabile: altrimenti e' lookahead. Se la fonte non da' la data di filing, non e' point-in-time.
+2. **Il dato fondamentale mancante e' NEUTRO, mai un veto.** SEC copre solo gli USA: gli EU
+   restano `n/d` e passano a size piena (N/A != penalita', come per i criteri settoriali in
+   `build_screen`). Penalizzare l'assenza di dato e' fabbricare un segnale che non esiste.
+3. **Qualita' fondamentale = leva di size su un filtro condizionato, non blend nello score.**
+   Validala DENTRO la selezione (top-quintile) e usala per scalare la size (Q+ piena, Q/Q-
+   ridotta), come gia' fatto per lo Smart Money. Non sommarla linearmente al ranking.
+4. **Una sola definizione canonica per ogni metrica condivisa.** Se backtest e produzione usano
+   lo stesso score, deve vivere in UN posto solo (qui `modules/fundamentals.pit_quality_score`),
+   importato da entrambi: due copie divergono e il live smette di misurare cio' che hai validato.
+5. **La fonte ufficiale batte gli aggregatori a pagamento, quando raggiungibile.** SEC EDGAR e'
+   gratis, completo e autorevole per gli USA: e' diventato fonte primaria (Finnhub/yfinance
+   fallback). Come per Yahoo v8 (L#4), bastava il dominio in allowlist, non piu' codice.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

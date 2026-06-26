@@ -17,8 +17,33 @@ import pandas as pd
 from indicators import atr_wilder
 from modules.trade_proposal import propose, render, cost_rt_bps, confidence_level, ILLIQUID
 from volume_tools import smart_money_signal, validate_volume
+from modules.fundamentals import _load_pit_csv, pit_quality_score
 
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
+
+
+def _fundamental_tier(tk, pit_rows):
+    """Leva di size da QUALITA' FONDAMENTALE PIT (SEC EDGAR), validata in backtest_v3 sez.9.
+
+    Restituisce (fq_mult, fq_label):
+      - USA con fondamentali solidi (fq>=0.60): 1.00  ("Q+")  -- backtest: ret +3.30%, Sharpe 1.50
+      - USA medi (0.40<=fq<0.60):               0.85  ("Q")
+      - USA deboli (fq<0.40):                    0.70  ("Q-")
+      - EU o ticker senza dati SEC:             1.00  ("n/d") -- N/A != penalita' (no SEC coverage EU)
+
+    Filosofia coerente col repo: la qualita' fondamentale SCALA la size, non esclude
+    (Lezione #6); il dato mancante e' neutro, mai un veto (Lezione #8/#9). E' un filtro
+    CONDIZIONATO validato in-sample sul top-quintile, non un blend lineare nello score.
+    """
+    row = pit_rows.get(tk)
+    fq = pit_quality_score(row) if row else None
+    if fq is None:
+        return 1.0, "n/d"
+    if fq >= 0.60:
+        return 1.0, "Q+"
+    if fq >= 0.40:
+        return 0.85, "Q"
+    return 0.70, "Q-"
 
 
 def _market_of(tk):
@@ -51,6 +76,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     regime_by_mkt = {r.market: r.regime for r in rf.itertuples()}
     mult_by_mkt = {r.market: r.risk_mult for r in rf.itertuples()}
     p50, p60, p80, p90 = (score["score"].quantile(q) for q in (0.50, 0.60, 0.80, 0.90))
+    pit_rows = _load_pit_csv()        # fondamentali PIT SEC EDGAR (USA); {} se assente
 
     rows = []
     for r in score.itertuples():
@@ -71,13 +97,15 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         s_base = {"ALTA": 1.0, "MEDIA": 0.7, "BASE": 0.45}[s_tier]
         role = "CORE" if smv >= 0.33 else "SAT"
         sm_tier = 1.0 if role == "CORE" else 0.55          # distribuzione gia' esclusa
-        size_mult = float(np.clip(s_base * sm_tier * (0.6 if tk in ILLIQUID else 1.0), 0.3, 1.0))
+        # leva qualita' fondamentale PIT (SEC EDGAR), validata in backtest sez.9 (USA; EU neutro)
+        fq_mult, fq_label = _fundamental_tier(tk, pit_rows)
+        size_mult = float(np.clip(s_base * sm_tier * fq_mult * (0.6 if tk in ILLIQUID else 1.0), 0.3, 1.0))
         # confidenza con soglie LIVE (percentili della selezione corrente)
         conf = confidence_level(s, tk, hi=p90, mid=p60)
         conv = 0.45 * s + 0.55 * max(smv, 0)               # ranking: SM pesa piu' dello score
         rows.append(dict(ticker=tk, score=s, mkt=mkt, sm=round(smv, 2),
                          sm_label=sm["label"].split(" (")[0], tier=s_tier, role=role, conf=conf,
-                         size_mult=round(size_mult, 2), conv=conv, ok=ok,
+                         fq=fq_label, size_mult=round(size_mult, 2), conv=conv, ok=ok,
                          price=float(d.close.iloc[-1]),
                          atr=float(atr_wilder(d.high, d.low, d.close, 14).iloc[-1]),
                          dg=_dual_group(tk), rt=cost_rt_bps(tk)))
@@ -108,6 +136,8 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w(" MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.")
     w(" Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.")
     w(f" Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).")
+    w(" QUALITA' FONDAMENTALE PIT (SEC EDGAR, sez.9 backtest): Q+ (fq>=.6) piena size, Q/Q- size")
+    w("   ridotta; USA only (EU=n/d, neutro). Backtest top-quintile: PIT>=.6 ret +3.30%/Sharpe 1.50.")
     w(f" Score top-meta' (>= {p50:.3f}); confidenza su percentili LIVE; dedup emittente.")
     w(f" Universo {px.ticker.nunique()} ticker, {len(score)} gated. "
       f"Regime: " + " ".join(f"{m}={regime_by_mkt.get(m)}" for m in ('IT', 'FR', 'US')))
@@ -116,12 +146,12 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w(f" SELEZIONATI: {len(picked)} ({n_core} CORE / {len(picked)-n_core} SAT) | "
       f"esposizione {exposure:.0f} EUR ({exposure/capital*100:.0f}% del capitale)")
     w("-" * 92)
-    w(f" {'TICK':9s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
+    w(f" {'TICK':9s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'FQ':>4s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
       f"{'T1%':>7s}{'T2%':>7s}{'T3%':>7s}")
     t1 = t2 = t3 = 0.0
     expo_mkt = {}
     for r, p in picked:
-        w(f" {r.ticker:9s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
+        w(f" {r.ticker:9s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.fq:>4s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
           f"{p['pos_value']:9.0f}{p['g1_pct']:7.1f}{p['g2_pct']:7.1f}{p['g3_pct']:7.1f}")
         t1 += p['g1_eur']; t2 += p['g2_eur']; t3 += p['g3_eur']
         expo_mkt[r.mkt] = expo_mkt.get(r.mkt, 0.0) + p['pos_value']
@@ -152,7 +182,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w("=" * 92); w(" SCHEDE OPERATIVE"); w("=" * 92)
     for r, p in picked:
         w(""); w(render(p))
-        w(f" FOREGROUND: sm {r.sm:+.2f} ({r.sm_label}) | {r.role} | conf {r.conf} | tier {r.tier} | {r.mkt}")
+        w(f" FOREGROUND: sm {r.sm:+.2f} ({r.sm_label}) | {r.role} | FQ {r.fq} | conf {r.conf} | tier {r.tier} | {r.mkt}")
         w("=" * 58)
 
     txt = "\n".join(L) + "\n"

@@ -4,24 +4,26 @@
  MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.
  Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.
  Top-quintile+accumulazione (10gg): win 60%, Sharpe 1.55, PF 2.61 (vs base 57%/1.21/2.08).
+ QUALITA' FONDAMENTALE PIT (SEC EDGAR, sez.9 backtest): Q+ (fq>=.6) piena size, Q/Q- size
+   ridotta; USA only (EU=n/d, neutro). Backtest top-quintile: PIT>=.6 ret +3.30%/Sharpe 1.50.
  Score top-meta' (>= 0.124); confidenza su percentili LIVE; dedup emittente.
  Universo 142 ticker, 80 gated. Regime: IT=TREND_UP FR=TREND_UP US=PULLBACK
 
  SELEZIONATI: 12 (7 CORE / 5 SAT) | esposizione 30933 EUR (62% del capitale)
 --------------------------------------------------------------------------------------------
- TICK      SCORE   SM$ ROLE  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
- VIE.PA    0.189  0.68 CORE MEDIA  1.00  138     4989    3.6    9.7   16.4
- TRN.MI    0.167  0.66 CORE BASSA  0.42  205     2095    3.5    9.8   16.8
- ISP.MI    0.143  0.62 CORE BASSA  0.45  373     2249    4.8   12.4   20.8
- CA.PA     0.130  0.58 CORE BASSA  0.45  138     2243    5.0   13.0   21.9
- ENGI.PA   0.190  0.53 CORE  ALTA  1.00  184     4979    4.1   10.9   18.4
- TEN.MI    0.129  0.36 CORE BASSA  0.45   89     2233    5.6   16.6   27.8
- AZM.MI    0.145  0.34 CORE BASSA  0.42   57     2085    4.5   12.3   21.0
- SPM.MI    0.145  0.32  SAT MEDIA  0.39  442     1946    8.1   25.2   42.3
- ENEL.MI   0.164  0.30  SAT MEDIA  0.39  193     1942    3.9   10.0   16.7
- STMMI.MI  0.231  0.14  SAT  ALTA  0.55   42     2732   10.2   30.9   51.7
- REC.MI    0.153  0.19  SAT MEDIA  0.39   38     1949    1.9    5.5    9.3
- FBK.MI    0.147  0.17  SAT BASSA  0.30   67     1490    4.3   11.9   20.3
+ TICK      SCORE   SM$ ROLE  FQ  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
+ VIE.PA    0.189  0.68 CORE n/d MEDIA  1.00  138     4989    3.6    9.7   16.4
+ TRN.MI    0.167  0.66 CORE n/d BASSA  0.42  205     2095    3.5    9.8   16.8
+ ISP.MI    0.143  0.62 CORE n/d BASSA  0.45  373     2249    4.8   12.4   20.8
+ CA.PA     0.130  0.58 CORE n/d BASSA  0.45  138     2243    5.0   13.0   21.9
+ ENGI.PA   0.190  0.53 CORE n/d  ALTA  1.00  184     4979    4.1   10.9   18.4
+ TEN.MI    0.129  0.36 CORE n/d BASSA  0.45   89     2233    5.6   16.6   27.8
+ AZM.MI    0.145  0.34 CORE n/d BASSA  0.42   57     2085    4.5   12.3   21.0
+ SPM.MI    0.145  0.32  SAT n/d MEDIA  0.39  442     1946    8.1   25.2   42.3
+ ENEL.MI   0.164  0.30  SAT n/d MEDIA  0.39  193     1942    3.9   10.0   16.7
+ STMMI.MI  0.231  0.14  SAT n/d  ALTA  0.55   42     2732   10.2   30.9   51.7
+ REC.MI    0.153  0.19  SAT n/d MEDIA  0.39   38     1949    1.9    5.5    9.3
+ FBK.MI    0.147  0.17  SAT n/d BASSA  0.30   67     1490    4.3   11.9   20.3
 --------------------------------------------------------------------------------------------
  GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):
    T1: +1513 EUR (+3.0%) | T2: +4241 EUR (+8.5%) | T3: +7153 EUR (+14.3%)
@@ -52,7 +54,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.68 (ACCUMULAZIONE) | CORE | conf MEDIA | tier ALTA | FR
+ FOREGROUND: sm +0.68 (ACCUMULAZIONE) | CORE | FQ n/d | conf MEDIA | tier ALTA | FR
 ==========================================================
 
 ==========================================================
@@ -76,7 +78,7 @@
          !! poco efficiente per conti piccoli: T1 netto +3.5% troppo vicino ai costi
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.66 (ACCUMULAZIONE) | CORE | conf BASSA | tier MEDIA | IT
+ FOREGROUND: sm +0.66 (ACCUMULAZIONE) | CORE | FQ n/d | conf BASSA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -99,7 +101,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.62 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | IT
+ FOREGROUND: sm +0.62 (ACCUMULAZIONE) | CORE | FQ n/d | conf BASSA | tier BASE | IT
 ==========================================================
 
 ==========================================================
@@ -122,7 +124,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.58 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | FR
+ FOREGROUND: sm +0.58 (ACCUMULAZIONE) | CORE | FQ n/d | conf BASSA | tier BASE | FR
 ==========================================================
 
 ==========================================================
@@ -144,7 +146,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.53 (ACCUMULAZIONE) | CORE | conf ALTA | tier ALTA | FR
+ FOREGROUND: sm +0.53 (ACCUMULAZIONE) | CORE | FQ n/d | conf ALTA | tier ALTA | FR
 ==========================================================
 
 ==========================================================
@@ -167,7 +169,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.36 (ACCUMULAZIONE) | CORE | conf BASSA | tier BASE | IT
+ FOREGROUND: sm +0.36 (ACCUMULAZIONE) | CORE | FQ n/d | conf BASSA | tier BASE | IT
 ==========================================================
 
 ==========================================================
@@ -190,7 +192,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.34 (ACCUMULAZIONE) | CORE | conf BASSA | tier MEDIA | IT
+ FOREGROUND: sm +0.34 (ACCUMULAZIONE) | CORE | FQ n/d | conf BASSA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -212,7 +214,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.32 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+ FOREGROUND: sm +0.32 (neutro) | SAT | FQ n/d | conf MEDIA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -234,7 +236,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.30 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+ FOREGROUND: sm +0.30 (neutro) | SAT | FQ n/d | conf MEDIA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -256,7 +258,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.14 (neutro) | SAT | conf ALTA | tier ALTA | IT
+ FOREGROUND: sm +0.14 (neutro) | SAT | FQ n/d | conf ALTA | tier ALTA | IT
 ==========================================================
 
 ==========================================================
@@ -279,7 +281,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! poco efficiente per conti piccoli: T1 netto +1.9% troppo vicino ai costi
 ==========================================================
- FOREGROUND: sm +0.19 (neutro) | SAT | conf MEDIA | tier MEDIA | IT
+ FOREGROUND: sm +0.19 (neutro) | SAT | FQ n/d | conf MEDIA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -302,5 +304,5 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.17 (neutro) | SAT | conf BASSA | tier MEDIA | IT
+ FOREGROUND: sm +0.17 (neutro) | SAT | FQ n/d | conf BASSA | tier MEDIA | IT
 ==========================================================

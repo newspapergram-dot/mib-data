@@ -30,6 +30,9 @@ except ImportError:
     print("[backtest] ERRORE: indicators.py non trovato nella root del repo.")
     sys.exit(1)
 
+# Definizione canonica del quality score PIT (condivisa con portfolio_builder).
+from modules.fundamentals import pit_quality_score
+
 EMC = 0.5772156649015329          # costante di Eulero-Mascheroni
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -61,56 +64,6 @@ def pit_lookup(pit_data, ticker, as_of_date):
     if not mask.any():
         return None
     return df[mask].iloc[-1].to_dict()
-
-
-def pit_quality_score(pit_row):
-    """Score di qualita' fondamentale [0, 1] da una riga PIT.
-    Criteri soft (ogni criterio soddisfatto = +1 punto, normalizzato):
-      1. net_margin > 0 (profittevole)
-      2. net_margin >= 0.10 (margine solido)
-      3. current_ratio >= 1.0 (solvibilita' a breve)
-      4. ocf_margin > 0 (genera cassa)
-      5. roe > 0.10 (ritorno sull'equity decente)
-    Ritorna None se non ci sono dati sufficienti."""
-    if pit_row is None:
-        return None
-    def _n(v):
-        try:
-            f = float(v)
-            return f if not (np.isnan(f) or np.isinf(f)) else None
-        except (ValueError, TypeError):
-            return None
-
-    nm = _n(pit_row.get("net_margin"))
-    cr = _n(pit_row.get("current_ratio"))
-    ocfm = _n(pit_row.get("ocf_margin"))
-    roe = _n(pit_row.get("roe"))
-
-    available = 0
-    passed = 0
-
-    if nm is not None:
-        available += 2
-        if nm > 0:
-            passed += 1
-        if nm >= 0.10:
-            passed += 1
-    if cr is not None:
-        available += 1
-        if cr >= 1.0:
-            passed += 1
-    if ocfm is not None:
-        available += 1
-        if ocfm > 0:
-            passed += 1
-    if roe is not None:
-        available += 1
-        if roe >= 0.10:
-            passed += 1
-
-    if available == 0:
-        return None
-    return passed / available
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SEZIONE 1 — SCORE FUNCTIONS

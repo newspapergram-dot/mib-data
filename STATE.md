@@ -498,4 +498,45 @@ l'avvertenza che e' un costo-assicurazione, non un generatore di rendimento.
 - [ ] Valutare hedge per-mercato (CAC/FTSEMIB) oltre a S&P, se si usa include_pullback.
 
 ---
+
+## Run #13 — 2026-06-26 (fondamentali Point-In-Time da SEC EDGAR: raccolta, backtest, integrazione)
+
+**Sblocco fonte.** L'utente ha aggiunto `www.sec.gov` e `data.sec.gov` all'allowlist di
+egress. Verificato raggiungibile → costruita una pipeline di fondamentali **point-in-time**
+(con data di FILING, non di periodo → zero lookahead) dai dati XBRL ufficiali SEC.
+
+### #1 — Raccolta (`fundamentals_pit.py`, NUOVO)
+- Fonte: `data.sec.gov/api/xbrl/companyfacts/CIK*.json` (gratuita, no API key, UA con email).
+- 45/45 ticker USA della watchlist, da 10-K/10-Q: revenue, net income, EPS, gross/operating
+  income, balance sheet completo, OCF; metriche derivate (net/gross/OCF margin, current ratio,
+  cash/LT-debt, ROE, D/E, EPS growth YoY e CAGR 5Y).
+- Output: `data/fundamentals_pit.csv` (snapshot) + `data/fundamentals_pit_history.csv`
+  (2821 osservazioni storiche per backtest). Rispetta rate limit SEC (10 req/s).
+- Robustezza: retry+backoff, JSON grandi (GOOGL/JNJ ~4MB), numeri complessi (INTC) gestiti.
+
+### #2 — Backtest PIT (`backtest_v3.py`, sez.9 NUOVA)
+- Ogni segnale associato ai fondamentali **as-of filed <= data segnale** (`pit_lookup`).
+- `pit_quality_score`: 5 criteri soft (nm>0, nm>=10%, current>=1, ocf>0, roe>=10%), normalizzato.
+- Risultato sul top-quintile (hold 10gg): **PIT>=0.60 → ret +3.30% / Sharpe 1.50** (vs base
+  +2.49% / 1.21); **net margin>=10% → ret +4.86% / win 60%**. Il filtro fondamentale MIGLIORA.
+  Caveat: campioni piccoli (n=35-57), in-sample; usare come leva, non come veto rigido.
+
+### #3 — Integrazione live (`portfolio_builder.py` + `modules/fundamentals.py`)
+- **`modules/fundamentals.py`**: SEC EDGAR diventa **fonte primaria USA** (Finnhub/yfinance
+  fallback; analisti/earnings ancora da Finnhub). EU invariato (yfinance).
+- **`portfolio_builder.py`**: leva di size `fq_mult` da `_fundamental_tier` (Q+ piena size,
+  Q/Q- ridotta; USA only, EU=`n/d` neutro). Colonna FQ in tabella e scheda.
+- `pit_quality_score` **centralizzato** in `modules/fundamentals.py`, importato da backtest e
+  builder (una sola definizione, no drift). Coerente con Lezione #8/#9: filtro CONDIZIONATO /
+  leva di size, NON blend lineare nello score; e Lezione #6: scala la size, non escludere.
+- **Effetto live (oggi)**: US in PULLBACK → go-flat esclude i nomi USA → portafoglio tutto EU
+  (`n/d`), leva inattiva su questa selezione. Verificato su `include_pullback=True`: la leva
+  morde (AMAT/GE Q+ piena; **INTC fq=0.40 → Q → size ×0.85**, unico non profittevole tagliato).
+
+### Watch list per il prossimo run
+- [ ] Validare il filtro PIT su un ciclo COMPLETO con bear (oggi in-sample bull, n piccolo).
+- [ ] Estendere i fondamentali PIT all'EU (SEC non copre: serve fonte ESEF/altra per .MI/.PA).
+- [ ] Re-tarare target/soglie sul ciclo completo e mirare DSR>0.95.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

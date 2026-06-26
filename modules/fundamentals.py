@@ -341,6 +341,51 @@ def _load_pit_csv(path="data/fundamentals_pit.csv"):
     return _PIT_CACHE
 
 
+def pit_quality_score(row):
+    """Score di qualita' fondamentale [0, 1] da una riga PIT (dict o pandas row).
+
+    Definizione CANONICA, condivisa tra backtest_v3 (validazione storica PIT) e
+    portfolio_builder (selezione live), per evitare drift fra le due. Criteri soft:
+      1. net_margin > 0  (profittevole)
+      2. net_margin >= 0.10 (margine solido)
+      3. current_ratio >= 1.0 (solvibilita' a breve)
+      4. ocf_margin > 0  (genera cassa)
+      5. roe >= 0.10 (ritorno sull'equity decente)
+    Ritorna frazione criteri-passati/criteri-disponibili, o None se nessun dato.
+    I criteri non valutabili (campo assente) NON contano: dato mancante != fallimento.
+    """
+    if row is None:
+        return None
+    get = row.get if hasattr(row, "get") else (lambda k, d=None: row[k] if k in row else d)
+    nm = _num(get("net_margin"))
+    cr = _num(get("current_ratio"))
+    ocfm = _num(get("ocf_margin"))
+    roe = _num(get("roe"))
+
+    available = passed = 0
+    if nm is not None:
+        available += 2
+        if nm > 0:
+            passed += 1
+        if nm >= 0.10:
+            passed += 1
+    if cr is not None:
+        available += 1
+        if cr >= 1.0:
+            passed += 1
+    if ocfm is not None:
+        available += 1
+        if ocfm > 0:
+            passed += 1
+    if roe is not None:
+        available += 1
+        if roe >= 0.10:
+            passed += 1
+    if available == 0:
+        return None
+    return passed / available
+
+
 def fetch_us_sec(ticker):
     """Fondamentali USA da SEC EDGAR PIT (data/fundamentals_pit.csv).
     Ritorna dict nello schema del modulo, oppure None se il ticker non e' nel CSV."""
