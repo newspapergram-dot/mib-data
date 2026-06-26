@@ -36,9 +36,14 @@ def _dual_group(tk):
     return tk
 
 
-def build(capital=50000.0, max_names=12, exposure_cap=0.85,
+def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=False,
           px_path="data/mib_data.csv", score_path="data/score_output.csv",
           regime_path="data/regime_filter.csv", out_path="data/PORTFOLIO.txt"):
+    # include_pullback=False (DEFAULT, piu' affidabile) = GO-FLAT: si opera solo nei mercati
+    #   TREND_UP, fuori dagli altri (il fattore bear validato: MaxDD piu' basso).
+    # include_pullback=True = si resta nei mercati PULLBACK a META' size (regime_mult 0.5) e si
+    #   suggerisce l'hedge dell'indice (overlay di rischio) per coprire il beta residuo.
+    _ok_regimes = ("TREND_UP", "PULLBACK") if include_pullback else ("TREND_UP",)
     px = pd.read_csv(px_path, parse_dates=["date"]).sort_values(["ticker", "date"])
     score = pd.read_csv(score_path)
     rf = pd.read_csv(regime_path)
@@ -59,7 +64,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85,
         s = float(r.score)
         smv = sm["score"] if sm["score"] is not None else 0.0
         # filtri: regime TREND_UP, score top-meta', NON in distribuzione, volume affidabile
-        ok = (regime_by_mkt.get(mkt) == "TREND_UP") and (s >= p50) and (smv >= -0.15) and bool(vq["reliable"])
+        ok = (regime_by_mkt.get(mkt) in _ok_regimes) and (s >= p50) and (smv >= -0.15) and bool(vq["reliable"])
         # size_mult = tier di score x tier di SMART MONEY (driver di affidabilita' validato).
         # Accumulazione (sm>=.33) = CORE a piena size; neutro = SATELLITE a size ridotta.
         s_tier = "ALTA" if s >= p80 else ("MEDIA" if s >= p60 else "BASE")
@@ -114,15 +119,35 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85,
     w(f" {'TICK':9s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
       f"{'T1%':>7s}{'T2%':>7s}{'T3%':>7s}")
     t1 = t2 = t3 = 0.0
+    expo_mkt = {}
     for r, p in picked:
         w(f" {r.ticker:9s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
           f"{p['pos_value']:9.0f}{p['g1_pct']:7.1f}{p['g2_pct']:7.1f}{p['g3_pct']:7.1f}")
         t1 += p['g1_eur']; t2 += p['g2_eur']; t3 += p['g3_eur']
+        expo_mkt[r.mkt] = expo_mkt.get(r.mkt, 0.0) + p['pos_value']
     w("-" * 92)
     w(" GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):")
     w(f"   T1: +{t1:.0f} EUR (+{t1/capital*100:.1f}%) | T2: +{t2:.0f} EUR (+{t2/capital*100:.1f}%) | "
       f"T3: +{t3:.0f} EUR (+{t3/capital*100:.1f}%)")
     w("   (NB: non tutti i target vengono raggiunti; lo stop tronca i perdenti)")
+    w("")
+    # OVERLAY DI RISCHIO: hedge dell'indice per i mercati NON in TREND_UP.
+    # Validato su 2018-2026 come riduzione del drawdown (-13.8% -> -9/-10%); h=0.5 prudente.
+    # NB: e' ASSICURAZIONE, non alpha: in mercati laterali/choppy l'hedge COSTA (whipsaw).
+    INDEX_HEDGE = {"US": "SPY/ES (o inverso SH)", "FR": "CAC40 (o EWQ inverso)", "IT": "FTSEMIB (o EWI inverso)"}
+    hedge_lines = []
+    for mkt, expo in sorted(expo_mkt.items()):
+        if regime_by_mkt.get(mkt) != "TREND_UP" and expo > 0:
+            hedge_lines.append((mkt, expo, 0.5*expo))
+    if hedge_lines:
+        w("-" * 92)
+        w(" OVERLAY DI RISCHIO (mercati NON in TREND_UP) — hedge indice ~0.5x esposizione:")
+        for mkt, expo, h in hedge_lines:
+            w(f"   {mkt}: long {expo:.0f}EUR in regime {regime_by_mkt.get(mkt)} -> short "
+              f"{INDEX_HEDGE.get(mkt, 'indice')} ~{h:.0f}EUR (copertura beta, riduce il MaxDD)")
+        w("   (assicurazione: attendersi un COSTO in fasi laterali; togliere l'hedge al ritorno TREND_UP)")
+    else:
+        w(" OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).")
     w("")
     w("=" * 92); w(" SCHEDE OPERATIVE"); w("=" * 92)
     for r, p in picked:

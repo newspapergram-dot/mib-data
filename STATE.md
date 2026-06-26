@@ -461,4 +461,41 @@ DSR ancora <0.95. Per un vero salto servirebbe una logica long/short o hedge, no
 - [ ] DSR>0.95: ridurre i gradi di liberta'.
 
 ---
+
+## Run #12 — 2026-06-25 (overlay di rischio: go-flat + index hedge sul ciclo completo)
+
+### `hedge_overlay.py` (NUOVO) — simulazione giornaliera (M2M) overlay, 2018-2026
+| overlay | MaxDD | Sharpe | CAGR |
+|---|---|---|---|
+| BASE (modello, no overlay) | −13.8% | 0.99 | 14.3% |
+| A) GO-FLAT in TREND_DOWN | −13.8% | 0.99 | 14.3% |
+| B1) HEDGE indice h=1.0 | −9.1% | 2.55 | 41.3% |
+| B2) HEDGE indice h=0.5 | −10.1% | 1.86 | 27.2% |
+
+### Letture oneste (cruciali)
+- **GO-FLAT e' REDUNDANTE**: A == BASE. Il filtro fast-regime tiene gia' il modello FUORI dai
+  downtrend (non ci sono posizioni da chiudere) → e' per questo che il MaxDD e' contenuto.
+  Il miglior overlay di rischio era gia' nel gate d'ingresso. (BASE DD −13.8% qui < −33% del
+  Run #11 perche' qui il regime-switch e' globale ^GSPC, piu' protettivo.)
+- **L'HEDGE riduce il drawdown** (−13.8%→−9/−10%) MA il boost di rendimento (Sharpe 2.55,
+  CAGR 41%) e' **sample-specific** (short dell'indice durante i crash 2020/2022): in mercati
+  laterali l'hedge fa **whipsaw e COSTA**. Va trattato come **ASSICURAZIONE, non alpha**.
+
+### Operativizzazione in `portfolio_builder.py`
+- **DEFAULT `include_pullback=False` = GO-FLAT** (piu' affidabile): si opera solo nei mercati
+  TREND_UP. **Live: US in PULLBACK → escluso**; portafoglio IT/FR, esposizione 62%, hedge non
+  necessario ("OVERLAY DI RISCHIO: nessuno").
+- **`include_pullback=True`**: si resta nei mercati PULLBACK a META' size (regime_mult 0.5) e il
+  report stampa la **raccomandazione di hedge** (es. US long 5196€ → short SPY ~2598€, h=0.5).
+
+### Conclusione overlay
+Per l'affidabilita' primaria, il DEFAULT e' **go-flat** (validato, DD piu' basso). L'hedge e'
+disponibile come overlay opzionale per chi vuole mantenere diversificazione in PULLBACK, con
+l'avvertenza che e' un costo-assicurazione, non un generatore di rendimento.
+
+### Watch list per il prossimo run
+- [ ] Re-tarare target/soglie sul ciclo COMPLETO (finora su periodo bull) e mirare DSR>0.95.
+- [ ] Valutare hedge per-mercato (CAC/FTSEMIB) oltre a S&P, se si usa include_pullback.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

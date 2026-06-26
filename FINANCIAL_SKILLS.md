@@ -351,4 +351,26 @@ concreta nei dati del repository o nel mercato. Le regole nuove vanno in fondo.
    Onesta': una strategia long-only resta bull-favored; per il bear servono hedge/short o stare flat.
 
 ---
+
+## Lezione #12 — 2026-06-25 — Diffida dell'hedge che sembra alpha; e non duplicare una difesa che hai già
+
+**Evidenza.**
+- "Stare flat nei TREND_DOWN" non ha cambiato nulla (A == BASE): il filtro di regime tiene gia'
+  il modello fuori dai downtrend. La difesa bear migliore era gia' nel gate d'ingresso.
+- L'index hedge ha ridotto il MaxDD (−13.8%→−9.1%) ma ha anche triplicato lo Sharpe (0.99→2.55)
+  e il CAGR (14%→41%): troppo bello. Veniva dallo short dell'indice durante i crash 2020/2022 —
+  eventi specifici del campione. In mercati laterali quello stesso hedge fa whipsaw e perde.
+
+**Regola.**
+1. **Giudica un hedge dalla RIDUZIONE del drawdown, non dal rendimento.** Se un overlay di
+   copertura "aggiunge alpha" in backtest, sospetta overfitting agli eventi del campione: e'
+   assicurazione, e l'assicurazione di norma COSTA. Dimensiona di conseguenza (h prudente).
+2. **Non aggiungere una difesa che duplichi una salvaguardia esistente.** Go-flat era ridondante
+   col filtro di regime. Prima di costruire un overlay, verifica cosa fa gia' il sistema.
+3. **Testa gli overlay alla granularita' giusta (giornaliera/M2M).** Un overlay che agisce
+   giorno per giorno non si valuta su rendimenti aggregati a N giorni.
+4. **Default = la scelta piu' robusta; l'aggressiva resta opzionale e documentata.** Go-flat di
+   default (DD piu' basso); hedge/stay-invested come flag esplicito con avvertenza sui costi.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

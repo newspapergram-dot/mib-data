@@ -27,6 +27,8 @@
    T1: +1513 EUR (+3.0%) | T2: +4241 EUR (+8.5%) | T3: +7153 EUR (+14.3%)
    (NB: non tutti i target vengono raggiunti; lo stop tronca i perdenti)
 
+ OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).
+
 ============================================================================================
  SCHEDE OPERATIVE
 ============================================================================================
