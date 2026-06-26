@@ -275,18 +275,24 @@ def live_sleeve(min_score=50.0, growth_gate=0.25, out_path="data/unicorn_sleeve.
     return df
 
 
+_MEGA_SIG = None   # cache dei segnali mega-cap (build_signals e' caro: non rifarlo per ogni hz)
+
 def _megacap_topq(hz, col):
-    """Stesso modello sui 45 mega-cap USA originari (dal dataset lungo), per confronto equo."""
+    """Stesso modello sui 45 mega-cap USA originari (dal dataset lungo), per confronto equo.
+    I segnali (indipendenti dall'orizzonte) sono cachati: run(10) e run(20) non li ricostruiscono."""
+    global _MEGA_SIG
     if not os.path.exists(LONG_PATH):
         return None
-    mega_tickers = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "AVGO", "TSLA", "LLY", "JPM",
-                    "V", "UNH", "XOM", "COST", "HD", "PG", "JNJ", "ORCL", "BAC", "NFLX",
-                    "AMD", "CRM", "KO", "CVX", "MRK", "WMT", "PLTR", "GE", "CAT", "GS",
-                    "ADBE", "QCOM", "TXN", "ABBV", "PEP", "MCD", "ACN", "INTC", "CSCO", "NOW",
-                    "AMAT", "DIS", "TMO", "ABT", "LIN"]
-    long = pd.read_csv(LONG_PATH, parse_dates=["date"]).dropna(subset=["close"])
-    long = long[long["ticker"].isin(mega_tickers)]
-    sig = bt.build_signals(long, bt.score_new, horizons=(5, 10, 20))
+    if _MEGA_SIG is None:
+        mega_tickers = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "AVGO", "TSLA", "LLY", "JPM",
+                        "V", "UNH", "XOM", "COST", "HD", "PG", "JNJ", "ORCL", "BAC", "NFLX",
+                        "AMD", "CRM", "KO", "CVX", "MRK", "WMT", "PLTR", "GE", "CAT", "GS",
+                        "ADBE", "QCOM", "TXN", "ABBV", "PEP", "MCD", "ACN", "INTC", "CSCO", "NOW",
+                        "AMAT", "DIS", "TMO", "ABT", "LIN"]
+        long = pd.read_csv(LONG_PATH, parse_dates=["date"]).dropna(subset=["close"])
+        long = long[long["ticker"].isin(mega_tickers)]
+        _MEGA_SIG = bt.build_signals(long, bt.score_new, horizons=(5, 10, 20))
+    sig = _MEGA_SIG
     if sig.empty or col not in sig.columns:
         return None
     sig = sig.dropna(subset=[col])

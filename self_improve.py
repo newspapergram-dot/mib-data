@@ -69,7 +69,7 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
         findings.append(("MEDIA", "rischio", f"posizione max {max(vals)/capital*100:.0f}% > cap 10%",
                          "verificare pos_cap in trade_proposal", "code"))
 
-    # 3) CONCENTRAZIONE MERCATO --------------------------------------------
+    # 3) CONCENTRAZIONE MERCATO E CONTINENTE -------------------------------
     mkts = re.findall(r"FOREGROUND:.*\|\s*(IT|FR|US)\s*$", txt, re.M)
     if mkts:
         from collections import Counter
@@ -78,6 +78,15 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
         if n / len(mkts) > 0.8:
             findings.append(("MEDIA", "diversif.", f"concentrazione {top_mkt} {n}/{len(mkts)} (>80%)",
                              "il regime di un solo mercato domina: monitorare correlazione", "stats"))
+        # concentrazione di CONTINENTE: IT+FR sono entrambi EU -> un book 100% EU resta
+        # una scommessa correlata su un'unica regione anche se IT e FR sono "due mercati".
+        cont = Counter("EU" if m in ("IT", "FR") else "US" for m in mkts)
+        top_c, nc = cont.most_common(1)[0]
+        if nc / len(mkts) > 0.85 and len(set(mkts)) > 1:
+            findings.append(("MEDIA", "diversif.", f"book {nc}/{len(mkts)} concentrato su {top_c} "
+                             f"(0 esposizione all'altra area)",
+                             "regione correlata: e' per regime (es. US in PULLBACK) ma monitorare "
+                             "il rischio macro comune; valutare hedge indice di area", "stats"))
 
     # 4) QUALITA' DEI NOMI (confidenza/distribuzione) ----------------------
     n_bassa = len(re.findall(r"conf BASSA", txt))

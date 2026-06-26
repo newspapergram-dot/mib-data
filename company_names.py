@@ -51,9 +51,7 @@ def _from_sec():
 
 def _titlecase(s):
     """SEC scrive in MAIUSCOLO (MICROSOFT CORPORATION) -> Title Case leggibile."""
-    if s.isupper():
-        return s.title().replace("Corp", "Corp").replace("Inc", "Inc")
-    return s
+    return s.title() if s.isupper() else s
 
 
 def _from_yahoo(tickers):

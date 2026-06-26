@@ -13,14 +13,15 @@ import datetime
 
 CAP = 50000.0   # capitale di riferimento (coerente con portfolio_builder.build default)
 
-_PAT = re.compile(
-    r'([A-Z0-9]+\.?[A-Z]{0,3})\s*\|\s*Score:\s*([\d.]+)\s*\|\s*CONFIDENZA:\s*(\w+)'
-    r'.*?Entry:\s*([\d.]+)\s+Stop:\s*([\d.]+)'
-    r'.*?Target 1:.*?\+([\d.]+)% net = \+?(-?\d+)EUR'
-    r'.*?Target 2:.*?= \+?(-?\d+)EUR'
-    r'.*?Target 3:.*?= \+?(-?\d+)EUR'
-    r'.*?SIZING:\s*(\d+) azioni = (\d+)EUR\s*\(([\d.]+)%'
-    r'.*?Rischio massimo posizione:\s*(\d+)EUR', re.S)
+# Header di scheda: 'TICK | Score: X | CONFIDENZA: Y'. Si parsa PER-SCHEDA (campi indipendenti)
+# cosi' una posizione NON sparisce dal foglio se manca un campo opzionale (es. niente runner T3):
+# meglio una riga con un target a 0 che una posizione invisibile -> rischio sotto-riportato.
+_HDR = re.compile(r'([A-Z0-9]+\.?[A-Z]{0,3})\s*\|\s*Score:\s*([\d.]+)\s*\|\s*CONFIDENZA:\s*(\w+)')
+
+
+def _target_eur(seg, n):
+    m = re.search(rf'Target {n}:.*?=\s*\+?(-?\d+)EUR', seg)
+    return int(m.group(1)) if m else 0
 
 
 def build_sheet(portfolio_path="data/PORTFOLIO.txt", capital=CAP, out_path="data/EXECUTION_PLAN.txt"):
@@ -28,12 +29,22 @@ def build_sheet(portfolio_path="data/PORTFOLIO.txt", capital=CAP, out_path="data
     asof = re.search(r'—\s*(\d{4}-\d{2}-\d{2})', txt)
     asof = asof.group(1) if asof else datetime.date.today().isoformat()
 
-    rows = []
-    for m in _PAT.finditer(txt):
-        tk, score, conf, entry, stop, t1p, t1e, t2e, t3e, sh, val, pct, risk = m.groups()
-        rows.append(dict(tk=tk, conf=conf, entry=float(entry), stop=float(stop),
-                         sh=int(sh), val=int(val), pct=float(pct), risk=int(risk),
-                         t1e=int(t1e), t2e=int(t2e), t3e=int(t3e)))
+    # segmenta per scheda: ogni header delimita un blocco fino all'header successivo
+    hdrs = list(_HDR.finditer(txt))
+    rows, skipped = [], []
+    for i, h in enumerate(hdrs):
+        seg = txt[h.end():(hdrs[i + 1].start() if i + 1 < len(hdrs) else len(txt))]
+        tk, conf = h.group(1), h.group(3)
+        es = re.search(r'Entry:\s*([\d.]+)\s+Stop:\s*([\d.]+)', seg)
+        sz = re.search(r'SIZING:\s*(\d+) azioni = (\d+)EUR\s*\(([\d.]+)%', seg)
+        rk = re.search(r'Rischio massimo posizione:\s*(\d+)EUR', seg)
+        if not (es and sz and rk):
+            skipped.append(tk)       # scheda informativa o incompleta -> segnalata, non persa in silenzio
+            continue
+        rows.append(dict(tk=tk, conf=conf, entry=float(es.group(1)), stop=float(es.group(2)),
+                         sh=int(sz.group(1)), val=int(sz.group(2)), pct=float(sz.group(3)),
+                         risk=int(rk.group(1)),
+                         t1e=_target_eur(seg, 1), t2e=_target_eur(seg, 2), t3e=_target_eur(seg, 3)))
 
     # nomi azienda per rendere i ticker cercabili
     try:
@@ -80,6 +91,10 @@ def build_sheet(portfolio_path="data/PORTFOLIO.txt", capital=CAP, out_path="data
     w("")
     w(" ESECUZIONE: ordini limite all'entry; stop OBBLIGATORIO subito dopo il fill (non negoziabile).")
     w(" Scala in uscita ai target (laddering); l'edge sta nella coda T2/T3, la mediana per-trade ~0.")
+    if skipped:
+        w("")
+        w(f" ATTENZIONE: {len(skipped)} schede senza entry/sizing/rischio completi, NON quotate: "
+          f"{', '.join(skipped)} (verificare PORTFOLIO.txt).")
 
     sheet = "\n".join(L) + "\n"
     if out_path:

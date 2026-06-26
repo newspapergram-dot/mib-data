@@ -1,10 +1,14 @@
 ====================================================================================
  AUTO-AUDIT MODELLO — 2026-06-26 (ciclo di automiglioramento)
 ====================================================================================
+ [MEDIA] diversif.  book 12/12 concentrato su EU (0 esposizione all'altra area)
+          -> azione: regione correlata: e' per regime (es. US in PULLBACK) ma monitorare il rischio macro comune; valutare hedge indice di area
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
  [NOTA ] robustezza edge in-sample, DSR<0.95 (0.794): non blindato
           -> azione: ridurre gradi di liberta'; walk-forward su ciclo completo
           -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
 ------------------------------------------------------------------------------------
- PROSSIMA MOSSA: consolidare robustezza (DSR>0.95) — nessuna criticita' operativa.
+ PROSSIMA MOSSA (impatto piu' alto): [MEDIA] book 12/12 concentrato su EU (0 esposizione all'altra area) -> regione correlata: e' per regime (es. US in PULLBACK) ma monitorare il rischio macro comune; valutare hedge indice di area
+   skill consigliata: metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
 ====================================================================================
 
