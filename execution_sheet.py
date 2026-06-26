@@ -35,11 +35,18 @@ def build_sheet(portfolio_path="data/PORTFOLIO.txt", capital=CAP, out_path="data
                          sh=int(sh), val=int(val), pct=float(pct), risk=int(risk),
                          t1e=int(t1e), t2e=int(t2e), t3e=int(t3e)))
 
+    # nomi azienda per rendere i ticker cercabili
+    try:
+        from company_names import resolve
+        names = resolve([r["tk"] for r in rows], refresh_missing=False)
+    except Exception:
+        names = {}
+
     L = []
     w = L.append
-    w("=" * 90)
+    w("=" * 114)
     w(f" FOGLIO D'ESECUZIONE — sessione {asof}  (capitale {capital:.0f} EUR)")
-    w("=" * 90)
+    w("=" * 114)
     if not rows:
         w(" Nessuna posizione operabile in questa sessione (regime risk-off o nessun nome idoneo).")
         w(" Decisione profit-seeker: restare flat e' una posizione. Capitale preservato per la prossima.")
@@ -49,16 +56,17 @@ def build_sheet(portfolio_path="data/PORTFOLIO.txt", capital=CAP, out_path="data
         print(sheet)
         return rows
 
-    w(f" {'TICK':9s}{'CONF':>6s}{'ENTRY':>9s}{'STOP':>8s}{'STOP%':>7s}{'AZ':>5s}"
+    w(f" {'TICK':9s}{'AZIENDA':24s}{'CONF':>6s}{'ENTRY':>9s}{'STOP':>8s}{'STOP%':>7s}{'AZ':>5s}"
       f"{'VAL EUR':>8s}{'%pf':>6s}{'RISK':>6s}{'T1':>6s}{'T2':>6s}{'T3':>6s}")
     tv = tr = t1 = t2 = t3 = 0
     for r in rows:
         sp = (r["stop"] / r["entry"] - 1) * 100
-        w(f" {r['tk']:9s}{r['conf']:>6s}{r['entry']:9.3f}{r['stop']:8.3f}{sp:6.1f}%{r['sh']:5d}"
+        nm = names.get(r["tk"], "")[:23]
+        w(f" {r['tk']:9s}{nm:24s}{r['conf']:>6s}{r['entry']:9.3f}{r['stop']:8.3f}{sp:6.1f}%{r['sh']:5d}"
           f"{r['val']:8d}{r['pct']:5.1f}%{r['risk']:6d}{r['t1e']:6d}{r['t2e']:6d}{r['t3e']:6d}")
         tv += r["val"]; tr += r["risk"]; t1 += r["t1e"]; t2 += r["t2e"]; t3 += r["t3e"]
-    w("-" * 90)
-    w(f" {'TOTALE':9s}{'':6s}{'':9s}{'':8s}{'':7s}{'':5s}{tv:8d}{tv/capital*100:5.1f}%{tr:6d}{t1:6d}{t2:6d}{t3:6d}")
+    w("-" * 114)
+    w(f" {'TOTALE':33s}{'':6s}{'':9s}{'':8s}{'':7s}{'':5s}{tv:8d}{tv/capital*100:5.1f}%{tr:6d}{t1:6d}{t2:6d}{t3:6d}")
     w("")
     w(f" Esposizione:        {tv:.0f} EUR ({tv/capital*100:.0f}% del capitale)")
     w(f" RISCHIO TOTALE a stop: {tr:.0f} EUR ({tr/capital*100:.2f}% del capitale) "

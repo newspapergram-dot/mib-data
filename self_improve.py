@@ -1,0 +1,139 @@
+"""self_improve.py — Ciclo di AUTOMIGLIORAMENTO post-raccomandazione (goal profit-seeker).
+
+Dopo ogni consiglio operativo (PORTFOLIO.txt / EXECUTION_PLAN.txt) esegue un auto-audit:
+  1) controlli OGGETTIVI sulla raccomandazione (freschezza dati, disciplina rischio,
+     coerenza regime, concentrazione, qualita' dei nomi, assunzioni non blindate);
+  2) per OGNI criticita' propone l'azione di miglioramento e LA SKILL che aiuta a eseguirla;
+  3) sceglie la PROSSIMA mossa di miglioramento a piu' alto impatto.
+
+Scrive data/IMPROVEMENT_LOG.txt (storico append) + ritorna le criticita'. Idea: ogni sessione
+non solo genera profitto atteso, ma RENDE IL MODELLO MIGLIORE della sessione precedente.
+
+NB: i controlli sono reali e azionabili, non decorativi. Una criticita' a impatto alto va
+chiusa prima della sessione successiva (entra in STATE.md watch-list).
+"""
+import os
+import re
+import csv
+import datetime
+
+# Mappa criticita' -> skill Claude Code che aiuta a risolverla (nota #3 dell'utente).
+SKILL_FOR = {
+    "code":     "/code-review  (bug di correttezza nel modulo coinvolto)",
+    "simplify": "/simplify     (codice duplicato/complesso da ripulire)",
+    "verify":   "/verify       (eseguire e osservare che il comportamento sia reale)",
+    "security": "/security-review (chiavi/segreti/credenziali esposte)",
+    "stats":    "metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)",
+    "data":     "controllo fonte dati (freschezza/provenienza: vedi Lezione #2)",
+}
+
+
+def _read(path):
+    return open(path).read() if os.path.exists(path) else ""
+
+
+def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
+          last_update="data/last_update.txt", capital=50000.0):
+    today = datetime.date.today()
+    findings = []   # (severita', area, criticita', azione, skill_key)
+
+    # 1) FRESCHEZZA DATI ----------------------------------------------------
+    lu = _read(last_update).strip()
+    m = re.search(r"(\d{4}-\d{2}-\d{2})", lu)
+    if m:
+        age = (today - datetime.date.fromisoformat(m.group(1))).days
+        if age >= 2:
+            findings.append(("ALTA", "dati", f"dataset vecchio di {age}g ({m.group(1)})",
+                             "rieseguire fetch_data prima di operare", "data"))
+    else:
+        findings.append(("MEDIA", "dati", "data ultimo aggiornamento non leggibile",
+                         "verificare data/last_update.txt", "data"))
+
+    txt = _read(portfolio)
+    if not txt:
+        findings.append(("ALTA", "output", "PORTFOLIO.txt assente",
+                         "eseguire portfolio_builder", "verify"))
+        return _emit(findings, today)
+
+    # 2) DISCIPLINA RISCHIO -------------------------------------------------
+    risks = [int(x) for x in re.findall(r"Rischio massimo posizione:\s*(\d+)EUR", txt)]
+    tot_risk = sum(risks)
+    if tot_risk:
+        rpct = tot_risk / capital * 100
+        if rpct > 6:
+            findings.append(("ALTA", "rischio", f"rischio totale a stop {rpct:.1f}% > 6%",
+                             "ridurre size o numero posizioni", "code"))
+    # singola posizione > 10% capitale?
+    vals = [int(v) for v in re.findall(r"SIZING:\s*\d+ azioni = (\d+)EUR", txt)]
+    if vals and max(vals) / capital > 0.105:
+        findings.append(("MEDIA", "rischio", f"posizione max {max(vals)/capital*100:.0f}% > cap 10%",
+                         "verificare pos_cap in trade_proposal", "code"))
+
+    # 3) CONCENTRAZIONE MERCATO --------------------------------------------
+    mkts = re.findall(r"FOREGROUND:.*\|\s*(IT|FR|US)\s*$", txt, re.M)
+    if mkts:
+        from collections import Counter
+        c = Counter(mkts)
+        top_mkt, n = c.most_common(1)[0]
+        if n / len(mkts) > 0.8:
+            findings.append(("MEDIA", "diversif.", f"concentrazione {top_mkt} {n}/{len(mkts)} (>80%)",
+                             "il regime di un solo mercato domina: monitorare correlazione", "stats"))
+
+    # 4) QUALITA' DEI NOMI (confidenza/distribuzione) ----------------------
+    n_bassa = len(re.findall(r"conf BASSA", txt))
+    n_tot = len(re.findall(r"FOREGROUND:", txt))
+    if n_tot and n_bassa / n_tot > 0.4:
+        findings.append(("MEDIA", "selezione", f"{n_bassa}/{n_tot} nomi a confidenza BASSA",
+                         "score compresso: rivedere normalizzazione score_technical", "code"))
+    if re.search(r"DISTRIBUZIONE", txt):
+        findings.append(("BASSA", "selezione", "almeno un nome in distribuzione tra i selezionati",
+                         "verificare la soglia smart-money (sm>=-0.15)", "code"))
+
+    # 5) ASSUNZIONI NON BLINDATE (onesta' statistica) ----------------------
+    findings.append(("NOTA", "robustezza", "edge in-sample, DSR<0.95 (0.794): non blindato",
+                     "ridurre gradi di liberta'; walk-forward su ciclo completo", "stats"))
+
+    # 6) COPERTURA GRAFICI -------------------------------------------------
+    picks = set(re.findall(r"^\s*([A-Z0-9]+\.?[A-Z]{0,3})\s*\|\s*Score:", txt, re.M))
+    if picks:
+        missing = [t for t in picks if not os.path.exists(f"charts/{t.replace('.', '_')}.png")]
+        if missing:
+            findings.append(("BASSA", "analisi", f"grafici mancanti per {len(missing)} nomi",
+                             "eseguire charts.charts_for_portfolio()", "verify"))
+
+    return _emit(findings, today)
+
+
+def _emit(findings, today):
+    order = {"ALTA": 0, "MEDIA": 1, "BASSA": 2, "NOTA": 3}
+    findings.sort(key=lambda f: order.get(f[0], 9))
+
+    L = ["=" * 84, f" AUTO-AUDIT MODELLO — {today.isoformat()} (ciclo di automiglioramento)", "=" * 84]
+    if not findings:
+        L.append(" Nessuna criticita': raccomandazione robusta su tutti i controlli.")
+    for sev, area, crit, action, skill in findings:
+        L.append(f" [{sev:5s}] {area:10s} {crit}")
+        L.append(f"          -> azione: {action}")
+        L.append(f"          -> skill : {SKILL_FOR.get(skill, skill)}")
+
+    # PROSSIMA MOSSA a piu' alto impatto = prima criticita' non-NOTA
+    actionable = [f for f in findings if f[0] != "NOTA"]
+    L.append("-" * 84)
+    if actionable:
+        nxt = actionable[0]
+        L.append(f" PROSSIMA MOSSA (impatto piu' alto): [{nxt[0]}] {nxt[2]} -> {nxt[3]}")
+        L.append(f"   skill consigliata: {SKILL_FOR.get(nxt[4], nxt[4])}")
+    else:
+        L.append(" PROSSIMA MOSSA: consolidare robustezza (DSR>0.95) — nessuna criticita' operativa.")
+    L.append("=" * 84)
+    report = "\n".join(L)
+    print(report)
+
+    # append storico
+    with open("data/IMPROVEMENT_LOG.txt", "a") as f:
+        f.write(report + "\n\n")
+    return findings
+
+
+if __name__ == "__main__":
+    audit()

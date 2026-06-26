@@ -1,0 +1,143 @@
+ticker,name
+A2A.MI,A2A S.p.A.
+AAPL,Apple Inc.
+ABBV,AbbVie Inc.
+ABT,Abbott Laboratories
+AC.PA,Accor SA
+ACA.PA,Crédit Agricole S.A.
+ACN,Accenture plc
+ADBE,Adobe Inc.
+AI.PA,L'Air Liquide S.A.
+AIR.PA,Airbus SE
+AMAT,Applied Materials Inc /De
+AMD,Advanced Micro Devices Inc
+AMP.MI,Amplifon S.p.A.
+AMZN,Amazon Com Inc
+AVGO,Broadcom Inc.
+AZM.MI,Azimut Holding S.p.A.
+BAC,Bank Of America Corp /De/
+BAMI.MI,Banco BPM S.p.A.
+BC.MI,Brunello Cucinelli S.p.A.
+BMED.MI,Banca Mediolanum S.p.A.
+BMPS.MI,Banca Monte dei Paschi di Siena S.p.A.
+BN.PA,Danone S.A.
+BNP.PA,BNP Paribas SA
+BPE.MI,BPER Banca SpA
+BZU.MI,Buzzi S.p.A.
+CA.PA,Carrefour SA
+CAP.PA,Capgemini SE
+CAT,Caterpillar Inc
+COST,Costco Wholesale Corp /New
+CPR.MI,Davide Campari-Milano N.V.
+CRM,"Salesforce, Inc."
+CS.PA,AXA SA
+CSCO,"Cisco Systems, Inc."
+CVX,Chevron Corp
+DG.PA,Vinci SA
+DIA.MI,DiaSorin S.p.A.
+DIS,Walt Disney Co/
+DSY.PA,Dassault Systèmes SE
+EDEN.PA,Edenred SE
+EL.PA,EssilorLuxottica Société anonyme
+EN.PA,Bouygues SA
+ENEL.MI,Enel SpA
+ENGI.PA,Engie SA
+ENI.MI,Eni S.p.A.
+ERF.PA,Eurofins Scientific SE
+FBK.MI,FinecoBank Banca Fineco S.p.A.
+FTSEMIB.MI,FTSE MIB
+G.MI,Assicurazioni Generali S.p.A.
+GE,General Electric Company
+GLE.PA,Société Générale Société anonyme
+GOOGL,Alphabet Inc.
+GS,"The Goldman Sachs Group, Inc."
+HD,"Home Depot, Inc."
+HER.MI,Hera S.p.A.
+HO.PA,Thales S.A.
+INTC,Intel Corp
+INW.MI,Infrastrutture Wireless Italiane S.p.A.
+IP.MI,Interpump Group S.p.A.
+ISP.MI,Intesa Sanpaolo S.p.A.
+IVG.MI,Iveco Group N.V.
+JNJ,Johnson & Johnson
+JPM,Jpmorgan Chase & Co
+KER.PA,Kering SA
+KO,Coca Cola Co
+LDO.MI,Leonardo S.p.a.
+LIN,Linde Plc
+LLY,ELI LILLY & Co
+LR.PA,Legrand SA
+LTMC.MI,Lottomatica Group S.p.A.
+MB.MI,Mediobanca Banca di Credito Finanziario S.p.A.
+MC.PA,"LVMH Moët Hennessy - Louis Vuitton, Société Européenne"
+MCD,McDONALD’S CORPORATION
+META,"Meta Platforms, Inc."
+ML.PA,Compagnie Générale des Établissements Michelin Société en commandite par actions
+MONC.MI,Moncler S.p.A.
+MRK,"Merck & Co., Inc."
+MSFT,Microsoft Corporation
+MT.AS,ArcelorMittal S.A.
+NEXI.MI,Nexi S.p.A.
+NFLX,"Netflix, Inc."
+NOW,"ServiceNow, Inc."
+NVDA,Nvidia Corp
+OR.PA,L'Oréal S.A.
+ORA.PA,Orange S.A.
+ORCL,Oracle Corporation
+PEP,"PepsiCo, Inc."
+PG,Procter & Gamble Co
+PIRC.MI,Pirelli & C. S.p.A.
+PLTR,Palantir Technologies Inc.
+PRY.MI,Prysmian S.p.A.
+PST.MI,Poste Italiane S.p.A.
+PUB.PA,Publicis Groupe S.A.
+QCOM,Qualcomm Inc/De
+RACE.MI,Ferrari N.V.
+REC.MI,Recordati Industria Chimica e Farmaceutica S.p.A.
+RI.PA,Pernod Ricard SA
+RMS.PA,Hermès International Société en commandite par actions
+RNO.PA,Renault SA
+SAF.PA,Safran SA
+SAN.PA,Sanofi
+SGO.PA,Compagnie de Saint-Gobain S.A.
+SPM.MI,Saipem SpA
+SPY,SPDR S&P 500 ETF
+SRG.MI,Snam S.p.A.
+STLAM.MI,Stellantis N.V.
+STLAP.PA,Stellantis N.V.
+STMMI.MI,STMicroelectronics N.V.
+STMPA.PA,STMicroelectronics N.V.
+SU.PA,Schneider Electric S.E.
+TEN.MI,Tenaris S.A.
+TEP.PA,Teleperformance SE
+TIT.MI,Telecom Italia S.p.A.
+TMO,Thermo Fisher Scientific Inc.
+TRN.MI,Terna S.p.A.
+TSLA,"Tesla, Inc."
+TTE.PA,TotalEnergies SE
+TXN,Texas Instruments Incorporated
+UCG.MI,UniCredit S.p.A.
+UNH,UnitedHealth Group Incorporated
+UNI.MI,Unipol Assicurazioni S.p.A.
+V,Visa Inc.
+VIE.PA,Veolia Environnement SA
+VIV.PA,Vivendi SE
+WLN.PA,Worldline SA
+WMT,Walmart Inc.
+XLB,Materials ETF
+XLC,Communication ETF
+XLE,Energy ETF
+XLF,Financials ETF
+XLI,Industrials ETF
+XLK,Technology ETF
+XLP,Cons. Staples ETF
+XLRE,Real Estate ETF
+XLU,Utilities ETF
+XLV,Health Care ETF
+XLY,Cons. Discretionary ETF
+XOM,Exxon Mobil Corporation
+^FCHI,CAC 40
+^GSPC,S&P 500
+^NDX,Nasdaq 100
+^STOXX50E,Euro Stoxx 50
+^VIX,VIX (volatilita')

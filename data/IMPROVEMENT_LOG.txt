@@ -1,0 +1,10 @@
+====================================================================================
+ AUTO-AUDIT MODELLO — 2026-06-26 (ciclo di automiglioramento)
+====================================================================================
+ [NOTA ] robustezza edge in-sample, DSR<0.95 (0.794): non blindato
+          -> azione: ridurre gradi di liberta'; walk-forward su ciclo completo
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+------------------------------------------------------------------------------------
+ PROSSIMA MOSSA: consolidare robustezza (DSR>0.95) — nessuna criticita' operativa.
+====================================================================================
+
