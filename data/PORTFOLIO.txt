@@ -14,16 +14,16 @@
 
  SELEZIONATI: 9 (5 CORE / 4 SAT) | esposizione 28633 EUR (57% del capitale)
 --------------------------------------------------------------------------------------------
- TICK      SCORE   SM$ ROLE  FQ  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
- CS.PA     0.713  0.73 CORE  Q+  ALTA  1.00  116     4998    2.9    7.9   13.4
- BNP.PA    0.611  0.59 CORE  Q+  ALTA  1.00   48     4944    4.2   11.1   18.7
- BMPS.MI   0.268  0.69 CORE  Q+ BASSA  0.42  191     2092    5.1   13.7   23.3
- ENEL.MI   0.555  0.30  SAT  Q+ MEDIA  0.55  273     2747    3.9   10.0   16.7
- PST.MI    0.451  0.38 CORE  Q+ BASSA  0.60  106     2996    4.8   13.0   22.2
- MB.MI     0.274  0.42 CORE  Q+ MEDIA  0.70  133     3483    5.5   14.4   24.3
- AC.PA     0.612  0.13  SAT  Q+  ALTA  0.55   53     2736    5.4   14.0   23.6
- TIT.MI    0.439  0.05  SAT   Q MEDIA  0.55  345     2750    4.7   12.0   20.1
- STMMI.MI  0.280  0.14  SAT  Q+ MEDIA  0.39   29     1886   10.2   30.9   51.7
+ TICK     NOME                 SCORE   SM$ ROLE  FQ  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
+ CS.PA    AXA SA               0.713  0.73 CORE  Q+  ALTA  1.00  116     4998    2.9    7.9   13.4
+ BNP.PA   BNP Paribas SA       0.611  0.59 CORE  Q+  ALTA  1.00   48     4944    4.2   11.1   18.7
+ BMPS.MI  Banca Monte dei Pas  0.268  0.69 CORE  Q+ BASSA  0.42  191     2092    5.1   13.7   23.3
+ ENEL.MI  Enel SpA             0.555  0.30  SAT  Q+ MEDIA  0.55  273     2747    3.9   10.0   16.7
+ PST.MI   Poste Italiane S.p.  0.451  0.38 CORE  Q+ BASSA  0.60  106     2996    4.8   13.0   22.2
+ MB.MI    Mediobanca Banca di  0.274  0.42 CORE  Q+ MEDIA  0.70  133     3483    5.5   14.4   24.3
+ AC.PA    Accor SA             0.612  0.13  SAT  Q+  ALTA  0.55   53     2736    5.4   14.0   23.6
+ TIT.MI   Telecom Italia S.p.  0.439  0.05  SAT   Q MEDIA  0.55  345     2750    4.7   12.0   20.1
+ STMMI.MI STMicroelectronics   0.280  0.14  SAT  Q+ MEDIA  0.39   29     1886   10.2   30.9   51.7
 --------------------------------------------------------------------------------------------
  GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):
    T1: +1368 EUR (+2.7%) | T2: +3690 EUR (+7.4%) | T3: +6227 EUR (+12.5%)
@@ -60,6 +60,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! poco efficiente per conti piccoli: T1 netto +2.9% troppo vicino ai costi
 ==========================================================
+ AXA SA
  FOREGROUND: sm +0.73 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
 ==========================================================
 
@@ -82,6 +83,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ BNP Paribas SA
  FOREGROUND: sm +0.59 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
 ==========================================================
 
@@ -105,6 +107,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
+ Banca Monte dei Paschi di Siena S.p.A.
  FOREGROUND: sm +0.69 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier MEDIA | IT
 ==========================================================
 
@@ -127,6 +130,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ Enel SpA
  FOREGROUND: sm +0.30 (neutro) | SAT | FQ Q+ | conf MEDIA | tier ALTA | IT
 ==========================================================
 
@@ -150,6 +154,7 @@
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
          !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
+ Poste Italiane S.p.A.
  FOREGROUND: sm +0.38 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier ALTA | IT
 ==========================================================
 
@@ -172,6 +177,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ Mediobanca Banca di Credito Finanziario S.p.A.
  FOREGROUND: sm +0.42 (ACCUMULAZIONE) | CORE | FQ Q+ | conf MEDIA | tier MEDIA | IT
 ==========================================================
 
@@ -194,6 +200,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ Accor SA
  FOREGROUND: sm +0.13 (neutro) | SAT | FQ Q+ | conf ALTA | tier ALTA | FR
 ==========================================================
 
@@ -216,6 +223,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ Telecom Italia S.p.A.
  FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf MEDIA | tier ALTA | IT
 ==========================================================
 
@@ -238,5 +246,6 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
+ STMicroelectronics N.V.
  FOREGROUND: sm +0.14 (neutro) | SAT | FQ Q+ | conf MEDIA | tier MEDIA | IT
 ==========================================================
