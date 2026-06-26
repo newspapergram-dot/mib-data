@@ -162,12 +162,15 @@ def score_flow_insider(ticker, ins_df):
         if match.empty:
             return None
 
-        return float(match.iloc[0].get("signal", 0))
+        sig = float(match.iloc[0].get("signal", 0))
+        if sig == 0:
+            return None
+        return sig
     except Exception:
         return None
 
 def score_flow_short(ticker, short_fr_df):
-    """Segnale short: contrarian. None = no data."""
+    """Segnale short: contrarian. None = no data / low interest."""
     try:
         if not short_fr_df.empty:
             matches = short_fr_df[short_fr_df["Emetteur / issuer"].str.contains(
@@ -179,7 +182,6 @@ def score_flow_short(ticker, short_fr_df):
                         return -0.5
                 except Exception:
                     pass
-                return 0.0
         return None
     except Exception:
         return None

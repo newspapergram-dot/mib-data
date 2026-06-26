@@ -9,29 +9,29 @@
  QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).
    Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati
    NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).
- Score top-meta' (>= 0.075); confidenza su percentili LIVE; dedup emittente.
+ Score top-meta' (>= 0.082); confidenza su percentili LIVE; dedup emittente.
  Universo 142 ticker, 66 gated. Regime: IT=TREND_UP FR=TREND_UP US=PULLBACK
 
- SELEZIONATI: 9 (5 CORE / 4 SAT) | esposizione 27398 EUR (55% del capitale)
+ SELEZIONATI: 9 (5 CORE / 4 SAT) | esposizione 28633 EUR (57% del capitale)
 --------------------------------------------------------------------------------------------
  TICK      SCORE   SM$ ROLE  FQ  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
  CS.PA     0.713  0.73 CORE  Q+  ALTA  1.00  116     4998    2.9    7.9   13.4
  BNP.PA    0.611  0.59 CORE  Q+  ALTA  1.00   48     4944    4.2   11.1   18.7
  BMPS.MI   0.268  0.69 CORE  Q+ BASSA  0.42  191     2092    5.1   13.7   23.3
- ENEL.MI   0.555  0.30  SAT  Q+  ALTA  0.55  273     2747    3.9   10.0   16.7
+ ENEL.MI   0.555  0.30  SAT  Q+ MEDIA  0.55  273     2747    3.9   10.0   16.7
  PST.MI    0.451  0.38 CORE  Q+ BASSA  0.60  106     2996    4.8   13.0   22.2
- ISP.MI    0.078  0.62 CORE  Q+ BASSA  0.45  373     2249    4.8   12.4   20.8
+ MB.MI     0.274  0.42 CORE  Q+ MEDIA  0.70  133     3483    5.5   14.4   24.3
  AC.PA     0.612  0.13  SAT  Q+  ALTA  0.55   53     2736    5.4   14.0   23.6
- TIT.MI    0.439  0.05  SAT   Q  ALTA  0.55  345     2750    4.7   12.0   20.1
+ TIT.MI    0.439  0.05  SAT   Q MEDIA  0.55  345     2750    4.7   12.0   20.1
  STMMI.MI  0.280  0.14  SAT  Q+ MEDIA  0.39   29     1886   10.2   30.9   51.7
 --------------------------------------------------------------------------------------------
  GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):
-   T1: +1284 EUR (+2.6%) | T2: +3466 EUR (+6.9%) | T3: +5848 EUR (+11.7%)
+   T1: +1368 EUR (+2.7%) | T2: +3690 EUR (+7.4%) | T3: +6227 EUR (+12.5%)
    (NB: non tutti i target vengono raggiunti; lo stop tronca i perdenti)
 
  OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).
- CONCENTRAZIONE DI AREA: 55% del capitale su EU (IT+FR) (0 sull'altra area, per regime).
-   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi) ~13699EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).
+ CONCENTRAZIONE DI AREA: 57% del capitale su EU (IT+FR) (0 sull'altra area, per regime).
+   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi) ~14316EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).
 
 --------------------------------------------------------------------------------------------
  SLEEVE HIGH-BETA UNICORNI: nessun nome (regime USA non operabile (go-flat)).
@@ -109,7 +109,7 @@
 ==========================================================
 
 ==========================================================
- ENEL.MI  |  Score: 0.555  |  CONFIDENZA: ALTA
+ ENEL.MI  |  Score: 0.555  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 10.0640   Stop: 9.7229
  Target 1: 10.4733 (R/R 1.2:1 | +3.9% net = +106EUR)
@@ -127,7 +127,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.30 (neutro) | SAT | FQ Q+ | conf ALTA | tier ALTA | IT
+ FOREGROUND: sm +0.30 (neutro) | SAT | FQ Q+ | conf MEDIA | tier ALTA | IT
 ==========================================================
 
 ==========================================================
@@ -154,26 +154,25 @@
 ==========================================================
 
 ==========================================================
- ISP.MI  |  Score: 0.078  |  CONFIDENZA: BASSA
+ MB.MI  |  Score: 0.274  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 6.0300   Stop: 5.7772
- Target 1: 6.3334 (R/R 1.2:1 | +4.8% net = +109EUR)
- Target 2: 6.7885 (R/R 3.0:1 | +12.4% net = +278EUR)
- Target 3: 7.2942 (R/R 5.0:1 | +20.8% net = +467EUR)  [runner]
+ Entry: 26.1900   Stop: 24.8965
+ Target 1: 27.7421 (R/R 1.2:1 | +5.5% net = +192EUR)
+ Target 2: 30.0704 (R/R 3.0:1 | +14.4% net = +502EUR)
+ Target 3: 32.6573 (R/R 5.0:1 | +24.3% net = +846EUR)  [runner]
 
- Regime x1.0 | convinzione x0.45
- SIZING:  373 azioni = 2249EUR (4.5% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 94EUR
+ Regime x1.0 | convinzione x0.7
+ SIZING:  133 azioni = 3483EUR (7.0% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 172EUR
 
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +35EUR
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +47EUR
 
  PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- FOREGROUND: sm +0.62 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier BASE | IT
+ FOREGROUND: sm +0.42 (ACCUMULAZIONE) | CORE | FQ Q+ | conf MEDIA | tier MEDIA | IT
 ==========================================================
 
 ==========================================================
@@ -199,7 +198,7 @@
 ==========================================================
 
 ==========================================================
- TIT.MI  |  Score: 0.439  |  CONFIDENZA: ALTA
+ TIT.MI  |  Score: 0.439  |  CONFIDENZA: MEDIA
 ==========================================================
  Entry: 7.9700   Stop: 7.6465
  Target 1: 8.3582 (R/R 1.2:1 | +4.7% net = +128EUR)
@@ -217,7 +216,7 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf ALTA | tier ALTA | IT
+ FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf MEDIA | tier ALTA | IT
 ==========================================================
 
 ==========================================================
