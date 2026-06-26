@@ -7,21 +7,21 @@
  TRN.MI   Terna S.p.A.             BASSA   10.220   9.863  -3.5%  205    2095  4.2%    73    73   205   351
  BMPS.MI  Banca Monte dei Paschi   BASSA   10.952  10.426  -4.8%  136    1489  3.0%    72    75   204   347
  ISP.MI   Intesa Sanpaolo S.p.A.   MEDIA    6.030   5.777  -4.2%  580    3497  7.0%   147   169   433   726
- ENGI.PA  Engie SA                 MEDIA   27.060  26.041  -3.8%  184    4979 10.0%   187   205   543   917
  CA.PA    Carrefour SA             BASSA   16.255  15.529  -4.5%  138    2243  4.5%   100   111   292   492
  AZM.MI   Azimut Holding S.p.A.    BASSA   36.580  34.990  -4.3%   57    2085  4.2%    91    94   257   439
  TEN.MI   Tenaris S.A.             BASSA   25.090  23.835  -5.0%   89    2233  4.5%   112   125   369   622
- ENEL.MI  Enel SpA                 MEDIA   10.064   9.723  -3.4%  193    1942  3.9%    66    75   194   325
  SPM.MI   Saipem SpA               MEDIA    4.402   4.182  -5.0%  442    1946  3.9%    97   158   490   822
  STMMI.MI STMicroelectronics N.V.   ALTA   65.050  61.797  -5.0%   42    2732  5.5%   137   278   845  1413
+ REC.MI   Recordati Industria Chi  MEDIA   51.300  50.300  -1.9%   38    1949  3.9%    38    38   106   182
+ FBK.MI   FinecoBank Banca Fineco  BASSA   22.240  21.305  -4.2%   67    1490  3.0%    63    65   178   303
 ------------------------------------------------------------------------------------------------------------------
- TOTALE                                                                 31726 63.5%  1304  1598  4466  7531
+ TOTALE                                                                 28244 56.5%  1152  1421  4013  6774
 
- Esposizione:        31726 EUR (63% del capitale)
- RISCHIO TOTALE a stop: 1304 EUR (2.61% del capitale) <- max perdita se TUTTI gli stop scattano
- Profitto potenziale: T1 +1598 EUR (+3.2%) | T2 +4466 EUR (+8.9%) | T3 +7531 EUR (+15.1%)
- R/R aggregato:      T1 1.23 | T2 3.42 | T3 5.78
- Disciplina rischio: 2.61% del capitale a rischio = OK (<6%)
+ Esposizione:        28244 EUR (56% del capitale)
+ RISCHIO TOTALE a stop: 1152 EUR (2.30% del capitale) <- max perdita se TUTTI gli stop scattano
+ Profitto potenziale: T1 +1421 EUR (+2.8%) | T2 +4013 EUR (+8.0%) | T3 +6774 EUR (+13.5%)
+ R/R aggregato:      T1 1.23 | T2 3.48 | T3 5.88
+ Disciplina rischio: 2.30% del capitale a rischio = OK (<6%)
 
  ESECUZIONE: ordini limite all'entry; stop OBBLIGATORIO subito dopo il fill (non negoziabile).
  Scala in uscita ai target (laddering); l'edge sta nella coda T2/T3, la mediana per-trade ~0.

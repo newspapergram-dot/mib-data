@@ -92,6 +92,29 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
                              "regione correlata: e' per regime (es. US in PULLBACK); monitorare il "
                              "rischio macro comune; hedge di area come assicurazione opzionale", "stats"))
 
+    # 3b) CONCENTRAZIONE SETTORIALE -----------------------------------------
+    picks_list = re.findall(r"^\s*([A-Z0-9]+\.?[A-Z]{0,3})\s*\|\s*Score:", txt, re.M)
+    if len(picks_list) >= 6:
+        _SECTOR = {
+            "SRG.MI": "Utility", "TRN.MI": "Utility", "ENEL.MI": "Utility",
+            "ENGI.PA": "Utility", "VIE.PA": "Utility", "A2A.MI": "Utility",
+            "ISP.MI": "Banca", "BMPS.MI": "Banca", "BAMI.MI": "Banca",
+            "UCG.MI": "Banca", "FBK.MI": "Banca", "GLE.PA": "Banca",
+            "BNP.PA": "Banca", "AZM.MI": "Finanza",
+            "TEN.MI": "Oil&Gas", "SPM.MI": "Oil&Gas", "ENI.MI": "Oil&Gas",
+            "STMMI.MI": "Tech", "STMPA.PA": "Tech",
+            "CA.PA": "Retail", "PST.MI": "Servizi", "REC.MI": "Pharma",
+            "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
+        }
+        from collections import Counter
+        sec_c = Counter(_SECTOR.get(tk, "Altro") for tk in picks_list)
+        top_sec, ns = sec_c.most_common(1)[0]
+        if ns / len(picks_list) > 0.35:
+            findings.append(("MEDIA", "diversif.",
+                             f"concentrazione settoriale: {top_sec} {ns}/{len(picks_list)} (>{35}%)",
+                             "ridurre esposizione al settore o monitorare correlazione intra-settore",
+                             "stats"))
+
     # 4) QUALITA' DEI NOMI (confidenza/distribuzione) ----------------------
     n_bassa = len(re.findall(r"conf BASSA", txt))
     n_tot = len(re.findall(r"FOREGROUND:", txt))

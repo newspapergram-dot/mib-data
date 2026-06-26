@@ -838,9 +838,21 @@ solo le componenti con dato reale; `None` se nessuna fonte copre il ticker. `app
   (CA.PA 0.242, TEN.MI 0.241 marginalmente sotto p60=0.253). La diagnosi "score compresso" ora punta
   al problema reale, non a un artefatto illiquidita'.
 
+### Cap settoriale (Run #21b)
+- **Analisi correlazione**: Snam-Terna 0.82, Intesa-Azimut 0.76, Tenaris-Saipem 0.62. Il book
+  pre-cap aveva 5/12 utility = 42% → diversificazione illusoria su 3 cluster.
+- **`portfolio_builder`**: aggiunto `SECTOR` map + `MAX_PER_SECTOR=3`. Risultato: 7 settori
+  distinti, max 25% per settore. Da 5 utility → 3 (SRG.MI, VIE.PA, TRN.MI); ENGI.PA (4a utility)
+  sacrificata per diversificazione, REC.MI e FBK.MI entrano come settori sotto-rappresentati.
+- **`self_improve`**: nuovo check concentrazione settoriale (soglia >35%).
+- **Trade-off**: ENGI.PA era CORE ad alta convinzione (score 0.355, sm 0.53) ma utility #4. La
+  perdita di rendimento atteso e' compensata dal minor rischio di cluster. Mercato: 10/12 IT (FR ha
+  molti nomi in distribuzione → bloccati dal filtro SM, strutturalmente corretto).
+- Esposizione: 56%, rischio a stop 2.30%, R/R T2 3.48. Composizione: 8 CORE / 4 SAT.
+
 ### Watch list
-- [ ] I 4 ILLIQUID nel book sono un trade-off cosciente (accumulazione forte vs costi): monitorare il fill.
-- [ ] Quando US torna TREND_UP: sleeve unicorni attivo (DDOG/AFRM/ANET).
+- [ ] 10/12 IT: concentrazione mercato strutturale (FR in distribuzione). Monitorare.
+- [ ] Quando US torna TREND_UP: sleeve unicorni attivo + nomi US entrano.
 - [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
 
 ---

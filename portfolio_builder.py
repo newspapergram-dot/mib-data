@@ -21,6 +21,21 @@ from modules.fundamentals import _load_pit_csv, pit_quality_score
 
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
 
+SECTOR = {
+    "SRG.MI": "Utility", "TRN.MI": "Utility", "ENEL.MI": "Utility", "A2A.MI": "Utility",
+    "ENGI.PA": "Utility", "VIE.PA": "Utility", "EDF.PA": "Utility",
+    "ISP.MI": "Banca", "BMPS.MI": "Banca", "BAMI.MI": "Banca", "UCG.MI": "Banca",
+    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca", "CS.PA": "Banca",
+    "AZM.MI": "Finanza", "G.MI": "Assicuraz",
+    "TEN.MI": "Oil&Gas", "SPM.MI": "Oil&Gas", "ENI.MI": "Oil&Gas",
+    "STMMI.MI": "Tech", "STMPA.PA": "Tech",
+    "CA.PA": "Retail", "PST.MI": "Servizi", "REC.MI": "Pharma",
+    "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
+    "PRY.MI": "Industriale", "RMS.PA": "Lusso", "MC.PA": "Lusso",
+    "RACE.MI": "Auto", "STLAM.MI": "Auto", "STLAP.PA": "Auto",
+}
+MAX_PER_SECTOR = 3
+
 
 def _load_fundamentals():
     """Merge fondamentali per il fq tier: USA (SEC PIT) + EU (Yahoo best-effort).
@@ -207,7 +222,11 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
 
     budget = exposure_cap * capital
     picked, exposure = [], 0.0
+    sec_count = {}
     for r in elig.itertuples():
+        sec = SECTOR.get(r.ticker, "Altro")
+        if sec_count.get(sec, 0) >= MAX_PER_SECTOR:
+            continue
         p = propose(r.ticker, entry=r.price, atr14=r.atr, score=r.score, capital=capital,
                     regime_mult=mult_by_mkt.get(r.mkt, 0.5), size_mult=r.size_mult)
         p["confidence"] = r.conf      # confidenza con soglie LIVE (percentili)
@@ -215,6 +234,7 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
             continue
         picked.append((r, p))
         exposure += p["pos_value"]
+        sec_count[sec] = sec_count.get(sec, 0) + 1
         if len(picked) >= max_names:
             break
 

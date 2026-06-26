@@ -82,3 +82,43 @@
    skill consigliata: /code-review  (bug di correttezza nel modulo coinvolto)
 ====================================================================================
 
+====================================================================================
+ AUTO-AUDIT MODELLO — 2026-06-26 (ciclo di automiglioramento)
+====================================================================================
+ [MEDIA] diversif.  concentrazione settoriale: Utility 5/12 (>35%)
+          -> azione: ridurre esposizione al settore o monitorare correlazione intra-settore
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+ [MEDIA] selezione  6/12 nomi conf BASSA (4 illiquidi, 2 per score)
+          -> azione: rivedere normalizzazione score_technical o soglie confidenza
+          -> skill : /code-review  (bug di correttezza nel modulo coinvolto)
+ [NOTA ] diversif.  book 12/12 concentrato su EU (dichiarata nel piano, hedge di area disponibile)
+          -> azione: regione correlata: e' per regime (es. US in PULLBACK); monitorare il rischio macro comune; hedge di area come assicurazione opzionale
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+ [NOTA ] robustezza edge reale (PSR 0.98) ma DSR<0.95 sul ciclo completo
+          -> azione: size moderata: l'edge vive nel gate di regime+stop, non nel Sharpe; mai leverage
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+------------------------------------------------------------------------------------
+ PROSSIMA MOSSA (impatto piu' alto): [MEDIA] concentrazione settoriale: Utility 5/12 (>35%) -> ridurre esposizione al settore o monitorare correlazione intra-settore
+   skill consigliata: metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+====================================================================================
+
+====================================================================================
+ AUTO-AUDIT MODELLO — 2026-06-26 (ciclo di automiglioramento)
+====================================================================================
+ [MEDIA] diversif.  concentrazione IT 10/12 (>80%)
+          -> azione: il regime di un solo mercato domina: monitorare correlazione
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+ [MEDIA] selezione  7/12 nomi conf BASSA (5 illiquidi, 2 per score)
+          -> azione: rivedere normalizzazione score_technical o soglie confidenza
+          -> skill : /code-review  (bug di correttezza nel modulo coinvolto)
+ [NOTA ] diversif.  book 12/12 concentrato su EU (dichiarata nel piano, hedge di area disponibile)
+          -> azione: regione correlata: e' per regime (es. US in PULLBACK); monitorare il rischio macro comune; hedge di area come assicurazione opzionale
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+ [NOTA ] robustezza edge reale (PSR 0.98) ma DSR<0.95 sul ciclo completo
+          -> azione: size moderata: l'edge vive nel gate di regime+stop, non nel Sharpe; mai leverage
+          -> skill : metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+------------------------------------------------------------------------------------
+ PROSSIMA MOSSA (impatto piu' alto): [MEDIA] concentrazione IT 10/12 (>80%) -> il regime di un solo mercato domina: monitorare correlazione
+   skill consigliata: metodo statistico (walk-forward/DSR/bootstrap: vedi backtest_v3)
+====================================================================================
+
