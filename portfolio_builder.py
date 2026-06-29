@@ -384,6 +384,14 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "w") as f:
             f.write(txt)
+        # Congela SEMPRE i pick nel diario datato (memory spine del loop): garantisce che
+        # ogni raccomandazione sia verificabile il giorno dopo, anche se build() e' lanciato
+        # direttamente (fallback). Difensivo: un errore qui non deve rompere la build.
+        try:
+            from journal import snapshot
+            snapshot(portfolio_path=out_path)
+        except Exception as e:
+            print(f"[portfolio] journal snapshot fallito (non bloccante): {e}")
     return picked, txt
 
 

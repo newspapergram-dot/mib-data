@@ -929,4 +929,51 @@ Guadagno atteso: T1 +2.6% / T2 +6.9% / T3 +11.7%. Rischio: 55% esposto, stop dis
 - [ ] `filings.xbrl.org` in allowlist per true-PIT EU 2020+.
 
 ---
+
+## Run #23 — 2026-06-29 (loop operativo: diario datato + verifica path-based + sub-agent audit)
+
+**Obiettivo:** trasformare l'analisi ad-hoc in un **loop giornaliero auto-verificante**.
+Trigger: riaprendo la sessione dopo 3 giorni, i prezzi erano vecchi e per verificare le
+raccomandazioni precedenti ho dovuto **ricostruirle a mano** (memoria + CSV vecchio). Manca
+una memory spine: PORTFOLIO.txt viene sovrascritto a ogni run.
+
+### Cosa ho fatto
+
+1. **`journal.py`** — diario datato dei pick. Congela ogni piano operativo in
+   `data/journal/<asof>.json` (ticker, nome, score, ruolo, mercato, regime, entry/stop/T1-T3
+   assoluti). Backfillato `2026-06-26.json` (9 pick) da git per avere uno storico reale.
+
+2. **`verify_picks.py`** — verifica **path-based** (max/min giornalieri, non solo chiusura):
+   per ogni pick del giorno prima rileva stop toccati intraday, target raggiunti, ordine
+   cronologico, drift, MAE/MFE, e **cambio di regime** del mercato del titolo. Output
+   `data/VERIFICATION.txt` + `verification.json` (input per il sub-agent auditor).
+
+3. **`daily_loop.py`** — orchestratore in 2 fasi separate da un handoff all'agente:
+   - `verify`: fetch → regime → verify_picks (poi sub-agent auditor: errori → cause → fix)
+   - `generate`: score → portfolio → self_improve → charts → journal snapshot
+
+4. **`LOOP.md`** — spec del loop, istanzia il pattern `daily-triage` di `loopengineering`.
+   Tabella esplicita di dove serve un sub-agent: **solo Fase 2 (audit)**, per indipendenza
+   da chi genera i pick; verifica/fix/generazione restano nell'agente principale.
+
+5. **Auto-snapshot in `portfolio_builder.build()`** — ogni raccomandazione e' SEMPRE
+   journaled (anche via fallback CLI diretto), difensivo (try/except non bloccante).
+
+### Verifica reale 2026-06-26 → 2026-06-29 (primo giro del loop)
+- 9 pick, **0 stop / 0 target**, tutti IN CORSO, drift medio **-0.60%**.
+- **Cambio regime su 6 nomi IT** (TREND_UP→PULLBACK): il gate li ha esclusi oggi.
+- AC.PA il peggiore: MAE **-3.89%** (vicino ma non oltre lo stop -4.7%). Il gate di regime
+  ha fatto il suo lavoro: book 9→3 nomi, esposizione 57%→18%, prima di danni maggiori.
+
+### Risposta alla domanda "serve un sub-agent?"
+Sì, ma **solo per l'audit (Fase 2)**: la ricerca dura degli errori dev'essere INDIPENDENTE
+da chi ha generato i pick (un agente separato non razionalizza i propri errori). Verifica =
+codice deterministico; fix = serve contesto multi-file; generazione = sequenziale. Vedi LOOP.md.
+
+### Watch list
+- [ ] Primo giro Fase 2: lanciare il sub-agent auditor su `data/VERIFICATION.txt` reale.
+- [ ] IT in PULLBACK: quando rientra TREND_UP rientrano i 6 nomi IT esclusi.
+- [ ] Concentrazione FR 3/3 (self_improve MEDIA): monitorare correlazione di mercato unico.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

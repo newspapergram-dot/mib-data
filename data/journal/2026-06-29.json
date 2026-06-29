@@ -1,0 +1,51 @@
+{
+  "asof": "2026-06-29",
+  "capital": 50000.0,
+  "regime": {
+    "IT": "PULLBACK",
+    "FR": "TREND_UP",
+    "US": "PULLBACK"
+  },
+  "picks": [
+    {
+      "ticker": "CS.PA",
+      "score": 0.76,
+      "confidence": "ALTA",
+      "name": "AXA SA",
+      "role": "CORE",
+      "market": "FR",
+      "entry": 43.72,
+      "stop": 42.5555,
+      "t1": 45.1174,
+      "t2": 47.2135,
+      "t3": 49.5425
+    },
+    {
+      "ticker": "EDEN.PA",
+      "score": 0.281,
+      "confidence": "MEDIA",
+      "name": "Edenred SE",
+      "role": "SAT",
+      "market": "FR",
+      "entry": 22.84,
+      "stop": 21.698,
+      "t1": 24.5851,
+      "t2": 28.0753,
+      "t3": 31.5655
+    },
+    {
+      "ticker": "GLE.PA",
+      "score": 0.102,
+      "confidence": "BASSA",
+      "name": "Société Générale Société anonyme",
+      "role": "SAT",
+      "market": "FR",
+      "entry": 76.8,
+      "stop": 72.9736,
+      "t1": 81.3916,
+      "t2": 88.2791,
+      "t3": 95.9318
+    }
+  ],
+  "captured_at": "2026-06-29T13:24:35.788115Z"
+}

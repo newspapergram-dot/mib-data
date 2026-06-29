@@ -553,4 +553,31 @@ il breakout e' il driver dominante dell'edge nel backtest (+0.55 = 55% del range
    non una banca. Un errore nel mapping settoriale corrompe il cap e la diversificazione.
 
 ---
+
+## Lezione #19 — 2026-06-29 — Senza un diario datato dei pick, il loop non puo' auto-verificarsi
+
+**Evidenza.**
+Run #23: riaprendo la sessione dopo 3 giorni di mercato, per verificare le raccomandazioni
+precedenti ho dovuto **ricostruirle a mano** (memoria + un CSV vecchio), perche' `PORTFOLIO.txt`
+viene SOVRASCRITTO a ogni run. Un loop "verifica ieri → trova errori → correggi" e' impossibile
+se non resta traccia datata di cosa fu raccomandato e a quali livelli. La verifica path-based
+(max/min giornalieri) ha poi mostrato che nessuno stop fu toccato ma 6 nomi IT cambiarono
+regime (TREND_UP→PULLBACK) in 3 giorni: senza confronto datato, quel segnale si perde.
+
+**Regola.**
+1. **Ogni raccomandazione si congela in un diario datato** (`data/journal/<asof>.json`) PRIMA
+   di poter essere sovrascritta. La memory spine viene prima della verifica: senza, non c'e' loop.
+   Lo snapshot e' automatico in `portfolio_builder.build()` (difensivo, non bloccante).
+2. **La verifica usa il PATH, non solo la chiusura.** Stop e target si toccano intraday: servono
+   max/min giornalieri e l'ordine cronologico (stop+target stesso giorno → conta lo stop, prudente).
+   MAE/MFE raccontano quanto la posizione ha sofferto/offerto, non solo dove ha chiuso.
+3. **La verifica include il cambio di regime del mercato del titolo.** Un pick puo' essere ancora
+   in range ma con il regime girato sotto: e' il primo segnale di uscita, prima dello stop.
+4. **La ricerca degli errori va a un sub-agent INDIPENDENTE** da chi ha generato i pick: un agente
+   separato non razionalizza i propri errori. Verifica = codice; audit = giudizio indipendente;
+   fix = contesto multi-file (agente principale). Vedi `LOOP.md`.
+5. **Mai inventare un esito.** La verifica riporta solo cio' che i prezzi hanno fatto; "IN CORSO"
+   e' un esito onesto, non un fallimento da mascherare.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
