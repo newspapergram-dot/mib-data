@@ -15,6 +15,12 @@ from modules.spillover import spillover_confidence_adjust
 from modules.ensemble import combine_signals, equal_weight
 from modules.learning import SignalClassStats
 
+NON_EQUITY = {
+    "FTSEMIB.MI", "^FCHI", "^STOXX50E", "^GSPC", "^NDX", "^VIX",
+    "SPY", "XLF", "XLE", "XLK", "XLV", "XLY",
+    "XLP", "XLU", "XLI", "XLB", "XLRE", "XLC",
+}
+
 # ============================================================================
 # PARTE 1: CALCOLO INDICATORI TECNICI
 # ============================================================================
@@ -54,13 +60,19 @@ def calculate_technical_indicators(g_df):
         adx_df = adx(h, l, c)
         adx_val = adx_df["adx"].iloc[-1]
         trend_up = adx_df["plus_di"].iloc[-1] > adx_df["minus_di"].iloc[-1]
-        
-        # Momentum 6 mesi
+
+        # Breakout: prezzo > max(high) degli ultimi 20 giorni (escluso oggi)
+        rh20 = h.iloc[-21:-1].max() if len(h) >= 21 else h.iloc[:-1].max()
+        breakout = bool(c.iloc[-1] > rh20) if len(h) > 1 else False
+
+        # Momentum 3 mesi (allineato a score_new del backtest)
+        mom3m = (c.iloc[-1] / c.iloc[max(0, len(c)-63)] - 1) * 100 if len(c) > 63 else 0
+        # Momentum 6 mesi (legacy, per CSV)
         mom6m = (c.iloc[-1] / c.iloc[max(0, len(c)-127)] - 1) * 100 if len(c) > 127 else 0
-        
+
         # Gate
         gate = (c.iloc[-1] > sma200) and (sma50 > sma200)
-        
+
         return {
             "rsi": round(float(rsi), 1) if not np.isnan(rsi) else None,
             "sma20": round(float(sma20), 2) if not np.isnan(sma20) else None,
@@ -70,6 +82,9 @@ def calculate_technical_indicators(g_df):
             "atr_pct": round(float(atr_pct), 2) if not np.isnan(atr_pct) else None,
             "macd_hist": round(float(macd_hist), 4) if not np.isnan(macd_hist) else None,
             "adx": round(float(adx_val), 1),
+            "trend_up": bool(trend_up),
+            "breakout": breakout,
+            "mom3m": round(float(mom3m), 1),
             "mom6m": round(float(mom6m), 1),
             "gate": bool(gate),
             "last_price": round(float(c.iloc[-1]), 3),
@@ -79,31 +94,32 @@ def calculate_technical_indicators(g_df):
         return {}
 
 def score_technical(indicators):
-    """Trasforma indicatori tecnici in score -1 to +1."""
+    """Score tecnico — allineato a score_new del backtest (validato sul ciclo 2018-2026).
+
+    Componenti identiche a backtest_v3.score_new:
+      breakout (+0.55) | ADX threshold (+0.35/+0.15) | momentum 3m | RSI penalty
+    """
     try:
         if not indicators.get("gate"):
             return -0.3
-        
+
+        adx_v = indicators.get("adx", 20)
+        trend_up = indicators.get("trend_up", False)
+        breakout = indicators.get("breakout", False)
         rsi = indicators.get("rsi", 50)
-        adx = indicators.get("adx", 20)
-        mom = indicators.get("mom6m", 0)
-        macd = indicators.get("macd_hist", 0)
-        
-        s = 0.3 * (np.tanh(mom / 50))
-        s += 0.2 * np.tanh(adx / 50)
-        
-        if rsi > 70:
-            s -= 0.15
-        elif rsi < 30:
-            s += 0.10
-        elif 50 <= rsi <= 70:
-            s += 0.1
-        
-        if macd > 0:
-            s += 0.1
-        elif macd < -0.001:
-            s -= 0.05
-        
+        mom3m = indicators.get("mom3m", 0)
+
+        s = 0.0
+        if breakout and trend_up:
+            s += 0.55
+        if adx_v >= 40 and trend_up:
+            s += 0.35
+        elif adx_v >= 25 and trend_up:
+            s += 0.15
+        s += 0.15 * np.tanh(mom3m / 30)
+        if rsi > 75 and not breakout:
+            s -= 0.20
+
         return float(np.clip(s, -1.0, 1.0))
     except Exception:
         return 0.0
@@ -146,12 +162,15 @@ def score_flow_insider(ticker, ins_df):
         if match.empty:
             return None
 
-        return float(match.iloc[0].get("signal", 0))
+        sig = float(match.iloc[0].get("signal", 0))
+        if sig == 0:
+            return None
+        return sig
     except Exception:
         return None
 
 def score_flow_short(ticker, short_fr_df):
-    """Segnale short: contrarian. None = no data."""
+    """Segnale short: contrarian. None = no data / low interest."""
     try:
         if not short_fr_df.empty:
             matches = short_fr_df[short_fr_df["Emetteur / issuer"].str.contains(
@@ -163,7 +182,6 @@ def score_flow_short(ticker, short_fr_df):
                         return -0.5
                 except Exception:
                     pass
-                return 0.0
         return None
     except Exception:
         return None
@@ -216,6 +234,8 @@ def generate_scores(mib_data_path="data/mib_data.csv",
         ref_date = datetime.today()
         
         for tk in sorted(px.ticker.unique()):
+            if tk in NON_EQUITY:
+                continue
             try:
                 g = px[px.ticker == tk].sort_values("date")
                 if len(g) < 50:

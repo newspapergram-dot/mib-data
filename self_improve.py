@@ -105,6 +105,7 @@ def audit(portfolio="data/PORTFOLIO.txt", regime="data/regime_filter.csv",
             "STMMI.MI": "Tech", "STMPA.PA": "Tech",
             "CA.PA": "Retail", "PST.MI": "Servizi", "REC.MI": "Pharma",
             "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
+            "MB.MI": "Banca", "TIT.MI": "Telecom", "AC.PA": "Hospitality",
         }
         from collections import Counter
         sec_c = Counter(_SECTOR.get(tk, "Altro") for tk in picks_list)

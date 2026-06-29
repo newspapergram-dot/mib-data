@@ -530,5 +530,54 @@ una stima in-sample (L#11) — e che il segno puo' reggere anche quando l'ampiez
 3. **L'auto-audit deve distinguere cause strutturali da actionable.** "6/12 BASSA" e' un allarme
    diverso se 4 sono illiquidi (strutturale, size gia' ridotta) vs 6 per score (problema di calibrazione).
 
+## Lezione #18 — 2026-06-26 — Il live scoring deve essere identico al backtest scoring
+
+**Evidenza.**
+Run #22: la funzione live `score_technical()` usava tanh(momentum) + MACD — logica completamente
+diversa dalla `score_new()` validata nel backtest (breakout + ADX threshold + mom3m). Le due funzioni
+producevano ranking differenti: il backtest diceva "compra breakout + forte trend", il live diceva
+"compra momentum liscio + MACD positivo". L'edge validato (Sharpe 1.0, PSR 0.98) non si replicava
+nel live perche' il live selezionava nomi diversi.
+
+Dopo l'allineamento: distribuzione bimodale (breakout ≥0.55, non-breakout <0.15). Questo e' corretto —
+il breakout e' il driver dominante dell'edge nel backtest (+0.55 = 55% del range del segnale).
+
+**Regola.**
+1. **Il live scoring e il backtest scoring devono essere la stessa funzione.** Se il backtest valida
+   `score_new`, il live deve usare `score_new`, non una versione "migliorata" che nessuno ha testato.
+2. **L'allineamento va verificato confrontando i ranking**, non solo le formule. Due formule possono
+   sembrare simili ma produrre ranking completamente diversi (tanh vs thresholds, continuo vs discreto).
+3. **Indici e ETF non sono candidati operativi.** Se il dataset li contiene per regime/rotazione,
+   escluderli dal scoring (NON_EQUITY set). FTSEMIB.MI nel ranking e' un bug, non un segnale.
+4. **I settori nel mapping devono essere verificati con i nomi reali.** CS.PA = AXA (assicurazione),
+   non una banca. Un errore nel mapping settoriale corrompe il cap e la diversificazione.
+
+---
+
+## Lezione #19 — 2026-06-29 — Senza un diario datato dei pick, il loop non puo' auto-verificarsi
+
+**Evidenza.**
+Run #23: riaprendo la sessione dopo 3 giorni di mercato, per verificare le raccomandazioni
+precedenti ho dovuto **ricostruirle a mano** (memoria + un CSV vecchio), perche' `PORTFOLIO.txt`
+viene SOVRASCRITTO a ogni run. Un loop "verifica ieri → trova errori → correggi" e' impossibile
+se non resta traccia datata di cosa fu raccomandato e a quali livelli. La verifica path-based
+(max/min giornalieri) ha poi mostrato che nessuno stop fu toccato ma 6 nomi IT cambiarono
+regime (TREND_UP→PULLBACK) in 3 giorni: senza confronto datato, quel segnale si perde.
+
+**Regola.**
+1. **Ogni raccomandazione si congela in un diario datato** (`data/journal/<asof>.json`) PRIMA
+   di poter essere sovrascritta. La memory spine viene prima della verifica: senza, non c'e' loop.
+   Lo snapshot e' automatico in `portfolio_builder.build()` (difensivo, non bloccante).
+2. **La verifica usa il PATH, non solo la chiusura.** Stop e target si toccano intraday: servono
+   max/min giornalieri e l'ordine cronologico (stop+target stesso giorno → conta lo stop, prudente).
+   MAE/MFE raccontano quanto la posizione ha sofferto/offerto, non solo dove ha chiuso.
+3. **La verifica include il cambio di regime del mercato del titolo.** Un pick puo' essere ancora
+   in range ma con il regime girato sotto: e' il primo segnale di uscita, prima dello stop.
+4. **La ricerca degli errori va a un sub-agent INDIPENDENTE** da chi ha generato i pick: un agente
+   separato non razionalizza i propri errori. Verifica = codice; audit = giudizio indipendente;
+   fix = contesto multi-file (agente principale). Vedi `LOOP.md`.
+5. **Mai inventare un esito.** La verifica riporta solo cio' che i prezzi hanno fatto; "IN CORSO"
+   e' un esito onesto, non un fallimento da mascherare.
+
 ---
 *Le attività di ogni run sono registrate in `STATE.md`.*

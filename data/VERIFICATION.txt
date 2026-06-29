@@ -1,0 +1,21 @@
+============================================================================================
+ VERIFICA RACCOMANDAZIONI — snapshot 2026-06-26 → prezzi 2026-06-29
+============================================================================================
+ Pick verificati: 9 | STOP: 0 | target raggiunti: 0 | in corso: 9 | drift medio: -0.60%
+ CAMBIO REGIME su 6 mercati dei pick: BMPS.MI(IT TREND_UP→PULLBACK), ENEL.MI(IT TREND_UP→PULLBACK), PST.MI(IT TREND_UP→PULLBACK), MB.MI(IT TREND_UP→PULLBACK), TIT.MI(IT TREND_UP→PULLBACK), STMMI.MI(IT TREND_UP→PULLBACK)
+--------------------------------------------------------------------------------------------
+ TICK     MKT     ENTRY      NOW   DRIFT     MAE     MFE  ESITO                 REGIME
+ CS.PA    FR     43.090   43.720   +1.46   +0.46   +1.74  IN CORSO            TREND_UP
+ BNP.PA   FR    103.000  101.120   -1.83   -2.94   -1.42  IN CORSO            TREND_UP
+ BMPS.MI  IT     10.952   10.774   -1.63   -1.81   -0.57  IN CORSO      TREND_UP→PULLBACK
+ ENEL.MI  IT     10.064   10.116   +0.52   -0.34   +0.62  IN CORSO      TREND_UP→PULLBACK
+ PST.MI   IT     28.260   28.460   +0.71   +0.42   +1.31  IN CORSO      TREND_UP→PULLBACK
+ MB.MI    IT     26.190   25.830   -1.37   -1.57   -0.31  IN CORSO      TREND_UP→PULLBACK
+ AC.PA    FR     51.620   49.960   -3.22   -3.89   -2.40  IN CORSO            TREND_UP
+ TIT.MI   IT      7.970    8.068   +1.23   +0.44   +1.34  IN CORSO      TREND_UP→PULLBACK
+ STMMI.MI IT     65.050   64.200   -1.31   -2.86   +0.32  IN CORSO      TREND_UP→PULLBACK
+--------------------------------------------------------------------------------------------
+ LEGENDA: DRIFT=entry→chiusura ora | MAE=peggior escursione | MFE=migliore escursione
+ ESITO path-based: usa max/min GIORNALIERI; stop+target stesso giorno = conta lo STOP (prudente).
+ NB: entry = prezzo pianificato nella scheda (fill reale ~ apertura giorno dopo): assunzione esplicitata.
+============================================================================================

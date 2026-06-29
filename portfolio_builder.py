@@ -18,6 +18,8 @@ from indicators import atr_wilder
 from modules.trade_proposal import propose, render, cost_rt_bps, confidence_level, ILLIQUID
 from volume_tools import smart_money_signal, validate_volume
 from modules.fundamentals import _load_pit_csv, pit_quality_score
+from company_names import resolve as resolve_names
+from patterns import detect_patterns
 
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
 
@@ -25,7 +27,8 @@ SECTOR = {
     "SRG.MI": "Utility", "TRN.MI": "Utility", "ENEL.MI": "Utility", "A2A.MI": "Utility",
     "ENGI.PA": "Utility", "VIE.PA": "Utility", "EDF.PA": "Utility",
     "ISP.MI": "Banca", "BMPS.MI": "Banca", "BAMI.MI": "Banca", "UCG.MI": "Banca",
-    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca", "CS.PA": "Banca",
+    "FBK.MI": "Banca", "GLE.PA": "Banca", "BNP.PA": "Banca",
+    "CS.PA": "Assicuraz",
     "AZM.MI": "Finanza", "G.MI": "Assicuraz",
     "TEN.MI": "Oil&Gas", "SPM.MI": "Oil&Gas", "ENI.MI": "Oil&Gas",
     "STMMI.MI": "Tech", "STMPA.PA": "Tech",
@@ -33,6 +36,7 @@ SECTOR = {
     "EDEN.PA": "Servizi", "AI.PA": "Industriale", "LDO.MI": "Difesa",
     "PRY.MI": "Industriale", "RMS.PA": "Lusso", "MC.PA": "Lusso",
     "RACE.MI": "Auto", "STLAM.MI": "Auto", "STLAP.PA": "Auto",
+    "MB.MI": "Banca", "TIT.MI": "Telecom", "AC.PA": "Hospitality",
 }
 MAX_PER_SECTOR = 3
 
@@ -244,6 +248,17 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         uni_picked = _unicorn_satellite(capital, p50, regime_by_mkt, mult_by_mkt,
                                         _ok_regimes, budget_left=budget - exposure)
 
+    all_tks = [r.ticker for r, _ in picked]
+    tk_names = resolve_names(all_tks, refresh_missing=False)
+
+    tk_patterns = {}
+    for r, _ in picked:
+        try:
+            g = px[px.ticker == r.ticker].sort_values("date")
+            tk_patterns[r.ticker] = detect_patterns(g)
+        except Exception:
+            tk_patterns[r.ticker] = {}
+
     L = []
     w = L.append
     w("=" * 92)
@@ -265,12 +280,13 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w(f" SELEZIONATI: {len(picked)} ({n_core} CORE / {len(picked)-n_core} SAT) | "
       f"esposizione {exposure:.0f} EUR ({exposure/capital*100:.0f}% del capitale)")
     w("-" * 92)
-    w(f" {'TICK':9s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'FQ':>4s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
+    w(f" {'TICK':9s}{'NOME':20s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'FQ':>4s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
       f"{'T1%':>7s}{'T2%':>7s}{'T3%':>7s}")
     t1 = t2 = t3 = 0.0
     expo_mkt = {}
     for r, p in picked:
-        w(f" {r.ticker:9s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.fq:>4s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
+        cname = tk_names.get(r.ticker, r.ticker)[:19]
+        w(f" {r.ticker:9s}{cname:20s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.fq:>4s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
           f"{p['pos_value']:9.0f}{p['g1_pct']:7.1f}{p['g2_pct']:7.1f}{p['g3_pct']:7.1f}")
         t1 += p['g1_eur']; t2 += p['g2_eur']; t3 += p['g3_eur']
         expo_mkt[r.mkt] = expo_mkt.get(r.mkt, 0.0) + p['pos_value']
@@ -335,7 +351,27 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w("=" * 92); w(" SCHEDE OPERATIVE"); w("=" * 92)
     for r, p in picked:
         w(""); w(render(p))
+        cname = tk_names.get(r.ticker, r.ticker)
+        w(f" {cname}")
         w(f" FOREGROUND: sm {r.sm:+.2f} ({r.sm_label}) | {r.role} | FQ {r.fq} | conf {r.conf} | tier {r.tier} | {r.mkt}")
+        pat = tk_patterns.get(r.ticker, {})
+        if pat:
+            parts = []
+            if pat.get("trend"):
+                parts.append(f"{pat['trend']} ({pat.get('trend_strength', '?')})")
+            if pat.get("structure"):
+                parts.append(pat["structure"])
+            if pat.get("bollinger"):
+                parts.append(f"BB: {pat['bollinger']}")
+            if pat.get("breakout"):
+                parts.append(pat["breakout"])
+            if pat.get("continuation"):
+                parts.append(pat["continuation"].strip(" |"))
+            if pat.get("pullback"):
+                parts.append("pullback su SMA20")
+            if pat.get("rsi_divergence"):
+                parts.append(f"RSI div: {pat['rsi_divergence']}")
+            w(f" PATTERN: {' | '.join(parts)}" if parts else " PATTERN: nessun segnale rilevante")
         w("=" * 58)
     for c, p in uni_picked:
         w(""); w(render(p))
@@ -348,6 +384,14 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "w") as f:
             f.write(txt)
+        # Congela SEMPRE i pick nel diario datato (memory spine del loop): garantisce che
+        # ogni raccomandazione sia verificabile il giorno dopo, anche se build() e' lanciato
+        # direttamente (fallback). Difensivo: un errore qui non deve rompere la build.
+        try:
+            from journal import snapshot
+            snapshot(portfolio_path=out_path)
+        except Exception as e:
+            print(f"[portfolio] journal snapshot fallito (non bloccante): {e}")
     return picked, txt
 
 
