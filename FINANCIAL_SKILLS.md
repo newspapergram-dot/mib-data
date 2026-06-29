@@ -709,4 +709,31 @@ del harness per-segnale (fix4/fix5): conferma la Lezione #22 (lo strumento sbagl
    non ancora nel motore (1876 trade -> non trascurabili). Da chiudere prima di decisioni di sizing.
 
 ---
+
+## Lezione #24 — 2026-06-29 — Il gate di regime e' la leva #1; risk parity validato sul motore giusto
+
+**Evidenza (Run #28-30, held-portfolio backtester, equity di percorso reale 2018-2026).**
+1. **Regime gate (TREND_UP-only)**: MaxDD −32.1%→−17.8% (quasi dimezzato) con CAGR +0.23 pt:
+   protezione del drawdown sostanzialmente gratuita. Calmar 0.38→0.70. E' la singola leva piu'
+   potente del sistema. Valida il `include_pullback=False` del live.
+2. **PULLBACK a mezza size**: respinto. Abbassa il MaxDD di 1.2 pt ma costa 2.5 pt di CAGR
+   (Calmar 0.60<0.70). Il PULLBACK (px<SMA20) e' debolezza precoce: entrarci cattura perdenti.
+3. **Risk parity (inverse-ATR)**: sul motore REALE col gate attivo abbatte il MaxDD −17.8%→−13.2%,
+   bootstrap PAIRED IC95% [+1.07,+9.04] (esclude lo 0), Sharpe +0.12, Calmar +0.19. La STESSA
+   ipotesi respinta sul harness per-segnale (FIX 5, Run #26) PASSA qui.
+
+**Regola.**
+1. **Il gate di regime viene prima di ogni ottimizzazione di sizing.** Dimezza il drawdown a costo
+   ~zero di rendimento; nessuna leva di size si avvicina a quell'impatto. Giudicare col Calmar.
+2. **Piu' esposizione non e' meglio**: il TIERED alza l'esposizione ma peggiora il Calmar. La cassa
+   nei regimi non-trend e' una posizione, non un'inefficienza da riempire.
+3. **Una leva si valuta sullo STRUMENTO giusto** (Lezione #22, ora confermata costruttivamente):
+   il vol-sizing agisce tra posizioni CONCORRENTI → si misura su un portafoglio realmente detenuto
+   (MaxDD di percorso), non su bet per-segnale indipendenti. Stesso test, conclusione opposta.
+4. **Prima di "integrare", verifica se la logica c'e' gia'.** Il live (`trade_proposal.propose`)
+   dimensiona per rischio ATR (`shares=risk_eur/(entry−stop)`, stop~entry−2·ATR → pos_value∝1/ATR%):
+   e' GIA' risk-parity. Il test lo VALIDA; aggiungere una seconda leva ATR sarebbe doppio conteggio.
+   Il baseline equal-weight del backtester era il ramo non rappresentativo, non un miglioramento da fare.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

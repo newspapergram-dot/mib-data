@@ -1161,5 +1161,52 @@ su MaxDD, Calmar ed esposizione. Logica validata `classify_regime` vettorizzata 
 - [ ] Costi di transazione nel motore (1208-1876 trade) + soglia score espandente (OOS pulito).
 - [ ] Ri-testare FIX 5 risk-parity su questo motore CON il gate attivo (dove il vol-sizing conta).
 
+## Run #29 — 2026-06-29 (PULLBACK a mezza size: respinto, si tiene il gate binario)
+
+**Obiettivo:** verificare se aprire a META' size anche in PULLBACK (px<SMA20 ma >SMA200) recupera
+esposizione/CAGR senza riportare su il MaxDD. A/B a 3 vie sul motore held-portfolio.
+
+| Metrica | A OFF | B GATE (TREND_UP) | C TIERED (+PULLBACK 1/2) |
+|---------|-------|-------------------|--------------------------|
+| CAGR % | +12.21 | +12.44 | +9.95 |
+| MaxDD % | −32.11 | −17.81 | −16.60 |
+| Calmar | +0.38 | **+0.70** | +0.60 |
+| Exposure % | 93.2 | 59.9 | 60.8 |
+
+- Il TIERED abbassa il MaxDD di solo 1.2 pt ma **costa 2.5 pt di CAGR** → Calmar 0.60 < 0.70.
+  **Respinto: si tiene il gate binario TREND_UP-only.** Conferma `include_pullback=False` del live.
+- Motivo: il PULLBACK (px sotto SMA20) e' spesso debolezza precoce; entrarci, anche a mezza size,
+  cattura piu' perdenti di quanto risparmi in drawdown. Report: `data/REGIME_PULLBACK_TEST.txt`.
+
+## Run #30 — 2026-06-29 (Risk parity sul motore REALE: FIX 5 validato — e gia' nel live)
+
+**Obiettivo:** ri-testare FIX 5 (risk parity inverse-ATR) sul motore held-portfolio col gate attivo,
+dove il vol-sizing agisce tra posizioni CONCORRENTI (il test equo che il harness per-segnale di
+Run #26 non permetteva, Lezione #22).
+
+| Metrica | EQUAL-WEIGHT (10% flat) | RISK-PARITY (inverse-ATR, cap 10%) |
+|---------|-------------------------|-------------------------------------|
+| CAGR % | +12.44 | +11.73 |
+| **MaxDD % (path)** | −17.81 | **−13.15** |
+| Sharpe (daily) | +0.93 | **+1.04** |
+| Calmar | +0.70 | **+0.89** |
+| Exposure % | 59.9 | 54.4 |
+
+- **ΔMaxDD +4.65 pt, bootstrap PAIRED IC95% [+1.07, +9.04] → ESCLUDE lo 0**: abbattimento
+  SISTEMATICO confermato. ΔSharpe [−0.00, +0.24] (non peggiora). MaxDD −13.15% ≈ il −13.8% di
+  robustness_consolidate.
+- **Vindicazione di FIX 5 e della Lezione #22**: la STESSA ipotesi respinta sul harness artefatto
+  (Run #26, MaxDD −95% non misurabile) PASSA sul motore reale. Lo strumento era sbagliato, non l'idea.
+- **INTEGRAZIONE — gia' fatta nel live**: `trade_proposal.propose` dimensiona per rischio ATR
+  (`shares = risk_eur/(entry−stop)`, stop ~ entry−2·ATR → pos_value ∝ 1/ATR%, cap 10%) = e' gia'
+  risk-parity. Questo test VALIDA quel design; il baseline equal-weight 10% flat era il ramo NON
+  rappresentativo del live. **Nessun nuovo codice di sizing**: duplicarlo sarebbe doppio conteggio.
+  Report: `data/RISKPARITY_HELD_TEST.txt`.
+
+### Watch list
+- [ ] Allineare il baseline del backtester al sizing ATR del live (oggi usa 10% flat) per misurare
+  l'effetto incrementale di altre leve in modo rappresentativo.
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito) — restano aperti.
+
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

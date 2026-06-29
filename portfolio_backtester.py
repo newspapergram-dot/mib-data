@@ -22,7 +22,7 @@ numero di trade. Equity giornaliera in data/portfolio_equity.csv.
 """
 import numpy as np
 import pandas as pd
-from indicators import adx, rsi_wilder
+from indicators import adx, rsi_wilder, atr_wilder
 from regime_filter import market_of, INDEX_BY_MARKET
 
 CAPITAL0 = 100_000.0
@@ -88,12 +88,15 @@ def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     px = pd.read_csv(px_path, parse_dates=["date"]).dropna(subset=["close"]).sort_values(["ticker", "date"])
     close_raw = px.pivot(index="date", columns="ticker", values="close").sort_index()
     close_mtm = close_raw.ffill()
-    scores = {}
+    scores, atrp = {}, {}
     for tk in px["ticker"].unique():
         g = px[px.ticker == tk].set_index("date").sort_index()
         scores[tk] = score_series(g[["close", "high", "low"]])
+        atrp[tk] = atr_wilder(g["high"], g["low"], g["close"], 14) / g["close"]   # ATR in frazione di prezzo
     score_panel = pd.DataFrame(scores).reindex(close_raw.index)
+    atr_panel = pd.DataFrame(atrp).reindex(close_raw.index)
     thr = np.nanquantile(score_panel.values, top_q)
+    med_atr = float(np.nanmedian(atr_panel.values))   # ATR% mediano (riferimento risk parity)
     # regime giornaliero per mercato (dall'indice di riferimento), ffilled sul calendario globale
     regime_by_mkt = {}
     for mkt, idx in INDEX_BY_MARKET.items():
@@ -102,15 +105,17 @@ def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
             continue
         regime_by_mkt[mkt] = regime_series(sub[["close"]]).reindex(close_raw.index).ffill()
     cal = list(close_raw.index)
-    return close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal
+    return close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr
 
 
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
-             pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_gate=False, favorable=FAVORABLE,
+             pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
              equity_out="data/portfolio_equity.csv", _pre=None):
+    """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
+       sizing: equal (10% flat) | riskparity (10% scalato da min(medATR/ATR_i, 1): vol alta pesa meno)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
-    close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal = _pre
+    close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
     n = len(cal)
 
     cash = capital0
@@ -142,20 +147,36 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
             srow = score_panel.loc[prev]
             elig = srow[(srow >= thr) & srow.notna()]
 
-            def _regime_ok(tk):
-                if not regime_gate:
-                    return True
+            def _regime_mult(tk):
+                # moltiplicatore di size dal regime del mercato al giorno-segnale (prev, no lookahead)
+                if regime_mode == "off":
+                    return 1.0
                 rs = regime_by_mkt.get(market_of(tk))
-                # regime del giorno-segnale (prev), no lookahead; blocca i NUOVI ingressi se non favorevole
-                return rs is not None and rs.get(prev) in favorable
+                r = rs.get(prev) if rs is not None else None
+                if regime_mode == "gate":
+                    return 1.0 if r == "TREND_UP" else 0.0
+                if regime_mode == "tiered":
+                    return 1.0 if r == "TREND_UP" else (0.5 if r == "PULLBACK" else 0.0)
+                return 1.0
+
+            def _vol_mult(tk):
+                # risk parity: rischio paritario col cap del 10% -> vol alta pesa MENO, mai piu' del 10%
+                if sizing != "riskparity":
+                    return 1.0
+                a = atr_panel.at[prev, tk] if (prev in atr_panel.index and tk in atr_panel.columns) else np.nan
+                if not np.isfinite(a) or a <= 0:
+                    return 1.0
+                return float(min(med_atr / a, 1.0))
+
             elig = elig[[tk for tk in elig.index
-                         if tk not in positions and pd.notna(close_raw.at[day, tk]) and _regime_ok(tk)]]
+                         if tk not in positions and pd.notna(close_raw.at[day, tk]) and _regime_mult(tk) > 0]]
             elig = elig.sort_values(ascending=False)
             for tk in elig.index:
                 if len(positions) >= max_pos:
                     break
                 price = float(close_raw.at[day, tk])
-                budget = min(pos_cap * total_value, cash)    # 10% del totale, ma mai oltre la cassa
+                mult = _regime_mult(tk) * _vol_mult(tk)      # size = 10% x regime x vol (mai > 10%)
+                budget = min(pos_cap * mult * total_value, cash)
                 shares = int(budget / price) if price > 0 else 0
                 if shares <= 0:
                     continue
@@ -191,8 +212,31 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
            "capital0": capital0, "equity_final": float(eq["equity"].iloc[-1]),
            "CAGR_pct": cagr * 100, "MaxDD_pct": maxdd * 100, "Sharpe_daily": sharpe,
            "Vol_ann_pct": vol, "Calmar": calmar, "avg_exposure_pct": avg_expo * 100,
-           "avg_n_pos": avg_npos, "trades": trades, "score_thr": float(thr)}
+           "avg_n_pos": avg_npos, "trades": trades, "score_thr": float(thr),
+           "regime_mode": regime_mode, "sizing": sizing}
     return eq, res
+
+
+_METRIC_ROWS = [
+    ("Equity finale", "{:,.0f}", "equity_final"),
+    ("CAGR %", "{:+.2f}", "CAGR_pct"),
+    ("MaxDD % (path)", "{:+.2f}", "MaxDD_pct"),
+    ("Sharpe (daily)", "{:+.2f}", "Sharpe_daily"),
+    ("Vol annua %", "{:.2f}", "Vol_ann_pct"),
+    ("Calmar", "{:+.2f}", "Calmar"),
+    ("Market Exposure % media", "{:.1f}", "avg_exposure_pct"),
+    ("Posizioni medie", "{:.1f}", "avg_n_pos"),
+    ("Trade totali", "{:d}", "trades"),
+]
+
+
+def _table(results, names, w):
+    """Stampa una tabella affiancata di N scenari (results: lista di dict res; names: intestazioni)."""
+    head = " " + f"{'METRICA':26s}" + "".join(f"{nm:>16s}" for nm in names)
+    w(head)
+    w(" " + "-" * (26 + 16 * len(names)))
+    for label, fmt, key in _METRIC_ROWS:
+        w(" " + f"{label:26s}" + "".join(f"{fmt.format(r[key]):>16s}" for r in results))
 
 
 def _print(res):
@@ -215,68 +259,105 @@ def _print(res):
     print("     non e' una stima out-of-sample; per OOS usare soglia espandente (watch-list).")
 
 
-def ab_regime(px_path="data/mib_data_long.csv", report_out="data/REGIME_PORTFOLIO_TEST.txt"):
-    """A/B diretto: Baseline Always-In vs Regime-Filtered (ingressi solo in TREND_UP per mercato)."""
-    pre = prepare(px_path)
-    _, resA = backtest(_pre=pre, regime_gate=False, equity_out="data/portfolio_equity.csv")
-    _, resB = backtest(_pre=pre, regime_gate=True, favorable=FAVORABLE,
-                       equity_out="data/portfolio_equity_regime.csv")
+def ab_pullback(px_path="data/mib_data_long.csv", report_out="data/REGIME_PULLBACK_TEST.txt", pre=None):
+    """Run #29 — 3 vie: OFF (always-in) vs GATE (TREND_UP only) vs TIERED (TREND_UP pieno + PULLBACK 1/2)."""
+    if pre is None:
+        pre = prepare(px_path)
+    _, off = backtest(_pre=pre, regime_mode="off", equity_out="data/portfolio_equity.csv")
+    _, gate = backtest(_pre=pre, regime_mode="gate", equity_out="data/portfolio_equity_regime.csv")
+    _, tier = backtest(_pre=pre, regime_mode="tiered", equity_out="data/portfolio_equity_tiered.csv")
+    L = []; w = L.append
+    w("=" * 90)
+    w(" REGIME SIZING — 3 vie (Run #29): OFF vs GATE (TREND_UP) vs TIERED (TREND_UP + PULLBACK 1/2)")
+    w(" Il TIERED apre a META' size anche in PULLBACK (px sotto SMA20 ma sopra SMA200): recupera")
+    w(" esposizione mantenendo il go-flat nei regimi davvero ostili (LATERALE/TREND_DOWN).")
+    w("=" * 90)
+    w(f" Periodo {off['start']} -> {off['end']} | capitale {off['capital0']:.0f}\n")
+    _table([off, gate, tier], ["A OFF", "B GATE", "C TIERED"], w)
+    w("")
+    w(" LETTURA (focus: il TIERED recupera CAGR/esposizione senza riportare su il MaxDD?):")
+    w(f"  - MaxDD:  OFF {off['MaxDD_pct']:+.2f} | GATE {gate['MaxDD_pct']:+.2f} | TIERED {tier['MaxDD_pct']:+.2f}")
+    w(f"  - Calmar: OFF {off['Calmar']:+.2f} | GATE {gate['Calmar']:+.2f} | TIERED {tier['Calmar']:+.2f}")
+    w(f"  - Expo%:  OFF {off['avg_exposure_pct']:.1f} | GATE {gate['avg_exposure_pct']:.1f} | TIERED {tier['avg_exposure_pct']:.1f}")
+    best = max([gate, tier], key=lambda r: r["Calmar"])
+    w(f"  - Miglior Calmar tra GATE/TIERED: {'TIERED' if best is tier else 'GATE'} "
+      f"({best['Calmar']:+.2f}). {'Il PULLBACK a mezza size aggiunge valore.' if best is tier else 'Il PULLBACK a mezza size NON migliora: tenere il gate binario.'}")
+    w("")
+    w(" NB: stesso universo e soglia (p80 globale); cambia SOLO la regola di regime/size. Costi non modellati.")
+    w("=" * 90)
+    txt = "\n".join(L) + "\n"; open(report_out, "w").write(txt); print(txt)
+    return off, gate, tier
 
-    L = []
-    w = L.append
-    w("=" * 84)
-    w(" A/B REGIME GATE — Held-Portfolio Backtester (Run #28)")
-    w(" Ingressi bloccati fuori da TREND_UP (per mercato: IT=FTSEMIB, FR=^FCHI, US=^GSPC);")
-    w(" le posizioni aperte vanno a scadenza (10gg) e il capitale torna in CASSA.")
-    w("=" * 84)
-    w(f" Periodo {resA['start']} -> {resA['end']} | capitale {resA['capital0']:.0f}\n")
-    rows = [
-        ("Equity finale", "{:,.0f}", "equity_final"),
-        ("CAGR %", "{:+.2f}", "CAGR_pct"),
-        ("MaxDD % (path)", "{:+.2f}", "MaxDD_pct"),
-        ("Sharpe (daily)", "{:+.2f}", "Sharpe_daily"),
-        ("Vol annua %", "{:.2f}", "Vol_ann_pct"),
-        ("Calmar", "{:+.2f}", "Calmar"),
-        ("Market Exposure % media", "{:.1f}", "avg_exposure_pct"),
-        ("Posizioni medie", "{:.1f}", "avg_n_pos"),
-        ("Trade totali", "{:d}", "trades"),
-    ]
-    w(f" {'METRICA':26s}{'A BASELINE':>16s}{'B REGIME-GATE':>16s}{'Δ (B-A)':>14s}")
-    w(" " + "-" * 72)
-    for label, fmt, key in rows:
-        a, b = resA[key], resB[key]
-        da = fmt.format(a); db = fmt.format(b)
-        try:
-            delta = f"{b-a:+.2f}" if key != "trades" else f"{b-a:+d}"
-        except Exception:
-            delta = ""
-        w(f" {label:26s}{da:>16s}{db:>16s}{delta:>14s}")
-    w(" " + "-" * 72)
-    dd_delta = resB["MaxDD_pct"] - resA["MaxDD_pct"]
+
+def _mdd_from_ret(r):
+    eq = (1 + r).cumprod()
+    return float((eq / eq.cummax() - 1).min())
+
+
+def _paired_boot(rA, rB, n_boot=2000, block=10, seed=42):
+    """Bootstrap a blocchi PAIRED su due serie di rendimenti giornalieri allineate.
+    Ritorna IC95% di Δ MaxDD (pt%) e Δ Sharpe (B-A), misurati sulle STESSE date ricampionate."""
+    df = pd.concat([rA, rB], axis=1).dropna()
+    df.columns = ["A", "B"]
+    n = len(df); rng = np.random.default_rng(seed); nb = int(np.ceil(n / block))
+    dMDD, dSh = [], []
+    for _ in range(n_boot):
+        starts = rng.integers(0, n, size=nb)
+        idx = np.concatenate([np.arange(s, min(s + block, n)) for s in starts])[:n]
+        sub = df.iloc[idx]
+        a, b = sub["A"], sub["B"]
+        dMDD.append((_mdd_from_ret(b) - _mdd_from_ret(a)) * 100)
+        sa = a.std(ddof=1); sb = b.std(ddof=1)
+        if sa > 0 and sb > 0:
+            dSh.append((b.mean() / sb - a.mean() / sa) * np.sqrt(ANN))
+    f = lambda v: (float(np.percentile(v, 2.5)), float(np.median(v)), float(np.percentile(v, 97.5)))
+    return f(dMDD), f(dSh)
+
+
+def ab_riskparity(px_path="data/mib_data_long.csv", report_out="data/RISKPARITY_HELD_TEST.txt", pre=None):
+    """Run #30 — FIX 5 ri-testato sul motore REALE col gate attivo: equal-weight vs risk-parity (inverse-ATR)."""
+    if pre is None:
+        pre = prepare(px_path)
+    eq_eqw, eqw = backtest(_pre=pre, regime_mode="gate", sizing="equal",
+                           equity_out="data/portfolio_equity_regime.csv")
+    eq_rp, rp = backtest(_pre=pre, regime_mode="gate", sizing="riskparity",
+                         equity_out="data/portfolio_equity_rp.csv")
+    rA = eq_eqw["equity"].pct_change().dropna()
+    rB = eq_rp["equity"].pct_change().dropna()
+    (mdd_lo, mdd_md, mdd_hi), (sh_lo, sh_md, sh_hi) = _paired_boot(rA, rB)
+    L = []; w = L.append
+    w("=" * 86)
+    w(" RISK PARITY su HELD-PORTFOLIO col gate di regime (Run #30) — il test CORRETTO di FIX 5")
+    w(" Sizing 10% x min(medATR/ATR_i, 1): i nomi piu' volatili pesano MENO (mai oltre il 10%),")
+    w(" il resto resta in cassa. Qui il vol-sizing agisce tra posizioni CONCORRENTI (vs Lezione #22).")
+    w("=" * 86)
+    w(f" Periodo {eqw['start']} -> {eqw['end']} | capitale {eqw['capital0']:.0f} | regime-gate attivo\n")
+    _table([eqw, rp], ["EQUAL-WEIGHT", "RISK-PARITY"], w)
     w("")
-    w(" LETTURA:")
-    w(f"  - ΔMaxDD: {dd_delta:+.2f} pt  ({'drawdown RIDOTTO' if dd_delta > 0 else 'drawdown PEGGIORE'};"
-      f" MaxDD e' negativo, Δ>0 = meno profondo).")
-    w(f"  - Calmar: {resA['Calmar']:+.2f} -> {resB['Calmar']:+.2f} "
-      f"({'MIGLIORA' if resB['Calmar'] > resA['Calmar'] else 'PEGGIORA'}: rendimento per unita' di DD).")
-    w(f"  - Market Exposure: {resA['avg_exposure_pct']:.1f}% -> {resB['avg_exposure_pct']:.1f}% "
-      f"(il gate riduce l'esposizione restando in cassa nei regimi non-trend).")
-    cagr_delta = resB["CAGR_pct"] - resA["CAGR_pct"]
-    if cagr_delta >= 0:
-        w(f"  - CAGR: +{cagr_delta:.2f} pt ANCHE col gate (il dimezzamento del DD NON costa rendimento "
-          f"su questo ciclo): protezione gratuita, da giudicare col Calmar.")
-    else:
-        w(f"  - Il gate costa {cagr_delta:.2f} pt di CAGR per la protezione del DD: giudicare col "
-          f"Calmar (rendimento per unita' di drawdown), non col solo rendimento.")
+    dd = rp["MaxDD_pct"] - eqw["MaxDD_pct"]
+    w(" LETTURA (decisione = abbattimento SISTEMATICO del MaxDD: IC95% del ΔMaxDD che esclude lo 0):")
+    w(f"  - ΔMaxDD punto: {dd:+.2f} pt | bootstrap PAIRED IC95% [{mdd_lo:+.2f}, {mdd_hi:+.2f}] (mediana {mdd_md:+.2f})")
+    w(f"  - ΔSharpe punto: {rp['Sharpe_daily']-eqw['Sharpe_daily']:+.2f} | IC95% [{sh_lo:+.2f}, {sh_hi:+.2f}]")
+    w(f"  - Calmar {eqw['Calmar']:+.2f} -> {rp['Calmar']:+.2f} | Exposure {eqw['avg_exposure_pct']:.1f}% -> "
+      f"{rp['avg_exposure_pct']:.1f}% (scarica i nomi volatili, piu' cassa).")
+    sig = mdd_lo > 0
+    w(f"  - ESITO: ΔMaxDD IC95% {'ESCLUDE' if sig else 'ATTRAVERSA'} lo 0 -> "
+      f"{'abbattimento SISTEMATICO confermato' if sig else 'non significativo'}.")
+    w("  - NB INTEGRAZIONE: il modello LIVE (trade_proposal.propose) GIA' dimensiona per rischio ATR")
+    w("    (shares = risk_eur / (entry-stop), stop ~ entry-2*ATR -> pos_value ∝ 1/ATR%, cap 10%):")
+    w("    e' gia' risk-parity. Questo test VALIDA quel design; il baseline equal-weight 10% flat era")
+    w("    il ramo NON rappresentativo del live. Nessun nuovo codice di sizing da aggiungere.")
     w("")
-    w(" NB: confronto sullo STESSO universo e soglia (p80 globale); cambia SOLO il gate di regime.")
-    w(" NB: costi di transazione non ancora modellati (vale per entrambi i rami).")
-    w("=" * 84)
-    txt = "\n".join(L) + "\n"
-    open(report_out, "w").write(txt)
-    print(txt)
-    return resA, resB
+    w(" NB: vs FIX 5 (Run #26) sul harness per-segnale (MaxDD artefatto -95%, effetto non misurabile):")
+    w("     qui il MaxDD e' di percorso reale e le posizioni sono concorrenti -> test equo (Lezione #22).")
+    w(" NB: stesso universo/soglia/gate; cambia SOLO lo schema di size. Costi non modellati.")
+    w("=" * 86)
+    txt = "\n".join(L) + "\n"; open(report_out, "w").write(txt); print(txt)
+    return eqw, rp
 
 
 if __name__ == "__main__":
-    ab_regime()
+    _pre = prepare()
+    ab_pullback(pre=_pre)
+    print()
+    ab_riskparity(pre=_pre)
