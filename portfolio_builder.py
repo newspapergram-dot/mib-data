@@ -19,6 +19,7 @@ from modules.trade_proposal import propose, render, cost_rt_bps, confidence_leve
 from volume_tools import smart_money_signal, validate_volume
 from modules.fundamentals import _load_pit_csv, pit_quality_score
 from company_names import resolve as resolve_names
+from patterns import detect_patterns
 
 DUAL = {"STM": {"STMMI.MI", "STMPA.PA"}, "STLA": {"STLAM.MI", "STLAP.PA"}}
 
@@ -250,6 +251,14 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     all_tks = [r.ticker for r, _ in picked]
     tk_names = resolve_names(all_tks, refresh_missing=False)
 
+    tk_patterns = {}
+    for r, _ in picked:
+        try:
+            g = px[px.ticker == r.ticker].sort_values("date")
+            tk_patterns[r.ticker] = detect_patterns(g)
+        except Exception:
+            tk_patterns[r.ticker] = {}
+
     L = []
     w = L.append
     w("=" * 92)
@@ -345,6 +354,24 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         cname = tk_names.get(r.ticker, r.ticker)
         w(f" {cname}")
         w(f" FOREGROUND: sm {r.sm:+.2f} ({r.sm_label}) | {r.role} | FQ {r.fq} | conf {r.conf} | tier {r.tier} | {r.mkt}")
+        pat = tk_patterns.get(r.ticker, {})
+        if pat:
+            parts = []
+            if pat.get("trend"):
+                parts.append(f"{pat['trend']} ({pat.get('trend_strength', '?')})")
+            if pat.get("structure"):
+                parts.append(pat["structure"])
+            if pat.get("bollinger"):
+                parts.append(f"BB: {pat['bollinger']}")
+            if pat.get("breakout"):
+                parts.append(pat["breakout"])
+            if pat.get("continuation"):
+                parts.append(pat["continuation"].strip(" |"))
+            if pat.get("pullback"):
+                parts.append("pullback su SMA20")
+            if pat.get("rsi_divergence"):
+                parts.append(f"RSI div: {pat['rsi_divergence']}")
+            w(f" PATTERN: {' | '.join(parts)}" if parts else " PATTERN: nessun segnale rilevante")
         w("=" * 58)
     for c, p in uni_picked:
         w(""); w(render(p))

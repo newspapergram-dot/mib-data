@@ -62,6 +62,7 @@
 ==========================================================
  AXA SA
  FOREGROUND: sm +0.73 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
+ PATTERN: rialzista (moderato) | mista | BB: dentro le bande | breakout rialzista sopra 42.93 (vol debole 0.7x)
 ==========================================================
 
 ==========================================================
@@ -85,6 +86,7 @@
 ==========================================================
  BNP Paribas SA
  FOREGROUND: sm +0.59 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
+ PATTERN: laterale (debole) | HH-HL (rialzista) | BB: dentro le bande | breakout rialzista sopra 102.82 (vol debole 0.9x)
 ==========================================================
 
 ==========================================================
@@ -109,6 +111,7 @@
 ==========================================================
  Banca Monte dei Paschi di Siena S.p.A.
  FOREGROUND: sm +0.69 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier MEDIA | IT
+ PATTERN: rialzista (forte) | HH-HL (rialzista) | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
 ==========================================================
 
 ==========================================================
@@ -132,6 +135,7 @@
 ==========================================================
  Enel SpA
  FOREGROUND: sm +0.30 (neutro) | SAT | FQ Q+ | conf MEDIA | tier ALTA | IT
+ PATTERN: laterale (debole) | HH-HL (rialzista) | BB: dentro le bande | breakout rialzista sopra 9.98 (vol debole 1.2x) | ascending triangle
 ==========================================================
 
 ==========================================================
@@ -156,6 +160,7 @@
 ==========================================================
  Poste Italiane S.p.A.
  FOREGROUND: sm +0.38 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier ALTA | IT
+ PATTERN: rialzista (forte) | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
 ==========================================================
 
 ==========================================================
@@ -179,6 +184,7 @@
 ==========================================================
  Mediobanca Banca di Credito Finanziario S.p.A.
  FOREGROUND: sm +0.42 (ACCUMULAZIONE) | CORE | FQ Q+ | conf MEDIA | tier MEDIA | IT
+ PATTERN: rialzista (forte) | mista | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
 ==========================================================
 
 ==========================================================
@@ -202,6 +208,7 @@
 ==========================================================
  Accor SA
  FOREGROUND: sm +0.13 (neutro) | SAT | FQ Q+ | conf ALTA | tier ALTA | FR
+ PATTERN: laterale (debole) | mista | BB: walk upper band (forza) | breakout rialzista sopra 50.12 (vol 1.7x) | ascending triangle | RSI div: bullish (prezzo nuovo min, RSI no)
 ==========================================================
 
 ==========================================================
@@ -225,6 +232,7 @@
 ==========================================================
  Telecom Italia S.p.A.
  FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf MEDIA | tier ALTA | IT
+ PATTERN: rialzista (forte) | HH-HL (rialzista) | BB: dentro le bande
 ==========================================================
 
 ==========================================================
@@ -248,4 +256,5 @@
 ==========================================================
  STMicroelectronics N.V.
  FOREGROUND: sm +0.14 (neutro) | SAT | FQ Q+ | conf MEDIA | tier MEDIA | IT
+ PATTERN: rialzista (moderato) | HH-HL (rialzista) | BB: squeeze (compressione volatilita') | flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle | pullback su SMA20 | RSI div: bearish (prezzo nuovo max, RSI no)
 ==========================================================
