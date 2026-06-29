@@ -52,18 +52,35 @@ def verify(px_path="data/mib_data.csv", out_txt="data/VERIFICATION.txt",
         return None
 
     prior = journal.load(prior_path)
-    snap_asof = prior["asof"]
+    # data_asof = data dell'ULTIMA barra che il modello ha visto (il prezzo da cui parte il piano).
+    # Normalmente == asof; lo teniamo separato perche' un dato stantio puo' marcare lo snapshot con
+    # una data ma prezzarlo sulla chiusura precedente (bug reale: vedi Lezione #20). Le barre di
+    # verifica e il fill realistico si derivano da data_asof, NON dalla data nominale dello snapshot.
+    snap_asof = prior.get("data_asof") or prior["asof"]
     cur_regime = _current_regime()
+    stale_flags = 0       # pick il cui entry pianificato non coincide con la chiusura a data_asof
 
     results = []
     for p in prior["picks"]:
         tk = p["ticker"]
-        entry, stop = p["entry"], p["stop"]
+        planned_entry, stop = p["entry"], p["stop"]
         t1, t2, t3 = p["t1"], p["t2"], p["t3"]
         bars = _bars_after(px, tk, snap_asof)
         if bars.empty:
             results.append({**p, "outcome": "NO_DATA", "n_days": 0})
             continue
+
+        # FILL REALISTICO: un ordine deciso su dati fino a data_asof si riempie all'APERTURA della
+        # prima seduta successiva, non al prezzo pianificato (che il mercato ha gia' lasciato).
+        # Tutto (drift, MAE, MFE, P&L) si misura da qui; i livelli stop/target restano assoluti.
+        realistic_entry = float(bars["open"].iloc[0])
+        entry = realistic_entry
+        gap_pct = (realistic_entry / planned_entry - 1) * 100 if planned_entry else 0.0
+        gapped_through_stop = realistic_entry <= stop
+        # auto-rilevazione snapshot stantio: la chiusura a data_asof dovrebbe == entry pianificato
+        bar_at_asof = px[(px.ticker == tk) & (px.date == pd.Timestamp(snap_asof))]
+        if not bar_at_asof.empty and abs(float(bar_at_asof["close"].iloc[0]) - planned_entry) / planned_entry > 0.005:
+            stale_flags += 1
 
         # Cammina le barre in ordine. Convenzione prudente: se in un giorno il minimo tocca lo
         # stop, la posizione e' chiusa quel giorno (lo stop vince anche se il massimo tocca un
@@ -116,7 +133,9 @@ def verify(px_path="data/mib_data.csv", out_txt="data/VERIFICATION.txt",
         results.append({
             "ticker": tk, "name": p.get("name"), "market": p.get("market"),
             "role": p.get("role"), "score_then": p.get("score"),
-            "entry": entry, "stop": stop, "t1": t1, "t2": t2, "t3": t3,
+            "planned_entry": planned_entry, "entry": round(entry, 4), "stop": stop,
+            "t1": t1, "t2": t2, "t3": t3,
+            "gap_pct": round(gap_pct, 2), "gapped_through_stop": gapped_through_stop,
             "cur_close": round(cur_close, 4), "drift_pct": round(drift, 2),
             "mae_pct": round(mae, 2), "mfe_pct": round(mfe, 2),
             "outcome": outcome, "first_event": first_event,
@@ -133,11 +152,15 @@ def verify(px_path="data/mib_data.csv", out_txt="data/VERIFICATION.txt",
     inprog = sum(1 for r in results if r.get("outcome") == "IN CORSO")
     avg_drift = round(sum(r.get("drift_pct", 0) for r in results) / n, 2) if n else 0
     regime_flips = [r for r in results if r.get("regime_changed")]
+    gaps = [r for r in results if r.get("gapped_through_stop")]
+    avg_gap = round(sum(r.get("gap_pct", 0) for r in results) / n, 2) if n else 0
 
     report = {
         "status": "ok", "snapshot_asof": snap_asof, "data_asof": data_asof,
         "n_picks": n, "stops": stops, "targets": t1plus, "in_progress": inprog,
-        "avg_drift_pct": avg_drift, "regime_flips": len(regime_flips),
+        "avg_drift_pct": avg_drift, "avg_gap_pct": avg_gap,
+        "gapped_through_stop": len(gaps), "stale_entry_picks": stale_flags,
+        "regime_flips": len(regime_flips),
         "current_regime": cur_regime, "results": results,
     }
     json.dump(report, open(out_json, "w"), indent=2, ensure_ascii=False)
@@ -149,24 +172,32 @@ def verify(px_path="data/mib_data.csv", out_txt="data/VERIFICATION.txt",
     w(f" VERIFICA RACCOMANDAZIONI — snapshot {snap_asof} → prezzi {data_asof}")
     w("=" * 92)
     w(f" Pick verificati: {n} | STOP: {stops} | target raggiunti: {t1plus} | "
-      f"in corso: {inprog} | drift medio: {avg_drift:+.2f}%")
+      f"in corso: {inprog} | drift medio (fill reale): {avg_drift:+.2f}% | gap medio: {avg_gap:+.2f}%")
+    if stale_flags:
+        w(f" ⚠ SNAPSHOT STANTIO: {stale_flags}/{n} pick hanno entry pianificato != chiusura a "
+          f"{snap_asof} → il piano fu prezzato su una barra precedente. Misuro dal FILL REALE "
+          f"(apertura {data_asof if False else 'prima seduta utile'}), non dal prezzo pianificato.")
+    if gaps:
+        w(f" ⚠ GAP OLTRE LO STOP in apertura su {len(gaps)} pick: "
+          + ", ".join(r["ticker"] for r in gaps) + " (stop riempito peggio: slippage non nel piano)")
     if regime_flips:
         w(f" CAMBIO REGIME su {len(regime_flips)} mercati dei pick: "
           + ", ".join(f"{r['ticker']}({r['market']} {r['regime_then']}→{r['regime_now']})"
                       for r in regime_flips))
     w("-" * 92)
-    w(f" {'TICK':9s}{'MKT':4s}{'ENTRY':>9s}{'NOW':>9s}{'DRIFT':>8s}{'MAE':>8s}{'MFE':>8s}  {'ESITO':<14s}{'REGIME':>14s}")
+    w(f" {'TICK':9s}{'MKT':4s}{'PIANO':>8s}{'FILL':>8s}{'GAP':>7s}{'NOW':>8s}{'DRIFT':>7s}{'MAE':>7s}{'MFE':>7s}  {'ESITO':<13s}{'REGIME':>13s}")
     for r in results:
         if r.get("outcome") == "NO_DATA":
-            w(f" {r['ticker']:9s}{'?':4s}{'—':>9s}{'—':>9s}  NO_DATA")
+            w(f" {r['ticker']:9s}{'?':4s}{'—':>8s}  NO_DATA")
             continue
         rc = f"{r['regime_then']}→{r['regime_now']}" if r["regime_changed"] else (r["regime_now"] or "")
-        w(f" {r['ticker']:9s}{r['market'] or '?':4s}{r['entry']:9.3f}{r['cur_close']:9.3f}"
-          f"{r['drift_pct']:+8.2f}{r['mae_pct']:+8.2f}{r['mfe_pct']:+8.2f}  {r['outcome']:<14s}{rc:>14s}")
+        w(f" {r['ticker']:9s}{r['market'] or '?':4s}{r['planned_entry']:8.2f}{r['entry']:8.2f}"
+          f"{r['gap_pct']:+7.2f}{r['cur_close']:8.2f}{r['drift_pct']:+7.2f}{r['mae_pct']:+7.2f}"
+          f"{r['mfe_pct']:+7.2f}  {r['outcome']:<13s}{rc:>13s}")
     w("-" * 92)
-    w(" LEGENDA: DRIFT=entry→chiusura ora | MAE=peggior escursione | MFE=migliore escursione")
-    w(" ESITO path-based: usa max/min GIORNALIERI; stop+target stesso giorno = conta lo STOP (prudente).")
-    w(" NB: entry = prezzo pianificato nella scheda (fill reale ~ apertura giorno dopo): assunzione esplicitata.")
+    w(" PIANO=prezzo pianificato | FILL=apertura prima seduta utile (entry REALE) | GAP=PIANO→FILL")
+    w(" DRIFT/MAE/MFE misurati dal FILL reale. ESITO path-based su max/min giornalieri (stop+target")
+    w(" stesso giorno = conta lo STOP, prudente). Lo stop puo' gappare in apertura (slippage reale).")
     w("=" * 92)
     txt = "\n".join(L) + "\n"
     open(out_txt, "w").write(txt)

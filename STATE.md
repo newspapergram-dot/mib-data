@@ -976,4 +976,80 @@ codice deterministico; fix = serve contesto multi-file; generazione = sequenzial
 - [ ] Concentrazione FR 3/3 (self_improve MEDIA): monitorare correlazione di mercato unico.
 
 ---
+
+## Run #24 — 2026-06-29 (Fase-2 audit: il sub-agent indipendente trova il bug dell'entry stantio)
+
+**Obiettivo:** primo giro reale della Fase 2 del loop — sub-agent auditor indipendente sulla
+verifica 26→29 giugno, con mandato istituzionale (perche' i prezzi sono scesi? volume/smart
+money? regime lento? gap?). Poi vagliare le proposte e applicare solo i fix supportati dai dati.
+
+### Scoperta principale (l'auditor ha trovato un bug nel codice che AVEVO scritto io)
+**Gli entry del diario erano le chiuse del 25/06, non del 26/06** (9/9 match esatti). Un fetch a
+sessione 06-26 non chiusa aveva scritto una barra "06-26" coi prezzi del 25/06. La mia verifica
+filtrava `date > 06-26` e **saltava la sessione reale del 06-26** (dove stava il movimento).
+
+**Verifica CORRETTA (dal fill reale = apertura 06-26, finestra 2 sedute):**
+- Drift medio **+0.34%** (non −0.60%). STMMI **+1.55%** (MFE +3.23%) — da "peggiore" a vincente.
+- AC.PA −0.48% reale (il "−3.22%" era tutto entry stantio); gap apertura −2.75%.
+- Gap medio −0.94%: STMMI/AC.PA hanno gappato −2.8% (rischio reale, ora strumentato).
+
+### Fix applicati (solo quelli provati dai dati)
+1. `verify_picks.py`: misura da **fill realistico** (apertura prima seduta dopo `data_asof`);
+   colonne PIANO/FILL/GAP; auto-rilevazione snapshot stantio; flag gap-oltre-lo-stop.
+2. `journal.py`: lo snapshot registra **`data_asof`** (barra di prezzo del piano). Ri-marcato il
+   backfill 06-26 a `data_asof=2026-06-25` (data vera dei prezzi).
+
+### Ipotesi REFUTATE dall'auditor coi numeri (NON cambiare la strategia)
+- Regime "troppo lento": FALSO. FTSEMIB ha perso la SMA20 il 29 in modo **coincidente** (margine
+  +0.04% il 26 → −0.11% il 29). Il trigger px>SMA20 esiste gia', nessun lag. NON accelerare la MA.
+- Soglia smart-money troppo larga: i nomi in distribuzione (sm<−0.5) sono stati i top gainer →
+  relazione invertita = rumore a 2 sedute. NON stringere il gate su questo campione.
+- "Volume debole = fallimento": corr(volR, ritorno) ≈ 0. La conferma-volume si valuta SOLO su
+  backtest 2018-2026, non su 2 giorni.
+
+### Watch list
+- [ ] **Backtest FIX 4** (conferma-volume sul breakout come leva di SIZE) sul ciclo 2018-2026
+  prima di toccare lo scoring. Non spedire sulla forza di 2 sedute.
+- [ ] **Hardening data-layer**: evitare che `fetch_data` scriva una barra marcata "oggi" con la
+  chiusura di ieri quando gira a sessione aperta. Per ora la verifica e' robusta (rileva + misura
+  dal fill), ma la fonte va irrobustita.
+- [ ] IT in PULLBACK: rientro dei 6 nomi IT quando torna TREND_UP.
+
+---
+
+## Run #25 — 2026-06-29 (Session Gate alla fonte + FIX 4 respinto dal backtest completo)
+
+**Obiettivo (scelta da analista critico):** irrobustire il data-layer — `fetch_data.py` non deve
+MAI registrare una barra di sessione non chiusa (radice della Lezione #20) — poi backtestare FIX 4
+(conferma-volume / smart money come leva di size) sul ciclo completo.
+
+### Parte 1 — Session Gate (fetch_data.py)
+- `drop_incomplete_last_bar(df, ticker)`: scarta l'ultima barra se la sessione del mercato non e'
+  chiusa+settled nel fuso locale (EU 17:30 / US 16:00, +20min). Fuso per mercato di quotazione.
+- Test unitari con orari iniettati: EU/US, aperto/chiuso/settle, indici EU, weekend, barra passata.
+- **Dimostrazione su dati live**: lanciato alle 15:56 Roma / 09:56 NY (mercati APERTI), il gate ha
+  scartato la barra 06-29 di TUTTI i 141 ticker → dataset all'ultima sessione CHIUSA (06-26).
+- **Scoperta**: con i dati puliti **IT torna TREND_UP**. Il "cambio regime IT→PULLBACK" dei Run
+  #23/#24 era un ARTEFATTO della barra fantasma intraday (tonfo sotto SMA20), non un evento reale.
+  Il gate non corregge solo l'entry stantio: blocca un FALSO segnale di regime (go-flat su 6 IT).
+- Diario: identita' su `data_asof` (data di prezzo). Backfill rinominato → `2026-06-25.json` (9 pick);
+  snapshot fantasma `2026-06-29.json` (costruito su dati intraday) RIMOSSO.
+- Portafoglio ricostruito su 06-26 pulito: **10 nomi** (6 CORE/4 SAT, 67%), IT rientrati.
+- Verifica corretta (06-25 → 06-26, 1 sessione chiusa reale): drift medio **+0.05%**, gap medio
+  −0.94% (STMMI/AC.PA gappano −2.8% in apertura ma recuperano intraday). Nessuno stop a tiro.
+
+### Parte 2 — FIX 4 respinto (fix4_validate.py, ciclo 2018-2026)
+- A/B di 4 schemi di size sullo stesso top-quintile (6329 segnali / 1004 date), bootstrap PAIRED:
+  A equal 0.55 | B smart-money 0.53 | C volume-confirm 0.56 | D combined 0.56.
+- **ΔSharpe vs equal: tutti gli IC95% attraversano lo 0** (B −0.07, C +0.01, D −0.04) → RUMORE.
+- **Verdetto: FIX 4 NON si implementa.** Lo smart money resta FILTRO di selezione, non leva di size.
+  Esito salvato in `data/FIX4_VALIDATE.txt`. (Conferma del prior dell'auditor: niente fix su 2 giorni.)
+- Nota metodo: `mib_data.csv` = ~14 mesi; il ciclo completo richiede `mib_data_long.csv` (2018-2026).
+
+### Watch list
+- [ ] Size graduata per sm in `portfolio_builder` non danneggia ma non aggiunge Sharpe: candidata a
+  /simplify futura (non urgente — l'uso come GATE di selezione resta validato).
+- [ ] IT TREND_UP confermato su chiusura 06-26; rivalutare a fine sessione 06-29 reale.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -1,5 +1,6 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 import os
 
 # === SORGENTE PRIMARIA: Piano C — API JSON pubblica di Yahoo v8 (get_eod_eu_robust) ===
@@ -21,6 +22,56 @@ except Exception:
     yf = None
 
 _EU_SUFFIXES = (".MI", ".PA", ".AS", ".L", ".DE")
+
+# ============================================================================
+# SESSION GATE — non registrare MAI una barra giornaliera di una sessione ancora
+# aperta. Le sorgenti EOD (Yahoo v8 incluso) possono restituire una barra marcata
+# con la data di OGGI ma con prezzi intraday/precedenti finche' la borsa non chiude:
+# entra cosi' un prezzo "fantasma" (vedi Lezione #20: l'entry stantio del 25/06
+# marcato 26/06 nasceva proprio da qui). Il gate scarta l'ultima barra se la
+# sessione del SUO mercato non e' ancora chiusa+settled nel fuso locale.
+# ============================================================================
+_MKT_CLOSE = {            # ora di chiusura ufficiale (ora locale del mercato)
+    "Europe/Rome": (17, 30),       # Borsa Italiana / Euronext (.MI/.PA/.AS, CAC, Stoxx)
+    "America/New_York": (16, 0),   # NYSE/Nasdaq (azioni USA, ETF, ^GSPC/^NDX/^VIX)
+}
+_SETTLE_MIN = 20          # margine post-chiusura prima che l'EOD sia considerato definitivo
+_EU_INDICES = {"^FCHI", "^STOXX50E"}   # indici EU senza suffisso .MI/.PA
+
+
+def _market_tz(ticker):
+    """Fuso del mercato di quotazione. FTSEMIB.MI cade su .MI (Europe/Rome);
+    ^FCHI/^STOXX50E mappati esplicitamente; tutto il resto = USA."""
+    if ticker.endswith((".MI", ".PA", ".AS")) or ticker in _EU_INDICES:
+        return "Europe/Rome"
+    return "America/New_York"
+
+
+def drop_incomplete_last_bar(df, ticker, now_utc=None):
+    """Rimuove l'ultima barra se appartiene a una sessione NON ancora chiusa+settled
+    nel fuso del mercato del ticker. Ritorna (df, dropped_date|None).
+
+    Regole:
+      - ultima barra di un giorno PASSATO  -> sessione chiusa, si tiene;
+      - ultima barra = OGGI (ora locale del mercato) e ora locale < chiusura+settle
+        -> barra intraday/incompleta (fantasma): si SCARTA;
+      - oltre la chiusura+settle -> EOD definitivo, si tiene.
+    Weekend/festivi: non esiste una barra 'oggi', quindi nessuno scarto."""
+    if df is None or df.empty:
+        return df, None
+    tzname = _market_tz(ticker)
+    tz = ZoneInfo(tzname)
+    now_local = (now_utc or datetime.now(timezone.utc)).astimezone(tz)
+    last_date = pd.to_datetime(df["date"].iloc[-1]).date()
+    today_local = now_local.date()
+    if last_date != today_local:
+        return df, None                      # passato (ok) o futuro (non e' il caso d'uso)
+    ch, cm = _MKT_CLOSE[tzname]
+    settle = now_local.replace(hour=ch, minute=cm, second=0, microsecond=0) \
+        + timedelta(minutes=_SETTLE_MIN)
+    if now_local < settle:
+        return df.iloc[:-1].copy(), last_date   # sessione aperta/non settled -> scarta il fantasma
+    return df, None
 
 # === MODIFICA QUI LA TUA WATCHLIST ===
 TICKERS = [
@@ -127,12 +178,20 @@ def fetch_one(t, s, e):
 
 if __name__ == "__main__":
     _s, _e = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
-    frames, failed = [], []
+    frames, failed, trimmed = [], [], []
     for t in TICKERS:
         df = fetch_one(t, _s, _e)
         if df is None or df.empty:
             failed.append(t)
             print(f"[WARN] {t}: nessuna sorgente disponibile -> riga OMESSA, non inventata")
+            continue
+        # SESSION GATE: scarta una eventuale ultima barra di sessione non ancora chiusa
+        df, dropped = drop_incomplete_last_bar(df, t)
+        if dropped is not None:
+            trimmed.append(t)
+            print(f"[GATE] {t}: scartata barra intraday {dropped} ({_market_tz(t)} ancora aperto)")
+        if df is None or df.empty:
+            failed.append(t)
             continue
         frames.append(df)
 
@@ -148,6 +207,8 @@ if __name__ == "__main__":
         with open("data/last_update.txt", "w") as f:
             f.write(datetime.utcnow().isoformat() + "Z  # fonte primaria: Piano C (Yahoo v8 JSON)")
         print(f"\nScritte {len(out)} righe ({out['ticker'].nunique()} ticker) in data/mib_data.csv")
+        if trimmed:
+            print(f"Session gate — barre intraday scartate (sessione aperta): {trimmed}")
         if failed:
             print(f"Falliti (omessi): {failed}")
     else:
