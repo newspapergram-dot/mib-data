@@ -1052,4 +1052,36 @@ MAI registrare una barra di sessione non chiusa (radice della Lezione #20) — p
 - [ ] IT TREND_UP confermato su chiusura 06-26; rivalutare a fine sessione 06-29 reale.
 
 ---
+
+## Run #26 — 2026-06-29 (FIX 5: risk parity inverse-ATR — respinto dal backtest, harness inadatto)
+
+**Obiettivo:** testare il sizing a rischio paritario (peso ∝ 1/ATR%14) vs equal-weight sul ciclo
+completo, con focus su MaxDD e Sharpe; integrare in `portfolio_builder` solo se il MaxDD si abbatte
+in modo sistematico (ΔMaxDD IC95% che non attraversa lo 0).
+
+### Test (fix5_validate.py, 2018-2026, 6329 segnali / 1004 date, bootstrap PAIRED)
+| Schema | Sharpe | MaxDD% | Vol%ann |
+|--------|--------|--------|---------|
+| A EQUAL | 0.55 | −95.7 | 94.3 |
+| B RISK-PARITY (1/ATR%) | 0.52 | −95.7 | 91.4 |
+| C RP-CAPPED (3x) | 0.51 | −95.7 | 91.4 |
+
+- ΔMaxDD vs equal: B +0.00pt [−2.35,+3.68], C +0.01pt [−2.11,+3.47] → **IC attraversa lo 0**.
+- ΔSharpe: B/C −0.05 (rumore). **Soglia non soddisfatta → FIX 5 NON INTEGRATO.**
+
+### Scoperta metodologica (più importante del risultato)
+- MaxDD **identico −95.7%** tra schemi perche' le date di peggior drawdown hanno **1 solo nome**
+  (worst: 2025-04-08 −45.8%, 2018-12-24 −44.7%, 2020-03-02 −41.9%, tutte n=1). 23% delle date ha
+  1 nome, 34% ≤2 (mediana 5). Il sizing cross-sectional non puo' diversificare un tail a nome singolo.
+- Il harness per-segnale (portfolio_sim, rendimenti 10gg sovrapposti) **non e' lo strumento giusto**
+  per il vol-sizing, che agisce tra posizioni CONCORRENTI. "Nessun effetto" qui = strumento inadatto,
+  non ipotesi falsa. Non si tocca `portfolio_builder` su questa base. Esito: `data/FIX5_VALIDATE.txt`.
+
+### Watch list
+- [ ] **Held-portfolio backtest**: simulare il portafoglio REALMENTE detenuto (~10 nomi concorrenti,
+  posizioni sovrapposte, equity giornaliera vera) per testare correttamente risk parity / vol-sizing.
+  Solo lì il FIX 5 puo' essere validato o respinto in modo equo.
+- [ ] (da Run #25) size graduata per sm: candidata a /simplify; IT TREND_UP da rivalutare a fine 06-29.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

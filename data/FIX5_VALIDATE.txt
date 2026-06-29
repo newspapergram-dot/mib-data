@@ -1,0 +1,43 @@
+====================================================================================
+ FIX 5 — Sizing a RISCHIO PARITARIO (inverse-ATR14): abbatte il MaxDD? (NO, non in modo
+ significativo — e il harness per-segnale NON puo' testarlo davvero: vedi limite sotto)
+ Backtest ciclo completo 2018-2026 (data/mib_data_long.csv), score NUOVO, holding 10gg.
+ Generato da fix5_validate.py — bootstrap a blocchi PAIRED su Δ Sharpe e Δ MaxDD.
+====================================================================================
+
+ Segnali top-quintile: 6329 | date operative: 1004 | 2018-01-02 -> 2026-06-25
+
+ SCHEMA           Sharpe   MaxDD%   CAGR%  Vol%ann  mean%/op
+ A EQUAL            0.55    -95.7     2.6    94.3     0.205   (baseline portfolio_sim)
+ B RISK-PARITY      0.52    -95.7     0.6    91.4     0.187   (peso ∝ 1/ATR%14)
+ C RP-CAPPED        0.51    -95.7     0.5    91.4     0.187   (RP con cap rapporto 3x)
+
+ Bootstrap PAIRED (block=10, n_boot=2000) vs A EQUAL:
+   B RISK-PARITY  ΔSharpe -0.05 [-0.23,+0.14] | ΔMaxDD +0.00pt [-2.35,+3.68] -> IC attraversa 0
+   C RP-CAPPED    ΔSharpe -0.05 [-0.22,+0.13] | ΔMaxDD +0.01pt [-2.11,+3.47] -> IC attraversa 0
+
+ DECISIONE: integrare in portfolio_builder SOLO se ΔMaxDD ha IC95% interamente POSITIVO
+ (abbattimento sistematico) senza peggiorare lo Sharpe. NESSUNO schema lo soddisfa.
+ -> FIX 5 NON INTEGRATO. Il risk parity riduce solo la volatilita' (94.3%->91.4%, marginale),
+    non il MaxDD, e costa un filo di Sharpe (rumore).
+
+ PERCHE' (root cause, non solo "non significativo"):
+ - Il MaxDD e' IDENTICO (-95.7%) tra tutti gli schemi. Le date di peggior drawdown hanno UN
+   SOLO nome selezionato (worst: 2025-04-08 -45.8%, 2018-12-24 -44.7%, 2020-03-02 -41.9% —
+   tutte n_nomi=1). Su una data a nome singolo OGNI schema di peso da' 100% a quel nome:
+   ritorno identico, MaxDD identico. Il risk parity non ha nulla da diversificare.
+ - Struttura del harness: 23% delle date operative ha 1 solo nome, 34% ha <=2 (mediana 5).
+   I tail-drawdown sono eventi a nome singolo: il sizing CROSS-SECTIONAL e' impotente per
+   costruzione su questi. Il beneficio vero del vol-sizing (diversificare la vol tra posizioni
+   CONCORRENTI) non e' osservabile in un harness per-segnale con date sparse.
+
+ LIMITE METODOLOGICO & PROSSIMO TEST CORRETTO:
+ - Questo harness (portfolio_sim, rendimenti 10gg sovrapposti, pesi cross-sectional per data)
+   e' lo stesso usato per FIX 4 -> confronto coerente, ma NON e' il test giusto per il risk
+   parity. Il MaxDD -95.7% e' inoltre l'artefatto dei rendimenti sovrapposti (il MaxDD reale
+   del modello operativo e' -13.8%, robustness_consolidate).
+ - Il portafoglio LIVE tiene ~10 nomi CONCORRENTI: li' il risk parity POTREBBE contare anche
+   se questo harness non lo rileva. Test corretto = simulazione di un portafoglio REALMENTE
+   detenuto (posizioni sovrapposte nel tempo, equity giornaliera vera), non bet indipendenti.
+   -> messo in watch-list (Run #26). Finche' non passa quel test, NON si tocca il sizing.
+====================================================================================

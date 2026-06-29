@@ -655,4 +655,32 @@ sul breakout (C) NON alza lo Sharpe. ΔSharpe vs equal-weight: B −0.07 [IC95% 
    conclusione richiede la storia lunga.
 
 ---
+
+## Lezione #22 — 2026-06-29 — Risk parity (inverse-ATR) respinto: il harness non puo' testare cio' che conta
+
+**Evidenza.** Run #26 (FIX 5): sizing a rischio paritario (peso ∝ 1/ATR%14) vs equal-weight sul
+ciclo completo 2018-2026 (`fix5_validate.py`, 6329 segnali / 1004 date, bootstrap PAIRED).
+Risultato: Sharpe 0.55→0.52, **MaxDD IDENTICO −95.7%** per tutti gli schemi; ΔMaxDD IC95%
+[−2.35,+3.68] attraversa lo 0. Per la regola (integrare solo se ΔMaxDD IC95%>0) → NON integrato.
+
+**Root cause (non solo "non significativo").** Le date di peggior drawdown hanno UN SOLO nome
+selezionato (worst: 2025-04-08 −45.8%, 2018-12-24 −44.7%, 2020-03-02 −41.9%, tutte n=1). Su una
+data a nome singolo ogni schema di peso da' 100% a quel nome → ritorno e MaxDD identici. Il 23%
+delle date ha 1 nome, il 34% ≤2: i tail-drawdown sono eventi a nome singolo, dove il sizing
+cross-sectional e' impotente per costruzione.
+
+**Regola.**
+1. **Una leva di size si integra solo se la metrica-bersaglio migliora con IC95% che esclude lo 0**
+   sul ciclo completo (qui: ΔMaxDD>0 sistematico). FIX 5 non passa → non si tocca `portfolio_builder`.
+2. **Verificare che il harness possa DAVVERO misurare l'effetto cercato prima di concludere.** Il
+   risk parity diversifica la vol tra posizioni CONCORRENTI; un harness per-segnale con date sparse
+   (mediana 5 nomi, 23% a nome singolo) e rendimenti 10gg sovrapposti NON lo cattura. "Nessun effetto
+   misurato" puo' voler dire "strumento sbagliato", non "ipotesi falsa": dirlo esplicitamente.
+3. **Il test corretto del vol-sizing e' un portafoglio REALMENTE detenuto** (posizioni sovrapposte
+   nel tempo, equity giornaliera vera), non bet indipendenti per-segnale. Finche' non esiste quel
+   test, il sizing resta equal/convinzione: niente cambi sulla base di un harness inadatto.
+4. **Promemoria artefatto**: il MaxDD −95.7% del portfolio_sim e' l'effetto dei rendimenti
+   sovrapposti; il MaxDD reale del modello operativo e' −13.8% (`robustness_consolidate`).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
