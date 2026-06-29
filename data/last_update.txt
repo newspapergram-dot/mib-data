@@ -1,1 +1,1 @@
-2026-06-26T23:12:09.166503Z  # fonte primaria: Piano C (Yahoo v8 JSON)
+2026-06-29T13:01:16.898585Z  # fonte primaria: Piano C (Yahoo v8 JSON)

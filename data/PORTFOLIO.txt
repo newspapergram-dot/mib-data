@@ -1,5 +1,5 @@
 ============================================================================================
- PORTAFOGLIO DIVERSIFICATO — 2026-06-26  (capitale 50000 EUR)
+ PORTAFOGLIO DIVERSIFICATO — 2026-06-29  (capitale 50000 EUR)
 ============================================================================================
  MODELLO AFFIDABILE (validato in backtest): filtro SMART MONEY = leva di affidabilita'.
  Accumulazione (sm>=.33) = CORE piena size; neutro = SAT size ridotta; distribuzione ESCLUSA.
@@ -9,29 +9,23 @@
  QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).
    Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati
    NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).
- Score top-meta' (>= 0.082); confidenza su percentili LIVE; dedup emittente.
- Universo 142 ticker, 66 gated. Regime: IT=TREND_UP FR=TREND_UP US=PULLBACK
+ Score top-meta' (>= 0.093); confidenza su percentili LIVE; dedup emittente.
+ Universo 142 ticker, 67 gated. Regime: IT=PULLBACK FR=TREND_UP US=PULLBACK
 
- SELEZIONATI: 9 (5 CORE / 4 SAT) | esposizione 28633 EUR (57% del capitale)
+ SELEZIONATI: 3 (1 CORE / 2 SAT) | esposizione 9184 EUR (18% del capitale)
 --------------------------------------------------------------------------------------------
  TICK     NOME                 SCORE   SM$ ROLE  FQ  CONF SIZE×   AZ   VALORE    T1%    T2%    T3%
- CS.PA    AXA SA               0.713  0.73 CORE  Q+  ALTA  1.00  116     4998    2.9    7.9   13.4
- BNP.PA   BNP Paribas SA       0.611  0.59 CORE  Q+  ALTA  1.00   48     4944    4.2   11.1   18.7
- BMPS.MI  Banca Monte dei Pas  0.268  0.69 CORE  Q+ BASSA  0.42  191     2092    5.1   13.7   23.3
- ENEL.MI  Enel SpA             0.555  0.30  SAT  Q+ MEDIA  0.55  273     2747    3.9   10.0   16.7
- PST.MI   Poste Italiane S.p.  0.451  0.38 CORE  Q+ BASSA  0.60  106     2996    4.8   13.0   22.2
- MB.MI    Mediobanca Banca di  0.274  0.42 CORE  Q+ MEDIA  0.70  133     3483    5.5   14.4   24.3
- AC.PA    Accor SA             0.612  0.13  SAT  Q+  ALTA  0.55   53     2736    5.4   14.0   23.6
- TIT.MI   Telecom Italia S.p.  0.439  0.05  SAT   Q MEDIA  0.55  345     2750    4.7   12.0   20.1
- STMMI.MI STMicroelectronics   0.280  0.14  SAT  Q+ MEDIA  0.39   29     1886   10.2   30.9   51.7
+ CS.PA    AXA SA               0.760  0.79 CORE  Q+  ALTA  1.00  114     4984    2.8    7.6   12.9
+ EDEN.PA  Edenred SE           0.281 -0.00  SAT  Q+ MEDIA  0.55  120     2741    7.2   22.5   37.8
+ GLE.PA   Société Générale So  0.102  0.05  SAT   Q BASSA  0.30   19     1459    5.6   14.6   24.5
 --------------------------------------------------------------------------------------------
  GUADAGNO POTENZIALE NETTO se ogni titolo tocca il target (scenario ottimistico):
-   T1: +1368 EUR (+2.7%) | T2: +3690 EUR (+7.4%) | T3: +6227 EUR (+12.5%)
+   T1: +419 EUR (+0.8%) | T2: +1208 EUR (+2.4%) | T3: +2038 EUR (+4.1%)
    (NB: non tutti i target vengono raggiunti; lo stop tronca i perdenti)
 
  OVERLAY DI RISCHIO: nessuno (tutti i mercati selezionati in TREND_UP).
- CONCENTRAZIONE DI AREA: 57% del capitale su EU (IT+FR) (0 sull'altra area, per regime).
-   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi) ~14316EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).
+ CONCENTRAZIONE DI AREA: 18% del capitale su EU (IT+FR) (0 sull'altra area, per regime).
+   Rischio macro comune: monitorare; hedge di area opzionale ~0.5x = short Euro Stoxx 50 / FTSEMIB+CAC (o EWQ/EWI inversi) ~4592EUR (assicurazione, costa in laterale — attivare solo se l'area si indebolisce).
 
 --------------------------------------------------------------------------------------------
  SLEEVE HIGH-BETA UNICORNI: nessun nome (regime USA non operabile (go-flat)).
@@ -41,41 +35,16 @@
 ============================================================================================
 
 ==========================================================
- CS.PA  |  Score: 0.713  |  CONFIDENZA: ALTA
+ CS.PA  |  Score: 0.760  |  CONFIDENZA: ALTA
 ==========================================================
- Entry: 43.0900   Stop: 41.9029
- Target 1: 44.5145 (R/R 1.2:1 | +2.9% net = +145EUR)
- Target 2: 46.6513 (R/R 3.0:1 | +7.9% net = +393EUR)
- Target 3: 49.0255 (R/R 5.0:1 | +13.4% net = +669EUR)  [runner]
+ Entry: 43.7200   Stop: 42.5555
+ Target 1: 45.1174 (R/R 1.2:1 | +2.8% net = +139EUR)
+ Target 2: 47.2135 (R/R 3.0:1 | +7.6% net = +378EUR)
+ Target 3: 49.5425 (R/R 5.0:1 | +12.9% net = +644EUR)  [runner]
 
  Regime x1.0 | convinzione x1.0
- SIZING:  116 azioni = 4998EUR (10.0% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 138EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +68EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! poco efficiente per conti piccoli: T1 netto +2.9% troppo vicino ai costi
-==========================================================
- AXA SA
- FOREGROUND: sm +0.73 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
- PATTERN: rialzista (moderato) | mista | BB: dentro le bande | breakout rialzista sopra 42.93 (vol debole 0.7x)
-==========================================================
-
-==========================================================
- BNP.PA  |  Score: 0.611  |  CONFIDENZA: ALTA
-==========================================================
- Entry: 103.0000   Stop: 99.0614
- Target 1: 107.7263 (R/R 1.2:1 | +4.2% net = +207EUR)
- Target 2: 114.8158 (R/R 3.0:1 | +11.1% net = +547EUR)
- Target 3: 122.6930 (R/R 5.0:1 | +18.7% net = +925EUR)  [runner]
-
- Regime x1.0 | convinzione x1.0
- SIZING:  48 azioni = 4944EUR (9.9% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 189EUR
+ SIZING:  114 azioni = 4984EUR (10.0% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 133EUR
 
  Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +67EUR
 
@@ -83,121 +52,24 @@
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! poco efficiente per conti piccoli: T1 netto +2.8% troppo vicino ai costi
 ==========================================================
- BNP Paribas SA
- FOREGROUND: sm +0.59 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
- PATTERN: laterale (debole) | HH-HL (rialzista) | BB: dentro le bande | breakout rialzista sopra 102.82 (vol debole 0.9x)
-==========================================================
-
-==========================================================
- BMPS.MI  |  Score: 0.268  |  CONFIDENZA: BASSA
-==========================================================
- Entry: 10.9520   Stop: 10.4260
- Target 1: 11.5832 (R/R 1.2:1 | +5.1% net = +106EUR)
- Target 2: 12.5300 (R/R 3.0:1 | +13.7% net = +287EUR)
- Target 3: 13.5820 (R/R 5.0:1 | +23.3% net = +488EUR)  [runner]
-
- Regime x1.0 | convinzione x0.42
- SIZING:  191 azioni = 2092EUR (4.2% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 100EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.05% = +22EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
-==========================================================
- Banca Monte dei Paschi di Siena S.p.A.
- FOREGROUND: sm +0.69 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier MEDIA | IT
- PATTERN: rialzista (forte) | HH-HL (rialzista) | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
+ AXA SA
+ FOREGROUND: sm +0.79 (ACCUMULAZIONE) | CORE | FQ Q+ | conf ALTA | tier ALTA | FR
+ PATTERN: rialzista (moderato) | mista | BB: dentro le bande | breakout rialzista sopra 43.41 (vol debole 0.3x)
 ==========================================================
 
 ==========================================================
- ENEL.MI  |  Score: 0.555  |  CONFIDENZA: MEDIA
+ EDEN.PA  |  Score: 0.281  |  CONFIDENZA: MEDIA
 ==========================================================
- Entry: 10.0640   Stop: 9.7229
- Target 1: 10.4733 (R/R 1.2:1 | +3.9% net = +106EUR)
- Target 2: 11.0872 (R/R 3.0:1 | +10.0% net = +274EUR)
- Target 3: 11.7693 (R/R 5.0:1 | +16.7% net = +460EUR)  [runner]
+ Entry: 22.8400   Stop: 21.6980
+ Target 1: 24.5851 (R/R 1.53:1 | +7.2% net = +198EUR)
+ Target 2: 28.0753 (R/R 4.58:1 | +22.5% net = +617EUR)
+ Target 3: 31.5655 (R/R 7.64:1 | +37.8% net = +1036EUR)  [runner]
 
  Regime x1.0 | convinzione x0.55
- SIZING:  273 azioni = 2747EUR (5.5% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 93EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +43EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-==========================================================
- Enel SpA
- FOREGROUND: sm +0.30 (neutro) | SAT | FQ Q+ | conf MEDIA | tier ALTA | IT
- PATTERN: laterale (debole) | HH-HL (rialzista) | BB: dentro le bande | breakout rialzista sopra 9.98 (vol debole 1.2x) | ascending triangle
-==========================================================
-
-==========================================================
- PST.MI  |  Score: 0.451  |  CONFIDENZA: BASSA
-==========================================================
- Entry: 28.2600   Stop: 26.9676
- Target 1: 29.8109 (R/R 1.2:1 | +4.8% net = +143EUR)
- Target 2: 32.1373 (R/R 3.0:1 | +13.0% net = +390EUR)
- Target 3: 34.7221 (R/R 5.0:1 | +22.2% net = +664EUR)  [runner]
-
- Regime x1.0 | convinzione x0.6
- SIZING:  106 azioni = 2996EUR (6.0% portaf.) (capped a 10% x conv)
+ SIZING:  120 azioni = 2741EUR (5.5% portaf.) (capped a 10% x conv)
           Rischio massimo posizione: 137EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.05% = +32EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
-==========================================================
- Poste Italiane S.p.A.
- FOREGROUND: sm +0.38 (ACCUMULAZIONE) | CORE | FQ Q+ | conf BASSA | tier ALTA | IT
- PATTERN: rialzista (forte) | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
-==========================================================
-
-==========================================================
- MB.MI  |  Score: 0.274  |  CONFIDENZA: MEDIA
-==========================================================
- Entry: 26.1900   Stop: 24.8965
- Target 1: 27.7421 (R/R 1.2:1 | +5.5% net = +192EUR)
- Target 2: 30.0704 (R/R 3.0:1 | +14.4% net = +502EUR)
- Target 3: 32.6573 (R/R 5.0:1 | +24.3% net = +846EUR)  [runner]
-
- Regime x1.0 | convinzione x0.7
- SIZING:  133 azioni = 3483EUR (7.0% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 172EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +47EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-==========================================================
- Mediobanca Banca di Credito Finanziario S.p.A.
- FOREGROUND: sm +0.42 (ACCUMULAZIONE) | CORE | FQ Q+ | conf MEDIA | tier MEDIA | IT
- PATTERN: rialzista (forte) | mista | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso)
-==========================================================
-
-==========================================================
- AC.PA  |  Score: 0.612  |  CONFIDENZA: ALTA
-==========================================================
- Entry: 51.6200   Stop: 49.1367
- Target 1: 54.6000 (R/R 1.2:1 | +5.4% net = +147EUR)
- Target 2: 59.0699 (R/R 3.0:1 | +14.0% net = +384EUR)
- Target 3: 64.0365 (R/R 5.0:1 | +23.6% net = +647EUR)  [runner]
-
- Regime x1.0 | convinzione x0.55
- SIZING:  53 azioni = 2736EUR (5.5% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 132EUR
 
  Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +37EUR
 
@@ -206,55 +78,32 @@
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
 ==========================================================
- Accor SA
- FOREGROUND: sm +0.13 (neutro) | SAT | FQ Q+ | conf ALTA | tier ALTA | FR
- PATTERN: laterale (debole) | mista | BB: walk upper band (forza) | breakout rialzista sopra 50.12 (vol 1.7x) | ascending triangle | RSI div: bullish (prezzo nuovo min, RSI no)
+ Edenred SE
+ FOREGROUND: sm -0.00 (neutro) | SAT | FQ Q+ | conf MEDIA | tier ALTA | FR
+ PATTERN: rialzista (moderato) | mista | BB: dentro le bande | RSI div: bearish (prezzo nuovo max, RSI no)
 ==========================================================
 
 ==========================================================
- TIT.MI  |  Score: 0.439  |  CONFIDENZA: MEDIA
+ GLE.PA  |  Score: 0.102  |  CONFIDENZA: BASSA
 ==========================================================
- Entry: 7.9700   Stop: 7.6465
- Target 1: 8.3582 (R/R 1.2:1 | +4.7% net = +128EUR)
- Target 2: 8.9404 (R/R 3.0:1 | +12.0% net = +329EUR)
- Target 3: 9.5873 (R/R 5.0:1 | +20.1% net = +552EUR)  [runner]
+ Entry: 76.8000   Stop: 72.9736
+ Target 1: 81.3916 (R/R 1.2:1 | +5.6% net = +81EUR)
+ Target 2: 88.2791 (R/R 3.0:1 | +14.6% net = +212EUR)
+ Target 3: 95.9318 (R/R 5.0:1 | +24.5% net = +358EUR)  [runner]
 
- Regime x1.0 | convinzione x0.55
- SIZING:  345 azioni = 2750EUR (5.5% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 112EUR
+ Regime x1.0 | convinzione x0.3
+ SIZING:  19 azioni = 1459EUR (2.9% portaf.) (capped a 10% x conv)
+          Rischio massimo posizione: 73EUR
 
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +43EUR
-
- PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
-       T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
- CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
-         serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
-==========================================================
- Telecom Italia S.p.A.
- FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf MEDIA | tier ALTA | IT
- PATTERN: rialzista (forte) | HH-HL (rialzista) | BB: dentro le bande
-==========================================================
-
-==========================================================
- STMMI.MI  |  Score: 0.280  |  CONFIDENZA: MEDIA
-==========================================================
- Entry: 65.0500   Stop: 61.7975
- Target 1: 71.8032 (R/R 2.08:1 | +10.2% net = +192EUR)
- Target 2: 85.3097 (R/R 6.23:1 | +30.9% net = +584EUR)
- Target 3: 98.8162 (R/R 10.38:1 | +51.7% net = +975EUR)  [runner]
-
- Regime x1.0 | convinzione x0.39
- SIZING:  29 azioni = 1886EUR (3.8% portaf.) (capped a 10% x conv)
-          Rischio massimo posizione: 94EUR
-
- Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.55% = +29EUR
+ Riferimento storico (ai VECCHI target, win-rate 74%): attesa +1.35% = +20EUR
 
  PRO:  target tarati sul backtest: T1~2*ATR 'hittable' (~50% win, mediana>0),
        T2/T3 larghi catturano la coda dei vincitori (dove sta l'expectancy)
  CONTRO: stop NON negoziabile; mediana per-trade ~0 -> l'edge e' nella coda,
          serve disciplina su molte operazioni; DSR<0.95 = edge non blindato
+         !! confidenza BASSA: titolo illiquido o score debole -> size ridotta
 ==========================================================
- STMicroelectronics N.V.
- FOREGROUND: sm +0.14 (neutro) | SAT | FQ Q+ | conf MEDIA | tier MEDIA | IT
- PATTERN: rialzista (moderato) | HH-HL (rialzista) | BB: squeeze (compressione volatilita') | flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle | pullback su SMA20 | RSI div: bearish (prezzo nuovo max, RSI no)
+ Société Générale Société anonyme
+ FOREGROUND: sm +0.05 (neutro) | SAT | FQ Q | conf BASSA | tier BASE | FR
+ PATTERN: laterale (debole) | HH-HL (rialzista) | BB: dentro le bande | flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle
 ==========================================================
