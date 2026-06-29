@@ -1204,9 +1204,34 @@ Run #26 non permetteva, Lezione #22).
   Report: `data/RISKPARITY_HELD_TEST.txt`.
 
 ### Watch list
-- [ ] Allineare il baseline del backtester al sizing ATR del live (oggi usa 10% flat) per misurare
-  l'effetto incrementale di altre leve in modo rappresentativo.
 - [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito) — restano aperti.
+
+## Run #31 — 2026-06-29 (Baseline alignment + CORREZIONE di Run #30)
+
+**Obiettivo:** allineare il baseline del backtester al sizing del modello live e rimisurare il
+risk-parity contro quel baseline (ultimo task di consolidamento).
+
+**Scoperta (corregge Run #30):** il sizing "live" (replica di `propose`: risk budget su stop ATR,
+cap 10%) sul motore da' metriche **IDENTICHE all'equal-weight** (equity 252.542, MaxDD −17.81,
+Calmar 0.70). Motivo: con `risk_per_trade`=2.14% e stop ~2·ATR, la pos_value non-capata e' sempre
+4-10x il cap del 10% → **il cap vince sempre**, la size = 10%×convinzione, NON dipende dall'ATR.
+
+| Metrica | LIVE (propose) | EQUAL-WEIGHT | RISK-PARITY |
+|---------|----------------|--------------|-------------|
+| CAGR % | +12.44 | +12.44 | +11.73 |
+| MaxDD % | −17.81 | −17.81 | **−13.15** |
+| Calmar | +0.70 | +0.70 | **+0.89** |
+
+- **Correzione**: in Run #30 avevo concluso "il live e' gia' risk-parity → niente da integrare".
+  ERA SBAGLIATO. Il live ≡ equal-weight (cap dominante); il **risk-parity e' un miglioramento REALE
+  non catturato** (ΔMaxDD +4.65 pt, IC95% [+1.07,+9.04] esclude 0) → vero candidato all'integrazione.
+- Report: `data/BASELINE_ALIGN_TEST.txt`. Lezione #24 punto 4 corretta.
+
+### Watch list (aggiornata)
+- [ ] **INTEGRARE il risk-parity nel live** (Run #30+#31 lo validano): abbassare la size effettiva dei
+  nomi ad alta ATR sotto il 10% (es. `pos_cap` scalato da `min(medATR/ATR,1)` in `propose`/builder).
+  Cambio di produzione sul sizing → da fare con A/B sul builder, non a fine giornata.
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

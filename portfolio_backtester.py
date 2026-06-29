@@ -32,6 +32,7 @@ HOLD = 10                # giorni operativi
 TOP_Q = 0.80
 ANN = 252
 FAVORABLE = {"TREND_UP"}     # regimi in cui si aprono NUOVE posizioni (go-flat validato: solo trend)
+RISK_PER_TRADE = 0.0214      # come trade_proposal.propose (per il sizing "live" fedele)
 
 
 def regime_series(g, slope_window=20, flat_slope=1.0):
@@ -112,7 +113,8 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
              equity_out="data/portfolio_equity.csv", _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
-       sizing: equal (10% flat) | riskparity (10% scalato da min(medATR/ATR_i, 1): vol alta pesa meno)."""
+       sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
+               live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
@@ -175,8 +177,16 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 if len(positions) >= max_pos:
                     break
                 price = float(close_raw.at[day, tk])
-                mult = _regime_mult(tk) * _vol_mult(tk)      # size = 10% x regime x vol (mai > 10%)
-                budget = min(pos_cap * mult * total_value, cash)
+                regmult = _regime_mult(tk)
+                if sizing == "live":
+                    # fedele a propose(): risk budget su stop ATR, poi cap al 10% (che di norma vince)
+                    a = atr_panel.at[prev, tk] if (prev in atr_panel.index and tk in atr_panel.columns) else np.nan
+                    rps = min(0.05 * price, 2 * float(a) * price) if np.isfinite(a) and a > 0 else 0.05 * price
+                    uncapped = (total_value * RISK_PER_TRADE / rps) * price if rps > 0 else pos_cap * total_value
+                    budget = min(uncapped, pos_cap * total_value) * regmult
+                else:
+                    budget = pos_cap * regmult * _vol_mult(tk) * total_value
+                budget = min(budget, cash)                   # size = 10% x regime x (vol|live), mai > 10%
                 shares = int(budget / price) if price > 0 else 0
                 if shares <= 0:
                     continue
@@ -356,8 +366,39 @@ def ab_riskparity(px_path="data/mib_data_long.csv", report_out="data/RISKPARITY_
     return eqw, rp
 
 
+def baseline_align(px_path="data/mib_data_long.csv", report_out="data/BASELINE_ALIGN_TEST.txt", pre=None):
+    """Run #31 — allinea il baseline al sizing LIVE e confronta con equal-weight e risk-parity (gate attivo).
+    Dimostra: il sizing 'live' (propose, cap 10% che vince) ≈ equal-weight -> l'equal-weight ERA il
+    baseline rappresentativo; il risk-parity resta un miglioramento REALE non catturato dal live."""
+    if pre is None:
+        pre = prepare(px_path)
+    _, live = backtest(_pre=pre, regime_mode="gate", sizing="live", equity_out="data/portfolio_equity_live.csv")
+    _, eqw = backtest(_pre=pre, regime_mode="gate", sizing="equal", equity_out="data/portfolio_equity_regime.csv")
+    _, rp = backtest(_pre=pre, regime_mode="gate", sizing="riskparity", equity_out="data/portfolio_equity_rp.csv")
+    L = []; w = L.append
+    w("=" * 90)
+    w(" BASELINE ALIGNMENT (Run #31) — sizing LIVE (propose) vs EQUAL-WEIGHT vs RISK-PARITY, gate attivo")
+    w(" Scopo: capire QUALE baseline rappresenta il modello operativo, e rimisurare il risk-parity contro")
+    w(" quel baseline. Il sizing 'live' replica propose(): risk budget su stop ATR, cap 10% (che di norma vince).")
+    w("=" * 90)
+    w(f" Periodo {live['start']} -> {live['end']} | capitale {live['capital0']:.0f}\n")
+    _table([live, eqw, rp], ["LIVE (propose)", "EQUAL-WEIGHT", "RISK-PARITY"], w)
+    w("")
+    w(" LETTURA:")
+    w(f"  - LIVE vs EQUAL: MaxDD {live['MaxDD_pct']:+.2f} vs {eqw['MaxDD_pct']:+.2f} | CAGR "
+      f"{live['CAGR_pct']:+.2f} vs {eqw['CAGR_pct']:+.2f} -> il cap 10% vince quasi sempre, quindi il")
+    w("    sizing LIVE ≈ EQUAL-WEIGHT. L'equal-weight 10% E' il baseline rappresentativo del modello.")
+    w(f"  - RISK-PARITY vs LIVE: MaxDD {rp['MaxDD_pct']:+.2f} vs {live['MaxDD_pct']:+.2f} "
+      f"(Δ {rp['MaxDD_pct']-live['MaxDD_pct']:+.2f} pt) | Calmar {rp['Calmar']:+.2f} vs {live['Calmar']:+.2f}.")
+    w("  - CORREZIONE Run #30: il live NON e' risk-parity (il cap del 10% domina lo stop ATR). Il")
+    w("    risk-parity e' un miglioramento REALE NON ancora nel modello -> candidato all'integrazione")
+    w("    (abbassare la size effettiva dei nomi ad alta ATR sotto il 10%). Vedi Lezione #24 (corretta).")
+    w("")
+    w(" NB: stesso universo/soglia/gate; cambia SOLO lo schema di size. Costi non modellati.")
+    w("=" * 90)
+    txt = "\n".join(L) + "\n"; open(report_out, "w").write(txt); print(txt)
+    return live, eqw, rp
+
+
 if __name__ == "__main__":
-    _pre = prepare()
-    ab_pullback(pre=_pre)
-    print()
-    ab_riskparity(pre=_pre)
+    baseline_align()

@@ -730,10 +730,14 @@ del harness per-segnale (fix4/fix5): conferma la Lezione #22 (lo strumento sbagl
 3. **Una leva si valuta sullo STRUMENTO giusto** (Lezione #22, ora confermata costruttivamente):
    il vol-sizing agisce tra posizioni CONCORRENTI → si misura su un portafoglio realmente detenuto
    (MaxDD di percorso), non su bet per-segnale indipendenti. Stesso test, conclusione opposta.
-4. **Prima di "integrare", verifica se la logica c'e' gia'.** Il live (`trade_proposal.propose`)
-   dimensiona per rischio ATR (`shares=risk_eur/(entry−stop)`, stop~entry−2·ATR → pos_value∝1/ATR%):
-   e' GIA' risk-parity. Il test lo VALIDA; aggiungere una seconda leva ATR sarebbe doppio conteggio.
-   Il baseline equal-weight del backtester era il ramo non rappresentativo, non un miglioramento da fare.
+4. **Prima di "integrare", verifica se la logica c'e' gia' — e verifica i NUMERI, non la formula.**
+   CORREZIONE (Run #31): avevo concluso che il live (`trade_proposal.propose`) fosse "gia' risk-parity"
+   perche' `shares=risk_eur/(entry−stop)`. SBAGLIATO: con `risk_per_trade`=2.14% e stop ~2·ATR, la
+   pos_value non-capata e' SEMPRE 4-10x il cap del 10% → **il cap vince sempre**, la size = 10%×convinzione,
+   indipendente dall'ATR. Verificato sul motore: sizing "live" ≡ equal-weight (metriche IDENTICHE). Quindi
+   l'equal-weight ERA il baseline rappresentativo, e il **risk-parity e' un miglioramento REALE non
+   catturato dal live** (MaxDD −17.8%→−13.2%, IC95% esclude 0) → candidato vero all'integrazione.
+   Lezione meta: "la formula c'e'" non basta; controlla se un altro vincolo (qui il cap) la annulla nei fatti.
 
 ---
 *Le attività di ogni run sono registrate in `STATE.md`.*
