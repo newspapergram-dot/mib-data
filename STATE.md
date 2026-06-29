@@ -1016,4 +1016,40 @@ filtrava `date > 06-26` e **saltava la sessione reale del 06-26** (dove stava il
 - [ ] IT in PULLBACK: rientro dei 6 nomi IT quando torna TREND_UP.
 
 ---
+
+## Run #25 — 2026-06-29 (Session Gate alla fonte + FIX 4 respinto dal backtest completo)
+
+**Obiettivo (scelta da analista critico):** irrobustire il data-layer — `fetch_data.py` non deve
+MAI registrare una barra di sessione non chiusa (radice della Lezione #20) — poi backtestare FIX 4
+(conferma-volume / smart money come leva di size) sul ciclo completo.
+
+### Parte 1 — Session Gate (fetch_data.py)
+- `drop_incomplete_last_bar(df, ticker)`: scarta l'ultima barra se la sessione del mercato non e'
+  chiusa+settled nel fuso locale (EU 17:30 / US 16:00, +20min). Fuso per mercato di quotazione.
+- Test unitari con orari iniettati: EU/US, aperto/chiuso/settle, indici EU, weekend, barra passata.
+- **Dimostrazione su dati live**: lanciato alle 15:56 Roma / 09:56 NY (mercati APERTI), il gate ha
+  scartato la barra 06-29 di TUTTI i 141 ticker → dataset all'ultima sessione CHIUSA (06-26).
+- **Scoperta**: con i dati puliti **IT torna TREND_UP**. Il "cambio regime IT→PULLBACK" dei Run
+  #23/#24 era un ARTEFATTO della barra fantasma intraday (tonfo sotto SMA20), non un evento reale.
+  Il gate non corregge solo l'entry stantio: blocca un FALSO segnale di regime (go-flat su 6 IT).
+- Diario: identita' su `data_asof` (data di prezzo). Backfill rinominato → `2026-06-25.json` (9 pick);
+  snapshot fantasma `2026-06-29.json` (costruito su dati intraday) RIMOSSO.
+- Portafoglio ricostruito su 06-26 pulito: **10 nomi** (6 CORE/4 SAT, 67%), IT rientrati.
+- Verifica corretta (06-25 → 06-26, 1 sessione chiusa reale): drift medio **+0.05%**, gap medio
+  −0.94% (STMMI/AC.PA gappano −2.8% in apertura ma recuperano intraday). Nessuno stop a tiro.
+
+### Parte 2 — FIX 4 respinto (fix4_validate.py, ciclo 2018-2026)
+- A/B di 4 schemi di size sullo stesso top-quintile (6329 segnali / 1004 date), bootstrap PAIRED:
+  A equal 0.55 | B smart-money 0.53 | C volume-confirm 0.56 | D combined 0.56.
+- **ΔSharpe vs equal: tutti gli IC95% attraversano lo 0** (B −0.07, C +0.01, D −0.04) → RUMORE.
+- **Verdetto: FIX 4 NON si implementa.** Lo smart money resta FILTRO di selezione, non leva di size.
+  Esito salvato in `data/FIX4_VALIDATE.txt`. (Conferma del prior dell'auditor: niente fix su 2 giorni.)
+- Nota metodo: `mib_data.csv` = ~14 mesi; il ciclo completo richiede `mib_data_long.csv` (2018-2026).
+
+### Watch list
+- [ ] Size graduata per sm in `portfolio_builder` non danneggia ma non aggiunge Sharpe: candidata a
+  /simplify futura (non urgente — l'uso come GATE di selezione resta validato).
+- [ ] IT TREND_UP confermato su chiusura 06-26; rivalutare a fine sessione 06-29 reale.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -620,4 +620,39 @@ Conseguenze, tutte misurate:
    assunzioni. Verifica = codice; audit = giudizio indipendente; fix = agente principale.
 
 ---
+
+## Lezione #21 — 2026-06-29 — Session Gate: mai una barra di sessione aperta; e FIX 4 respinto dal backtest
+
+**Evidenza A (Session Gate).** Run #25: alle 15:56 di Roma (lunedi 06-29, mercati APERTI) la barra
+06-29 in `mib_data.csv` era un prezzo intraday marcato EOD. Era la VERA radice della Lezione #20:
+il fetch non distingueva sessione aperta da chiusa. Conseguenza nascosta: quella barra fantasma
+aveva spinto FTSEMIB sotto la SMA20 → il modello segnava **IT in PULLBACK** e metteva go-flat 6
+nomi IT. Scartata la barra (ultima sessione chiusa = 06-26), **IT torna TREND_UP**: il "cambio di
+regime" dei Run #23/#24 era un ARTEFATTO del dato fantasma, non un evento di mercato.
+
+**Regola A.**
+1. **Session Gate in `fetch_data.py`**: non registrare l'ultima barra se la sessione del SUO mercato
+   non e' chiusa+settled nel fuso locale (EU/Europe-Rome chiude 17:30, US/New-York 16:00; +20min di
+   settle). Scartare, non marcare: un prezzo intraday in un file EOD inquina regime, score, entry.
+2. **Il fuso e' per mercato di quotazione**, non per ticker: .MI/.PA/.AS + ^FCHI/^STOXX50E → Europe/Rome;
+   resto → America/New_York.
+3. **L'identita' dello snapshot del diario = data di PREZZO (`data_asof`)**, non il timbro nominale:
+   un piano prezzato su una barra precedente non deve collidere con un build sulla barra corrente.
+4. **Un dato fantasma puo' fabbricare un falso segnale di REGIME**, non solo un entry stantio. Il gate
+   alla fonte protegge l'intera pipeline a valle.
+
+**Evidenza B (FIX 4 respinto).** Backtest ciclo completo 2018-2026 (`fix4_validate.py`, score NUOVO,
+holding 10gg, 6329 segnali / 1004 date): dimensionare la size per smart money (B) o conferma-volume
+sul breakout (C) NON alza lo Sharpe. ΔSharpe vs equal-weight: B −0.07 [IC95% −0.39,+0.29], C +0.01
+[−0.07,+0.09], D −0.04 [−0.37,+0.32] — **tutti gli IC attraversano lo 0** (bootstrap a blocchi paired).
+
+**Regola B.**
+5. **Una leva di size si accetta solo se l'IC95% della differenza di Sharpe esclude lo 0**, su ciclo
+   completo e con bootstrap paired (non sul punto, non su 2 sedute). FIX 4 non passa → NON implementato.
+   Lo Smart Money resta validato come FILTRO di selezione (gate anti-distribuzione), non come peso di size.
+6. **Backtest sul dataset GIUSTO**: `mib_data.csv` e' ~14 mesi (operativo); il ciclo completo 2018-2026
+   e' `mib_data_long.csv`. Un A/B su 14 mesi (41 date) dava Sharpe assurdi (7+) e CAGR fantasiosi: la
+   conclusione richiede la storia lunga.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

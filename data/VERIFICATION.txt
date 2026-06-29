@@ -1,19 +1,18 @@
 ============================================================================================
- VERIFICA RACCOMANDAZIONI — snapshot 2026-06-25 → prezzi 2026-06-29
+ VERIFICA RACCOMANDAZIONI — snapshot 2026-06-25 → prezzi 2026-06-26
 ============================================================================================
- Pick verificati: 9 | STOP: 0 | target raggiunti: 0 | in corso: 9 | drift medio (fill reale): +0.34% | gap medio: -0.94%
- CAMBIO REGIME su 6 mercati dei pick: BMPS.MI(IT TREND_UP→PULLBACK), ENEL.MI(IT TREND_UP→PULLBACK), PST.MI(IT TREND_UP→PULLBACK), MB.MI(IT TREND_UP→PULLBACK), TIT.MI(IT TREND_UP→PULLBACK), STMMI.MI(IT TREND_UP→PULLBACK)
+ Pick verificati: 9 | STOP: 0 | target raggiunti: 0 | in corso: 9 | drift medio (fill reale): +0.05% | gap medio: -0.94%
 --------------------------------------------------------------------------------------------
  TICK     MKT    PIANO    FILL    GAP     NOW  DRIFT    MAE    MFE  ESITO               REGIME
- CS.PA    FR     43.09   43.08  -0.02   43.72  +1.49  -0.32  +1.76  IN CORSO          TREND_UP
- BNP.PA   FR    103.00  102.00  -0.97  101.12  -0.86  -1.99  +0.33  IN CORSO          TREND_UP
- BMPS.MI  IT     10.95   10.85  -0.93   10.77  -0.70  -1.01  +0.37  IN CORSO     TREND_UP→PULLBACK
- ENEL.MI  IT     10.06   10.10  +0.36   10.12  +0.16  -0.69  +0.48  IN CORSO     TREND_UP→PULLBACK
- PST.MI   IT     28.26   28.25  -0.04   28.46  +0.74  -0.99  +1.35  IN CORSO     TREND_UP→PULLBACK
- MB.MI    IT     26.19   25.99  -0.76   25.83  -0.62  -0.96  +0.46  IN CORSO     TREND_UP→PULLBACK
- AC.PA    FR     51.62   50.20  -2.75   49.96  -0.48  -1.18  +2.11  IN CORSO          TREND_UP
- TIT.MI   IT      7.97    7.93  -0.50    8.07  +1.74  -0.54  +1.85  IN CORSO     TREND_UP→PULLBACK
- STMMI.MI IT     65.05   63.22  -2.81   64.20  +1.55  -1.71  +3.23  IN CORSO     TREND_UP→PULLBACK
+ CS.PA    FR     43.09   43.08  -0.02   43.41  +0.77  -0.32  +0.77  IN CORSO          TREND_UP
+ BNP.PA   FR    103.00  102.00  -0.97  101.12  -0.86  -1.37  +0.33  IN CORSO          TREND_UP
+ BMPS.MI  IT     10.95   10.85  -0.93   10.82  -0.31  -1.01  +0.28  IN CORSO          TREND_UP
+ ENEL.MI  IT     10.06   10.10  +0.36   10.10  -0.02  -0.63  +0.48  IN CORSO          TREND_UP
+ PST.MI   IT     28.26   28.25  -0.04   28.46  +0.74  -0.99  +0.74  IN CORSO          TREND_UP
+ MB.MI    IT     26.19   25.99  -0.76   25.93  -0.23  -0.96  +0.38  IN CORSO          TREND_UP
+ AC.PA    FR     51.62   50.20  -2.75   50.18  -0.04  -0.48  +2.11  IN CORSO          TREND_UP
+ TIT.MI   IT      7.97    7.93  -0.50    8.04  +1.37  -0.54  +1.64  IN CORSO          TREND_UP
+ STMMI.MI IT     65.05   63.22  -2.81   62.60  -0.98  -1.71  +1.03  IN CORSO          TREND_UP
 --------------------------------------------------------------------------------------------
  PIANO=prezzo pianificato | FILL=apertura prima seduta utile (entry REALE) | GAP=PIANO→FILL
  DRIFT/MAE/MFE misurati dal FILL reale. ESITO path-based su max/min giornalieri (stop+target

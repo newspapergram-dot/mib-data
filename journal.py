@@ -96,7 +96,9 @@ def snapshot(portfolio_path="data/PORTFOLIO.txt", out_dir=JOURNAL_DIR):
     snap["data_asof"] = asof
     snap["captured_at"] = datetime.datetime.utcnow().isoformat() + "Z"
     os.makedirs(out_dir, exist_ok=True)
-    out = os.path.join(out_dir, f"{asof}.json")
+    # Identita' dello snapshot = DATA DI PREZZO (data_asof), non il timbro nominale: un piano
+    # prezzato su una barra precedente non deve collidere con un build sulla barra corrente.
+    out = os.path.join(out_dir, f"{snap['data_asof']}.json")
     with open(out, "w") as f:
         json.dump(snap, f, indent=2, ensure_ascii=False)
     print(f"[journal] congelati {len(snap['picks'])} pick (asof {asof}) -> {out}")

@@ -1,0 +1,33 @@
+====================================================================================
+ FIX 4 — Conferma-volume / Smart Money come LEVA DI SIZE: alza lo Sharpe? (NO)
+ Backtest ciclo completo 2018-2026 (data/mib_data_long.csv), score NUOVO, holding 10gg
+ Generato da fix4_validate.py — bootstrap a blocchi PAIRED sulle differenze di Sharpe.
+====================================================================================
+
+ Segnali top-quintile: 6329 | date operative: 1004 | 2018-01-02 -> 2026-06-25
+
+ SCHEMA             Sharpe  MaxDD%   CAGR%   mean%/op
+ A EQUAL              0.55   -95.7     2.6     0.205     (baseline portfolio_sim)
+ B SMART-MONEY        0.53   -94.7     2.5     0.193     (sm tier come portfolio_builder)
+ C VOLUME-CONFIRM     0.56   -95.3     3.8     0.211     (conferma-volume breakout, FIX 4)
+ D COMBINED           0.56   -94.3     5.4     0.205     (B x C)
+
+ Delta Sharpe vs A EQUAL (bootstrap PAIRED, block=10, n_boot=2000):
+   baseline Sharpe IC95%: [-0.97, +2.22]
+   B SMART-MONEY     dSharpe -0.07  IC95% [-0.39, +0.29]  -> RUMORE (IC attraversa 0)
+   C VOLUME-CONFIRM  dSharpe +0.01  IC95% [-0.07, +0.09]  -> RUMORE (IC attraversa 0)
+   D COMBINED        dSharpe -0.04  IC95% [-0.37, +0.32]  -> RUMORE (IC attraversa 0)
+
+ VERDETTO: NESSUNO schema di size (smart money o conferma-volume) alza lo Sharpe in modo
+ statisticamente difendibile. Tutti gli IC95% della differenza ATTRAVERSANO lo 0; con 3
+ varianti testate (multiple testing) la soglia e' ancora piu' alta. FIX 4 NON si implementa.
+
+ NOTA: lo Smart Money resta validato come FILTRO DI SELEZIONE (gate anti-distribuzione
+ sm<-0.15, vedi sm_validate.reliability), NON come leva di size graduata. La size graduata
+ per sm gia' presente in portfolio_builder non danneggia (dSharpe -0.07, rumore) ma non
+ aggiunge valore risk-adjusted: candidata a semplificazione futura, non urgente.
+
+ NB metodologico: MaxDD ~-95% e' l'artefatto della serie di rendimenti a 10gg sovrapposti
+ (non e' una equity realmente negoziabile); per il confronto A/B conta il DELTA di Sharpe,
+ misurato appaiato sulle stesse date ricampionate -> robusto a quell'artefatto.
+====================================================================================
