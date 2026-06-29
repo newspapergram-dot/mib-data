@@ -1084,4 +1084,47 @@ in modo sistematico (ΔMaxDD IC95% che non attraversa lo 0).
 - [ ] (da Run #25) size graduata per sm: candidata a /simplify; IT TREND_UP da rivalutare a fine 06-29.
 
 ---
+
+## Run #27 — 2026-06-29 (Held-Portfolio Backtester: equity di percorso reale)
+
+**Obiettivo:** costruire il motore mancante per testare correttamente sizing/drawdown — un
+portafoglio REALMENTE detenuto con equity giornaliera, non bet per-segnale indipendenti (lo
+strumento giusto chiesto a fine Run #26).
+
+### Architettura (portfolio_backtester.py)
+- Capitale 100k, mark-to-market giornaliero (equity = cassa + posizioni).
+- Max 10 posizioni simultanee, max 10% del capitale totale per posizione.
+- Segnali validi < 10 → resto in CASSA (mai >100% investito, nessuna leva implicita).
+- Holding 10 giorni operativi: ingresso al close t+1 (segnale di t, no lookahead), uscita al
+  close del 10° giorno successivo.
+- Segnale: `score_series` = score_new VETTORIZZATO, validato identico a score_new (0 mismatch/25;
+  ADX/RSI/rolling sono causali → valore a t su serie intera == su slice [:t+1]).
+
+### Risultati (2018-10-11 → 2026-06-25, 1991 sedute)
+| Metrica | Valore |
+|---------|--------|
+| CAGR | +12.21% |
+| **MaxDD (path reale)** | **−32.11%** |
+| Sharpe (daily) | +0.80 |
+| Vol annua | 16.04% |
+| Calmar | +0.38 |
+| Market Exposure | 93.2% media, 9.4 posizioni |
+| Trade | 1876 |
+
+### Perche' conta
+- **MaxDD reale −32% vs artefatto −95.7%** (harness per-segnale fix4/5): conferma Lezione #22.
+  Questo motore sblocca il test CORRETTO di risk parity/vol-sizing (FIX 5) e size per smart money.
+- Bug trovato e corretto in corsa: display vol annua (frazione stampata come %, 0.16%→16.04%);
+  equity/Sharpe/MaxDD erano gia' corretti (verificato ricalcolando da portfolio_equity.csv).
+- Report: `data/PORTFOLIO_BACKTEST.txt`; equity giornaliera: `data/portfolio_equity.csv`.
+
+### Watch list
+- [ ] **Aggiungere il gate di regime** al motore (go-flat fuori TREND_UP): atteso abbattimento del
+  MaxDD verso il −13.8% di robustness_consolidate. Primo A/B sul nuovo motore.
+- [ ] **Ri-testare FIX 5 (risk parity) e size-per-smart-money** su questo motore (dove le posizioni
+  concorrenti rendono il vol-sizing osservabile).
+- [ ] **Costi di transazione** nel motore (1876 trade, non trascurabili) + soglia score espandente
+  per un OOS pulito (ora p80 globale, lieve bias in-sample).
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

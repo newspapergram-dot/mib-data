@@ -683,4 +683,30 @@ cross-sectional e' impotente per costruzione.
    sovrapposti; il MaxDD reale del modello operativo e' −13.8% (`robustness_consolidate`).
 
 ---
+
+## Lezione #23 — 2026-06-29 — Held-portfolio backtester: il MaxDD reale e' -32%, non -95%
+
+**Evidenza.** Run #27: costruito `portfolio_backtester.py`, motore event-driven con equity di
+PERCORSO reale (capitale 100k, MTM giornaliero, max 10 posizioni x 10%, cassa esplicita, holding
+10gg). Sul ciclo 2018-2026: CAGR +12.2%, **MaxDD -32.1%**, Sharpe 0.80, exposure media 93%, 9.4
+posizioni, 1876 trade. Il MaxDD di percorso reale (-32%) e' MENO della meta' dell'artefatto -95.7%
+del harness per-segnale (fix4/fix5): conferma la Lezione #22 (lo strumento sbagliato gonfiava il DD).
+
+**Regola.**
+1. **Per testare sizing, drawdown e esposizione serve un portafoglio REALMENTE detenuto**: posizioni
+   concorrenti, MTM giornaliero, cassa esplicita. Il harness per-segnale (rendimenti sovrapposti,
+   pesi cross-sectional) va bene per il ranking del segnale, NON per metriche di portafoglio.
+2. **No leva implicita**: max 10 posizioni x 10% = max 100% investito; sotto i 10 segnali il resto
+   resta in CASSA. Cosi' l'esposizione (qui 93% media) e' una metrica reale, non un assunto.
+3. **Validare il segnale vettorizzato contro la funzione canonica** prima di fidarsi del motore:
+   `score_series` (vettoriale) == `score_new` punto-a-punto (0 mismatch/25), perche' ADX/RSI/rolling
+   sono CAUSALI (il valore a t sull'intera serie == quello sullo slice [:t+1]). Senza questo check,
+   un motore veloce ma infedele produce numeri puliti e SBAGLIATI.
+4. **Niente gate di regime nel motore base** -> MaxDD -32% "always-in"; il -13.8% di
+   robustness_consolidate include il go-flat. Il backtester va usato per MISURARE l'effetto del
+   gate e del vol-sizing, un layer alla volta, ognuno con il suo A/B.
+5. **Onesta' sui limiti**: soglia score p80 globale (lieve bias in-sample) e costi di transazione
+   non ancora nel motore (1876 trade -> non trascurabili). Da chiudere prima di decisioni di sizing.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

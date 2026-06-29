@@ -1,0 +1,42 @@
+====================================================================================
+ HELD-PORTFOLIO BACKTESTER — equity line REALE giornaliera (Run #27)
+ portfolio_backtester.py su data/mib_data_long.csv (ciclo 2018-2026)
+====================================================================================
+
+ ARCHITETTURA (motore event-driven, non per-segnale):
+  - Capitale iniziale 100.000, mark-to-market giornaliero (equity = cassa + posizioni).
+  - Max 10 posizioni simultanee, max 10% del capitale TOTALE per posizione.
+  - Segnali validi < 10 -> capitale non allocato resta in CASSA (mai >100% investito, no leva).
+  - Holding fisso 10 giorni operativi: ingresso al close di t+1 (segnale di t, no lookahead),
+    uscita al close del 10° giorno di borsa successivo.
+  - Segnale: score NUOVO (score_new) vettorizzato (validato identico a score_new, 0 mismatch/25),
+    valido = gate superato E score >= soglia top-quintile; ranking per score decrescente.
+
+ RISULTATI (2018-10-11 -> 2026-06-25, 1991 sedute):
+  Equity finale:   248.537   (2.49x)
+  CAGR:            +12.21%
+  MaxDD (path):    -32.11%    <- DRAWDOWN REALE DI PERCORSO (non l'artefatto -95.7% del
+                                 harness per-segnale di fix4/fix5)
+  Sharpe (daily):  +0.80
+  Vol annua:       16.04%
+  Calmar:          +0.38
+  Market Exposure: 93.2% media investita | 9.4 posizioni medie
+  Trade totali:    1876 | soglia score (top-quintile globale): 0.244
+
+ PERCHE' CONTA:
+  - Il MaxDD -32% (reale) vs -95.7% (artefatto fix4/5) conferma la Lezione #22: il harness
+    per-segnale, con rendimenti 10gg sovrapposti e tail a nome singolo, NON misurava il
+    drawdown di un portafoglio realmente detenuto. Questo motore sblocca il test corretto
+    di risk parity / vol-sizing (FIX 5) e della size per smart money: agiscono tra posizioni
+    CONCORRENTI, osservabili solo qui.
+  - Nessun gate di regime in questo motore base: il -32% e' "always-in" sul top-quintile.
+    Il -13.8% di robustness_consolidate include il go-flat di regime -> aggiungere il gate
+    qui dovrebbe abbattere il MaxDD (prossimo test naturale).
+
+ LIMITI / NB:
+  - Soglia score = p80 GLOBALE (lieve bias in-sample, come fix4/5): confronta l'architettura,
+    non e' una stima out-of-sample. Per OOS: soglia espandente / walk-forward (watch-list).
+  - Costi di transazione non ancora modellati nel motore (i fwd_net del harness li includevano);
+    da aggiungere prima di usarlo per decisioni di sizing fini (watch-list).
+  - Equity giornaliera completa in data/portfolio_equity.csv.
+====================================================================================
