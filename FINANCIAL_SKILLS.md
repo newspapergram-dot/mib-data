@@ -580,4 +580,44 @@ regime (TREND_UP→PULLBACK) in 3 giorni: senza confronto datato, quel segnale s
    e' un esito onesto, non un fallimento da mascherare.
 
 ---
+
+## Lezione #20 — 2026-06-29 — Verifica dal FILL reale, non dal prezzo pianificato; il gap e' rischio non modellato
+
+**Evidenza (Fase-2 audit indipendente, Run #24).** Un sub-agent auditor, lanciato sulla verifica
+26→29 giugno, ha scoperto un bug che la verifica stessa nascondeva: **gli entry del diario erano
+le chiuse del 25/06, non del 26/06** (9/9 match esatti contro `mib_data.csv`). Un fetch eseguito a
+sessione 06-26 non ancora chiusa aveva scritto una barra marcata "06-26" con i prezzi del 25/06.
+Conseguenze, tutte misurate:
+- La verifica filtrava `date > 06-26` e **saltava la sessione reale del 06-26**, dove stava quasi
+  tutto il movimento. La finestra vera era 2 sedute (06-26 + 06-29), non 1.
+- Misurando dal prezzo pianificato stantio, AC.PA risultava "−3.22% il peggiore" e STMMI "−1.31%".
+  Misurando dal **fill reale** (apertura 06-26): AC.PA −0.48% (gap −2.75% gia' lasciato dal mercato),
+  STMMI **+1.55%** (MFE +3.23%) — da peggiore a vincente. Drift medio reale **+0.34%**, non −0.60%.
+- Il gap di apertura medio era −0.94%: STMMI e AC.PA hanno gappato −2.8%/−2.75%. Il piano assume un
+  fill pulito e uno stop che tiene al suo livello: un gap puo' riempire lo stop PEGGIO (slippage non
+  contabilizzata). Qui non e' costato nulla (nessuno stop a tiro), ma e' rischio reale non modellato.
+
+**Regola.**
+1. **La verifica misura dal FILL REALISTICO = apertura della prima seduta dopo `data_asof`**, non
+   dal prezzo pianificato (che il mercato ha gia' lasciato). Drift/MAE/MFE/P&L partono da li'; i
+   livelli stop/target restano assoluti. Un prezzo pianificato stantio gonfia ogni perdita e rende
+   ogni post-mortem falsamente pessimista.
+2. **Lo snapshot registra `data_asof`** = data della barra di prezzo da cui parte il piano. La
+   verifica deriva da li' barre e fill. Auto-rilevazione: se l'entry pianificato != chiusura a
+   `data_asof`, lo snapshot e' stantio → warning esplicito (avrebbe colto il bug da solo).
+3. **Il gap di apertura e' una metrica di rischio di prima classe.** Riportare gap = fill/pianificato
+   e segnalare quando l'apertura gappa OLTRE lo stop (fill peggiore del livello = slippage reale).
+4. **Su 2 sedute e 9 nomi non si conclude nulla sull'edge.** L'audit ha REFUTATO con i numeri tre
+   ipotesi seducenti: (a) regime "troppo lento" — FALSO, FTSEMIB ha perso la SMA20 il 29 in modo
+   COINCIDENTE (margine +0.04% il 26 → −0.11% il 29); il trigger px>SMA20 esiste gia' e non ha lag.
+   (b) soglia smart-money troppo larga — i nomi in DISTRIBUZIONE (sm<−0.5: DIA.MI, WLN.PA) sono stati
+   i top gainer: relazione invertita = rumore a 2 sedute. (c) "volume debole sul breakout = fallimento"
+   — corr(volR, ritorno) ≈ 0 sul campione. **Un fix di strategia si spedisce solo dietro un backtest
+   sul ciclo 2018-2026, mai sulla forza di 2 giorni.** Strumentare (verifica/diario) si', cambiare la
+   strategia no.
+5. **L'indipendenza dell'auditor paga.** Il bug dell'entry stantio era nel codice che *io* avevo
+   scritto: un sub-agent separato l'ha trovato proprio perche' non aveva motivo di fidarsi delle mie
+   assunzioni. Verifica = codice; audit = giudizio indipendente; fix = agente principale.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

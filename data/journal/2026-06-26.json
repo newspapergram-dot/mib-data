@@ -125,5 +125,6 @@
       "t3": 98.8162
     }
   ],
-  "captured_at": "2026-06-26T23:12:00Z (backfill da git 1410fdf)"
+  "captured_at": "2026-06-26T23:12:00Z (backfill da git 1410fdf) | data_asof corretto a 2026-06-25 (entry = chiuse 06-25, Lezione #20)",
+  "data_asof": "2026-06-25"
 }

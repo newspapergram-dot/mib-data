@@ -90,6 +90,10 @@ def snapshot(portfolio_path="data/PORTFOLIO.txt", out_dir=JOURNAL_DIR):
     snap = _parse_portfolio(txt)
     asof = snap["asof"] or datetime.date.today().isoformat()
     snap["asof"] = asof
+    # data_asof = data della barra di prezzo da cui parte il piano (di norma == asof). La verifica
+    # deriva da qui le barre dell'holding e il fill realistico, restando robusta a uno snapshot
+    # marcato con una data ma prezzato su una barra precedente (vedi Lezione #20).
+    snap["data_asof"] = asof
     snap["captured_at"] = datetime.datetime.utcnow().isoformat() + "Z"
     os.makedirs(out_dir, exist_ok=True)
     out = os.path.join(out_dir, f"{asof}.json")
