@@ -1126,5 +1126,40 @@ strumento giusto chiesto a fine Run #26).
 - [ ] **Costi di transazione** nel motore (1876 trade, non trascurabili) + soglia score espandente
   per un OOS pulito (ora p80 globale, lieve bias in-sample).
 
+## Run #28 — 2026-06-29 (A/B Regime Gate sul Held-Portfolio Backtester)
+
+**Obiettivo:** primo A/B sul motore di Run #27 — misurare l'effetto del gate di regime
+(ingressi solo in TREND_UP per mercato; posizioni a scadenza, capitale in cassa nei non-trend)
+su MaxDD, Calmar ed esposizione. Logica validata `classify_regime` vettorizzata (0 mismatch/15).
+
+### Risultato (2018-2026, stesso universo e soglia, cambia SOLO il gate)
+| Metrica | A Baseline (always-in) | B Regime-Gate | Δ (B−A) |
+|---------|------------------------|----------------|---------|
+| CAGR % | +12.21 | **+12.44** | +0.23 |
+| **MaxDD % (path)** | −32.11 | **−17.81** | **+14.30** |
+| Sharpe (daily) | +0.80 | +0.93 | +0.13 |
+| Calmar | +0.38 | **+0.70** | +0.32 |
+| Market Exposure % | 93.2 | 59.9 | −33.3 |
+| Posizioni medie | 9.4 | 6.0 | −3.4 |
+| Trade | 1876 | 1208 | −668 |
+
+### Lettura
+- **Il gate quasi DIMEZZA il MaxDD (−32%→−18%) SENZA costare CAGR** (anzi +0.23 pt): protezione
+  del drawdown sostanzialmente gratuita su questo ciclo. Calmar quasi raddoppia (0.38→0.70).
+- L'esposizione media scende al 60% (40% del tempo in cassa nei regimi non-trend): è il meccanismo
+  della protezione, non un effetto collaterale. Conferma il "go-flat" come fonte di robustezza.
+- **Valida il design GIA' PRESENTE nel modello live**: `portfolio_builder` opera di default solo in
+  TREND_UP (`include_pullback=False`). Questo A/B quantifica perche' quel gate e' corretto.
+- Il MaxDD residuo −17.81% si avvicina al −13.8% di `robustness_consolidate`; il gap restante e'
+  probabilmente la size dimezzata in PULLBACK + universo/periodo (prossimo affinamento).
+- Report: `data/REGIME_PORTFOLIO_TEST.txt`; equity: `portfolio_equity.csv` (A) e
+  `portfolio_equity_regime.csv` (B).
+
+### Watch list
+- [ ] Variante PULLBACK a mezza size (oggi il gate e' binario TREND_UP-only) per recuperare un po'
+  di esposizione/CAGR mantenendo il DD basso.
+- [ ] Costi di transazione nel motore (1208-1876 trade) + soglia score espandente (OOS pulito).
+- [ ] Ri-testare FIX 5 risk-parity su questo motore CON il gate attivo (dove il vol-sizing conta).
+
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
