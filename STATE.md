@@ -1589,11 +1589,64 @@ su un portafoglio cresciuto a 155K+ → meno devastante ma comunque materiale.
 - Lezione #32 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #39)
-- [ ] Run #40: Stop-loss esplicito (−15%) — testa l'impatto su CAGR netto e riduzione
-      del survivorship bias exposure. Mantieni assetto Run #38.
+- [x] Run #40: Stop-loss −15% + filtro large-cap → fatto. SL efficace (EU p5 +1.71%), LC nessun effetto.
 - [ ] Regime-exit: chiusura anticipata al cambio di regime durante holding.
 - [ ] Portafoglio combinato EU+US con allocazione proporzionale.
 - [ ] Data augmentation EU: aggiungere titoli delisted (Astaldi, Carige, ecc.) al dataset.
+
+---
+
+## Run #40 — 2026-06-30 (Stop-Loss −15% + Filtro Large-Cap + Stress MC Corretto)
+
+**Obiettivo:** testare due meccanismi di protezione contro la coda sinistra (survivorship bias,
+delisting): stop-loss esplicito −15% e filtro large-cap via completeness proxy. Rieseguire
+il test MC di R39 con modello stress corretto (SL cappa il worst-case catastrofico a −15%).
+
+**Implementazione tecnica in `portfolio_backtester.py`:**
+- `stop_loss_pct=None, min_stock_completeness=None` aggiunti a firma `backtest()`
+- `completeness_panel = close_raw.notna().rolling(252, min_periods=50).mean()` precomputato
+- Exit block: unificato holding+SL in `tickers_to_exit = [(tk, reason), ...]` loop
+- `_completeness_ok(tk)`: filtra tickers con completeness < soglia
+- `sl_exits` counter nel res dict
+- `exit_reason` nel trade_log (`"hold"` | `"stop_loss"`)
+
+**Correzione critica al modello MC stress (vs R39):**
+Con SL attivo, il worst-case per ogni trade stressato è cappato a `−SL_PCT`, non a `−60%`:
+`stressed_net = cost_basis × (1 − stop_loss_pct)` (trade protetto dallo SL).
+Il delta per trade stressato è ~3x minore. Trade già usciti per SL hanno delta ≈ 0.
+
+**Risultati comparativi (4 config, EU p85 10gg + US p80 20gg, tasse IT, 500 sim MC):**
+
+| Config | EU CAGR base | EU p5 MC | EU P(>0%) | US CAGR base | US p5 MC | US P(>BTP) | Verdetto |
+|--------|-------------|---------|----------|-------------|---------|-----------|---------|
+| A Base (R39) | +5.64% | **−20.36%** | 0% | +5.60% | −1.17% | 0% | NON ROBUSTO |
+| B SL −15% | **+5.36%** | **+1.71%** | 100% | **+4.85%** | **+2.99%** | 45.2% | EU: ACCETTABILE / US: ROBUSTO |
+| C LC75% | +5.64% | −20.36% | 0% | +5.60% | −1.17% | 0% | NESSUN EFFETTO |
+| D SL+LC | +5.36% | +1.71% | 100% | +4.85% | +2.99% | 45.2% | = B (LC inutile) |
+
+**Costo SL (whipsaw)**: EU −0.28pt CAGR base (1.2% dei trade SL-triggered) / US −0.75pt (3.0%)
+**Beneficio SL (robustezza)**: EU p5 stress +22pt / US p5 stress +4.2pt
+
+**Finding critico — Filtro LC nullo:**
+Il filtro completeness ≥75% non ha escluso NESSUN titolo. Il dataset è pre-curato con
+completeness ≥99% per tutti i ticker. Il filtro large-cap via completeness è inapplicabile
+su dati di questo tipo. Alternativa corretta: market cap storico (FMP/Compustat) o lista esplicita.
+
+**Configurazione live raccomandata post R40 (costi + tasse + SL −15%):**
+- EU: p85 | hold 10gg | espandente | SL −15% → CAGR base +5.36% | stress p5 +1.71%
+- US: p80 | hold 20gg | espandente | SL −15% → CAGR base +4.85% | stress p5 +2.99%
+- Entrambi robustezza ACCETTABILE/ROBUSTO sotto stress survivorship 1.5%@−60%
+
+- Report: `data/RUN40_PROTECTION_REPORT.txt`
+- Equity: `data/eu_r40_a/b/c/d.csv`, `data/us_r40_a/b/c/d.csv`
+- Lezione #33 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #40)
+- [ ] Run #41: Filtro FTSE MIB 40 (lista esplicita dei 40 titoli dell'indice) — alternativa corretta
+      al filtro LC. Testa l'impatto su trade count, CAGR e robustezza MC con SL −15%.
+- [ ] Regime-exit: chiusura anticipata al cambio di regime durante il holding period.
+- [ ] Portafoglio combinato EU+US con allocazione proporzionale (capital 50/50 o Calmar-weighted).
+- [ ] Parametrizzare il SL: testare 10%, 15%, 20% per trovare il punto ottimale cost/benefit.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

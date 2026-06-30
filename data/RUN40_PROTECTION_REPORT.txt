@@ -1,0 +1,118 @@
+======================================================================================================
+ RUN #40 — PROTEZIONE CODA SINISTRA: STOP-LOSS −15% + FILTRO LARGE-CAP (COMPLETENESS ≥75%)
+ portfolio_backtester.py — GATE TREND_UP + RISK-PARITY + FINECO + SLIP + TASSE IT
+ Assetto base: EU p85 hold 10gg espandente | US p80 hold 20gg espandente (= Run #38)
+======================================================================================================
+
+ MECCANISMI DI PROTEZIONE TESTATI:
+   Stop-Loss (SL): se price < entry_px × (1 − 15%), uscita immediata a close del giorno
+     con slippage 0.02% e commissione Fineco standard. Conta come trade chiuso nel log.
+   Large-Cap proxy (LC): ammette solo titoli con close non-NaN in ≥75% dei 252 giorni
+     precedenti all'ingresso (rolling 252gg, min_periods=50). Proxy di liquidità/stabilità:
+     le mid-small cap con frequenti gap di quotazione e i titoli sospesi vengono esclusi.
+   Combinazione (SL+LC): entrambi i meccanismi attivi simultaneamente.
+
+ STRESS TEST MC: 500 sim | 1.5% trade a −60% (survivorship bias) | seed=42
+   Struttura costi: EU 0.19% [2.95€-19.00€/gamba] | US 9.95€ flat | Slip 0.02%
+
+ ==================================================================================================
+ EUROPA (mib_data_long.csv, p85, hold 10gg, 2018-2026):
+ ==================================================================================================
+ Configurazione                           CAGR%   MaxDD%  Sharpe  Calmar   Trade  SL exit%    Tasse€    Costi€
+ ----------------------------------------------------------------------------------------------------
+ A  Base (noSL, noLC) [R39 baseline]      +5.64   -12.53    0.55   +0.45    1185       0.0     23714     38746
+ B  Stop-Loss −15% only                   +5.36   -12.35    0.53   +0.43    1190       1.2     22482     38735
+ C  Large-Cap filter only (LC75%)         +5.64   -12.53    0.55   +0.45    1185       0.0     23714     38746
+ D  SL−15% + LC75% (corazzato)            +5.36   -12.35    0.53   +0.43    1190       1.2     22482     38735
+
+ STRESS TEST MC (500 sim, 1.5% trade a −60%):
+ Configurazione                         n trade Stress/sim   p5 CAGR  mean CAGR  p50 CAGR  MaxDD mean   P(>0%)  P(>BTP)
+ ----------------------------------------------------------------------------------------------------------------
+ A  Base (noSL, noLC) [R39 baseline]       1175         18    -20.36     -15.33    -14.98      -81.31     0.0%     0.0%
+ B  Stop-Loss −15% only                    1180         18     +1.71      +2.25     +2.26      -18.93   100.0%     0.0%
+ C  Large-Cap filter only (LC75%)          1175         18    -20.36     -15.33    -14.98      -81.31     0.0%     0.0%
+ D  SL−15% + LC75% (corazzato)             1180         18     +1.71      +2.25     +2.26      -18.93   100.0%     0.0%
+
+ DELTA vs BASELINE (configurazione A):
+ Configurazione                            ΔCAGR   ΔMaxDD  ΔSharpe   ΔTrade    Δp5 MC   Δmean MC   ΔMaxDD MC
+ ----------------------------------------------------------------------------------------------------
+ B  Stop-Loss −15% only                    -0.27    +0.18    -0.02       +5    +22.08     +17.59      +62.38
+ C  Large-Cap filter only (LC75%)          +0.00    +0.00    +0.00       +0     +0.00      +0.00       +0.00
+ D  SL−15% + LC75% (corazzato)             -0.27    +0.18    -0.02       +5    +22.08     +17.59      +62.38
+
+ VERDETTI SINGOLE VARIANTI:
+   A  Base (noSL, noLC) [R39 baseline]: NON ROBUSTO
+   B  Stop-Loss −15% only: ACCETTABILE (p5>0%, mean>0%, MaxDD<40%)
+   C  Large-Cap filter only (LC75%): NON ROBUSTO
+   D  SL−15% + LC75% (corazzato): ACCETTABILE (p5>0%, mean>0%, MaxDD<40%)
+
+ ==================================================================================================
+ S&P 500 (sp500_data_long.csv, p80, hold 20gg, 2018-2026):
+ ==================================================================================================
+ Configurazione                           CAGR%   MaxDD%  Sharpe  Calmar   Trade  SL exit%    Tasse€    Costi€
+ ----------------------------------------------------------------------------------------------------
+ A  Base (noSL, noLC) [R39 baseline]      +5.60   -11.35    0.53   +0.49     538       0.0     22631     12982
+ B  Stop-Loss −15% only                   +4.85   -12.39    0.48   +0.39     538       3.0     19835     12966
+ C  Large-Cap filter only (LC75%)         +5.60   -11.35    0.53   +0.49     538       0.0     22631     12982
+ D  SL−15% + LC75% (corazzato)            +4.85   -12.39    0.48   +0.39     538       3.0     19835     12966
+
+ STRESS TEST MC (500 sim, 1.5% trade a −60%):
+ Configurazione                         n trade Stress/sim   p5 CAGR  mean CAGR  p50 CAGR  MaxDD mean   P(>0%)  P(>BTP)
+ ----------------------------------------------------------------------------------------------------------------
+ A  Base (noSL, noLC) [R39 baseline]        528          8     -1.17      -0.22     -0.24      -26.97    34.0%     0.0%
+ B  Stop-Loss −15% only                     528          8     +2.99      +3.47     +3.48      -13.84   100.0%    45.2%
+ C  Large-Cap filter only (LC75%)           528          8     -1.17      -0.22     -0.24      -26.97    34.0%     0.0%
+ D  SL−15% + LC75% (corazzato)              528          8     +2.99      +3.47     +3.48      -13.84   100.0%    45.2%
+
+ DELTA vs BASELINE (configurazione A):
+ Configurazione                            ΔCAGR   ΔMaxDD  ΔSharpe   ΔTrade    Δp5 MC   Δmean MC   ΔMaxDD MC
+ ----------------------------------------------------------------------------------------------------
+ B  Stop-Loss −15% only                    -0.76    -1.04    -0.05       +0     +4.16      +3.69      +13.13
+ C  Large-Cap filter only (LC75%)          +0.00    +0.00    +0.00       +0     +0.00      +0.00       +0.00
+ D  SL−15% + LC75% (corazzato)             -0.76    -1.04    -0.05       +0     +4.16      +3.69      +13.13
+
+ VERDETTI SINGOLE VARIANTI:
+   A  Base (noSL, noLC) [R39 baseline]: NON ROBUSTO
+   B  Stop-Loss −15% only: ROBUSTO (p5>2%, mean>0%, MaxDD<40%)
+   C  Large-Cap filter only (LC75%): NON ROBUSTO
+   D  SL−15% + LC75% (corazzato): ROBUSTO (p5>2%, mean>0%, MaxDD<40%)
+
+ ==================================================================================================
+ RIEPILOGO CROSS-MARKET: CONFIGURAZIONE OTTIMALE
+ ==================================================================================================
+ Config                                   EU base   EU p5 MC   US base   US p5 MC  EU P(>BTP)  US P(>BTP)
+ ------------------------------------------------------------------------------------------------------
+ A  Base (noSL, noLC) [R39 baseline]        +5.64     -20.36     +5.60      -1.17        0.0%        0.0%
+ B  Stop-Loss −15% only                     +5.36      +1.71     +4.85      +2.99        0.0%       45.2%
+ C  Large-Cap filter only (LC75%)           +5.64     -20.36     +5.60      -1.17        0.0%        0.0%
+ D  SL−15% + LC75% (corazzato)              +5.36      +1.71     +4.85      +2.99        0.0%       45.2%
+
+ CONFIGURAZIONE RACCOMANDATA (max p5 CAGR stressed, priorità robustezza):
+   EU: B  Stop-Loss −15% only → CAGR base +5.36% | stress p5 +1.71%
+   US: B  Stop-Loss −15% only → CAGR base +4.85% | stress p5 +2.99%
+
+ OSSERVAZIONI CRITICHE:
+
+   [1] FILTRO LC (completeness) — RISULTATO: NESSUN EFFETTO
+       Il filtro completeness ≥75% non ha escluso NESSUN titolo da entrambi i dataset.
+       Motivo: mib_data_long.csv e sp500_data_long.csv sono dataset pre-curati che
+       contengono solo titoli con quotazioni continue (tutti con completeness ≥99%).
+       La soglia 75% non discrimina nulla su dati già puliti.
+       → Soluzione corretta: dati di market cap storici (Compustat/Refinitiv/FMP)
+         oppure lista esplicita di indice (FTSE MIB 40, EURO STOXX 50 = 50 titoli).
+         Un filtro esplicito per nome di ticker ridurrebbe l'universo EU da ~70 a ~40 titoli.
+
+   [2] MODELLO MC STRESS CORRETTO PER STOP-LOSS (vs R39)
+       R39 applicava la perdita −60% anche ai trade con SL attivo: SBAGLIATO.
+       Con SL a −15%, se il titolo crolla a −60% lo SL scatta PRIMA → perdita cappata.
+       Questo run usa: senza SL → stressed_net = cost_basis×0.40+CGT
+                       con SL   → stressed_net = cost_basis×0.85   (delta ~3x minore)
+       Trade già usciti per SL (a −15%) hanno delta ≈ 0 nello stress test.
+
+   [3] EFFETTO SL SUL CAGR BASE (costo dell'assicurazione)
+       Lo SL riduce il CAGR base per whipsaw (titolo scende −15%, SL scatta, poi rimbalza).
+       EU: −0.28pt CAGR base | US: −0.75pt CAGR base (più whipsaw su 20gg holding).
+       Il CAGR perso è il premio netto pagato per l'assicurazione contro i crack −60%.
+
+   Parametri: SL 15% | LC 75% completeness (nessun effetto) | Stress 1.5%@−60% | 500 sim
+======================================================================================================

@@ -185,13 +185,17 @@ def _expanding_thr_array(score_panel, top_q):
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
              equity_out="data/portfolio_equity.csv", costs=False, expanding_threshold=False,
-             taxes=False, return_trade_log=False, _pre=None):
+             taxes=False, return_trade_log=False, stop_loss_pct=None,
+             min_stock_completeness=None, _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
                live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
        costs: False (default) | True (slippage SLIP + commissioni Fineco reali per singola gamba).
        expanding_threshold: False (default) | True (soglia OOS pulita, calcolata giorno per giorno).
-       taxes: False (default) | True (regime amministrato IT: CGT 26% + zainetto 4 anni + bollo 0.20%)."""
+       taxes: False (default) | True (regime amministrato IT: CGT 26% + zainetto 4 anni + bollo 0.20%).
+       stop_loss_pct: None (no SL) | float, es. 0.15 → esce se price < entry_px*(1-stop_loss_pct).
+       min_stock_completeness: None (no filtro) | float [0,1], es. 0.75 → proxy large-cap/liquidita'
+         (richiede che il titolo abbia avuto close non-NaN in >= X% dei 252 giorni precedenti)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
@@ -202,10 +206,18 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     if expanding_threshold:
         exp_thr = _expanding_thr_array(score_panel, top_q)
 
+    # Large-cap/liquidity proxy: completeness = fraction of non-NaN closes in prior 252 days.
+    # Stocks with high completeness are established and liquid; filters out micro-cap and new IPOs.
+    if min_stock_completeness is not None:
+        completeness_panel = close_raw.notna().rolling(252, min_periods=50).mean()
+    else:
+        completeness_panel = None
+
     cash = capital0
     positions = {}     # tk -> {shares, entry_i, entry_px, cost_basis}
     recs = []
     trades = 0
+    sl_exits = 0       # trade usciti per stop-loss (non per holding period)
     total_costs_paid = 0.0   # commissioni + slippage cumulati (solo se costs=True)
     total_taxes_paid = 0.0   # CGT + bollo cumulati (solo se taxes=True)
     zainetto = []            # crediti da minusvalenza: [{"year": int, "credit": float}, ...]
@@ -215,8 +227,17 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     for i in range(start, n):
         day = cal[i]
 
-        # 1) USCITE: posizioni con holding completato (>= hold giorni operativi)
-        for tk in [t for t, p in positions.items() if i - p["entry_i"] >= hold]:
+        # 1) USCITE: holding period completato O stop-loss triggerato
+        tickers_to_exit = []
+        for tk, p in positions.items():
+            if i - p["entry_i"] >= hold:
+                tickers_to_exit.append((tk, "hold"))
+            elif stop_loss_pct is not None:
+                px_sl = close_mtm.at[day, tk]
+                if (pd.notna(px_sl) and
+                        (float(px_sl) - p["entry_px"]) / p["entry_px"] <= -stop_loss_pct):
+                    tickers_to_exit.append((tk, "stop_loss"))
+        for tk, exit_reason in tickers_to_exit:
             px_exit = close_mtm.at[day, tk]
             if pd.notna(px_exit):
                 eff_exit = float(px_exit) * (1 - SLIP) if costs else float(px_exit)
@@ -234,6 +255,8 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                     cgt = _apply_capital_gains_tax(raw_gain, day.year, zainetto)
                     cash -= cgt
                     total_taxes_paid += cgt
+                if exit_reason == "stop_loss":
+                    sl_exits += 1
                 positions.pop(tk)
                 if trade_log is not None:
                     trade_log.append({
@@ -244,6 +267,7 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                         "net_proceeds": net_proceeds,
                         "cgt_paid": cgt,
                         "net_proceeds_post_tax": net_proceeds - cgt,
+                        "exit_reason": exit_reason,
                     })
 
         # 2) MARK-TO-MARKET (valore di portafoglio a inizio giornata, post-uscite)
@@ -291,8 +315,17 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                     return 1.0
                 return float(min(med_atr / a, 1.0))
 
+            def _completeness_ok(tk):
+                if completeness_panel is None:
+                    return True
+                if tk not in completeness_panel.columns or prev not in completeness_panel.index:
+                    return False
+                v = completeness_panel.at[prev, tk]
+                return pd.notna(v) and float(v) >= min_stock_completeness
+
             elig = elig[[tk for tk in elig.index
-                         if tk not in positions and pd.notna(close_raw.at[day, tk]) and _regime_mult(tk) > 0]]
+                         if tk not in positions and pd.notna(close_raw.at[day, tk])
+                         and _regime_mult(tk) > 0 and _completeness_ok(tk)]]
             elig = elig.sort_values(ascending=False)
             for tk in elig.index:
                 if len(positions) >= max_pos:
@@ -366,7 +399,9 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
            "regime_mode": regime_mode, "sizing": sizing,
            "costs": costs, "total_costs_paid": round(total_costs_paid, 2),
            "taxes": taxes, "total_taxes_paid": round(total_taxes_paid, 2),
-           "zainetto_remaining": zainetto_rem}
+           "zainetto_remaining": zainetto_rem,
+           "stop_loss_pct": stop_loss_pct, "sl_exits": sl_exits,
+           "min_stock_completeness": min_stock_completeness}
     if return_trade_log:
         res["_trade_log"] = trade_log
     return eq, res

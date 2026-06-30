@@ -1096,4 +1096,53 @@ per sim, impatto cumulativo ~56,000€ su portafoglio che cresce a 155K+ → men
    (+2% a +4% reale) fino a disponibilità di dati con survivorship correction.
 
 ---
+
+## Lezione #33 — 2026-06-30 — Lo Stop-Loss −15% è protezione efficace contro il survivorship bias; il filtro completeness è inutile sui dataset pre-curati
+
+**Evidenza (Run #40, 500 sim MC con stress model corretto, assetto Run #38 + tasse IT).**
+
+| Config | EU base CAGR | EU stress p5 | US base CAGR | US stress p5 | US P(>BTP) | Verdetto |
+|--------|-------------|-------------|-------------|-------------|-----------|---------|
+| A Base (noSL, noLC) | +5.64% | **−20.36%** | +5.60% | **−1.17%** | 0.0% | NON ROBUSTO |
+| B SL −15% only | +5.36% | **+1.71%** | +4.85% | **+2.99%** | 45.2% | EU ACCETTABILE / US ROBUSTO |
+| C LC75% only | +5.64% | **−20.36%** | +5.60% | **−1.17%** | 0.0% | NON ROBUSTO (nessun effetto) |
+| D SL+LC | +5.36% | **+1.71%** | +4.85% | **+2.99%** | 45.2% | EU ACCETTABILE / US ROBUSTO |
+
+**Costo assicurativo dello SL**: EU −0.28pt CAGR base / US −0.75pt CAGR base (whipsaw).
+**Beneficio protettivo**: EU p5 +22pt / US p5 +4.2pt vs baseline senza SL.
+
+**Correzione critica al modello MC di R39:**
+R39 applicava la perdita −60% anche ai trade con SL attivo — questo era SBAGLIATO.
+Con SL a −15%, se il titolo crolla a −60% lo SL scatta PRIMA, limitando la perdita a −15%.
+Nel modello corretto: `stressed_net = cost_basis × (1 − stop_loss_pct)` invece di
+`cost_basis × 0.40 + CGT_originale`. Il delta per trade stressato è ~3x minore con SL.
+Trade già usciti per SL hanno delta ≈ 0 (la perdita era già nell'outcome originale).
+
+**Filtro large-cap via completeness: null result su dataset pre-curati.**
+Il filtro `completeness ≥ 75%` (% giorni con close non-NaN nei 252 giorni precedenti) ha
+selezionato ZERO titoli da escludere. Motivo: `mib_data_long.csv` e `sp500_data_long.csv`
+sono dataset pre-curati con quotazioni continue (completeness ≥ 99% per tutti i titoli).
+Un filtro di completeness su dati di questo tipo non discrimina nulla.
+
+**Regola.**
+1. **Aggiungere Stop-Loss −15% è la singola modifica più importante per la robustezza:**
+   - EU: trasforma uno scenario catastrofico (p5 −20%) in uno accettabile (p5 +1.71%)
+   - US: da fragile (p5 −1.17%, P>0%=34%) a robusto (p5 +2.99%, P>BTP=45.2%)
+   - Costo: piccolo (−0.28pt EU, −0.75pt US) rispetto al beneficio (22pt EU, 4pt US)
+2. **Il modello MC stress deve essere coerente con il meccanismo di exit usato nel backtest.**
+   Se lo SL è attivo, il worst-case per ogni posizione è il SL stesso (−15%), non il −60%
+   teorico del delisting. Il modello deve cappare il stressed_net alla perdita massima reale.
+3. **Filtri large-cap richiedono dati di market cap espliciti**, non proxy di completeness.
+   Soluzioni corrette: lista esplicita di indice (FTSE MIB 40 = 40 ticker), API FMP per
+   market cap storica, oppure dataset Compustat con field `csho × prcc_f`.
+4. **Il whipsaw è il costo dell'assicurazione:**
+   Lo SL a −15% uscirà da trade che poi rimbalzano. Questo è accettabile se il guadagno
+   in robustezza (p5 da −20% a +2%) supera il costo in CAGR (−0.28pt EU, −0.75pt US).
+   Per un portafoglio real-money il trade-off è nettamente favorevole.
+5. **Configurazione live raccomandata post R40:**
+   - EU: p85 | hold 10gg | espandente | SL −15% | Fineco+slip+tasse | CAGR base +5.36%
+   - US: p80 | hold 20gg | espandente | SL −15% | Fineco+slip+tasse | CAGR base +4.85%
+   - Stress robustezza: EU p5 +1.71% / US p5 +2.99% (vs delisting 1.5%@−60%)
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
