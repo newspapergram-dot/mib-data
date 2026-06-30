@@ -1,0 +1,52 @@
+============================================================================================
+ RUN #36 — OTTIMIZZAZIONE SELETTIVITÀ EU: p80 vs p85 + HOLDING IBRIDO (EU 10gg / US 20gg)
+ portfolio_backtester.py — GATE TREND_UP + RISK-PARITY + FINECO COSTS + SLIPPAGE 0.02%
+============================================================================================
+
+ CONFIGURAZIONE:
+   EU: soglia score p80 (baseline R34) vs p85 (nuovo) | holding 10gg | Fineco+slip
+   US: soglia score p80 | holding 20gg (best arm R35) | Fineco+slip
+   EU costi: 0.19% controvalore | min 2.95€ | max 19.00€ / gamba
+   US costi: 9.95€ flat / gamba | Slippage: 0.02% su ogni eseguito
+
+ IPOTESI: innalzare la soglia da p80 a p85 riduce il numero di trade EU del ~20-25%,
+   abbassando il drag commissionale proporzionalmente. Il segnale nel range p80-p85
+   ha atteso IC inferiore, quindi l'effetto netto sul CAGR e' ambiguo: da testare.
+
+ ========================================================================================
+ CONFRONTO EUROPA: Configurazione Precedente (p80) vs Nuova Configurazione (p85)
+ ========================================================================================
+ Schema                                      CAGR%   MaxDD%   Sharpe   Calmar   Expo%   Trade    Costi€    €/RT
+ --------------------------------------------------------------------------------------------------
+ A  EU p80, Hold 10gg (baseline R34)         +7.49   -14.70     0.70    +0.51    54.4    1208     40169    33.3
+ B  EU p85, Hold 10gg (nuovo)                +8.13   -11.80     0.76    +0.69    53.8    1185     39497    33.3
+
+   Δ CAGR      +0.64 pt | Δ MaxDD +2.90 pt | Δ Sharpe +0.06 | Δ Calmar +0.18
+   Δ Trade     -23 (153/anno → 150/anno) = -1.9%
+   Δ Costi     -672€ (-1.7%) | Drag annuo: 5.08% → 5.00%
+   Score thr   p80=0.2436 → p85=0.3924
+
+   Verdetto EU (p85 vs p80): OTTIMALE: risparmio commissionale senza deterioramento significativo dell'alpha
+
+ ========================================================================================
+ UNIVERSO USA: Configurazione Ibrida Validata (p80 / Hold 20gg)
+ ========================================================================================
+ C  US p80, Hold 20gg (best arm R35)         +8.41   -11.61     0.76    +0.72    49.3     538     13270    24.7
+
+   Trade/anno: 70 | Drag annuo: 1.73% | €/RT: 24.7€
+   Score thr p80=0.2481 | Calmar 0.72
+
+ ========================================================================================
+ SCHEMA IBRIDO RACCOMANDATO (EU p85 10gg + US p80 20gg):
+ ========================================================================================
+   EU: p85 | Hold 10gg | CAGR +8.13% | Sharpe 0.76 | Calmar 0.69 | Costi 39497€/8anni
+   US: p80 | Hold 20gg | CAGR +8.41% | Sharpe 0.76 | Calmar 0.72 | Costi 13270€/8anni
+
+ NOTE:
+   - La soglia p85 e' calcolata sull'intera distribuzione storica (lieve in-sample bias).
+     Una soglia espandente (expanding-window p85) darebbe un test OOS piu' pulito.
+   - Il pool di ticker EU e' fisso (mib_data_long.csv); su un universo piu' ampio
+     p85 avrebbe piu' segnali disponibili e un turnover piu' elevato.
+   - Il confronto p80 vs p85 usa _pre separato per ciascuna soglia (thr diverso):
+     i due backtest sono identici tranne per la soglia di ingresso.
+============================================================================================

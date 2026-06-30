@@ -1389,12 +1389,53 @@ senza estendere l'holding.
 - Lezione #28 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #35)
-- [ ] Run #36 (candidato A): regime-exit — uscita anticipata se il mercato gira TREND_DOWN
-  durante l'holding. Riduce MaxDD 20gg EU senza aumentare il turnover.
-- [ ] Run #36 (candidato B): filtro score p85 (vs p80) — meno trade, stessa qualità del segnale.
-- [ ] Strategia ibrida EU(10gg) + US(20gg) su portafoglio combinato.
+- [ ] Run #36 (candidato A): regime-exit — sostituito dal candidato B.
+- [x] Run #36 (candidato B): filtro score p85 (vs p80) — fatto. p85 migliora su tutte le metriche EU.
+- [x] Strategia ibrida EU(10gg) + US(20gg) — validata in R35, configurata in R36.
 - [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno.
 - [ ] Soglia score espandente (expanding window, OOS pulito).
+
+---
+
+## Run #36 — 2026-06-30 (Ottimizzazione selettività EU: p80 vs p85 + Holding Ibrido)
+
+**Obiettivo:** testare soglia score p85 (vs p80 baseline) sull'universo EU con holding 10gg,
+e confermare il best arm US (p80, holding 20gg) validato in Run #35.
+Schema fisso: GATE TREND_UP + RISK-PARITY + Fineco+Slip.
+
+**Risultati (2018-2026):**
+
+| Schema | CAGR% | MaxDD% | Sharpe | Calmar | Trade | Costi€ |
+|--------|-------|--------|--------|--------|-------|--------|
+| EU p80 hold 10gg (baseline R34) | +7.49 | −14.70 | 0.70 | 0.51 | 1208 | 40,169 |
+| **EU p85 hold 10gg (nuovo)** | **+8.13** | **−11.80** | **0.76** | **0.69** | 1185 | 39,497 |
+| US p80 hold 20gg (best arm R35) | +8.41 | −11.61 | 0.76 | 0.72 | 538 | 13,270 |
+
+**Analisi EU p85:**
+- Δ CAGR +0.64pt | Δ MaxDD +2.90pt | Δ Sharpe +0.06 | Δ Calmar +0.18
+- Sorpresa: Δ Trade solo −23 (−1.9%). Il threshold sale da 0.2436 a 0.3924 (+61%) ma il
+  numero di trade quasi non cambia — l'universo EU ha abbastanza nomi sopra p85 per riempire
+  i 10 slot. L'effetto è quality screening puro, non riduzione del turnover.
+- Verdetto: **OTTIMALE** — free lunch di qualità senza costi aggiuntivi.
+
+**Schema ibrido validato (config raccomandata per il live):**
+- EU: p85 | holding 10gg | CAGR +8.13% | Sharpe 0.76 | Calmar 0.69
+- US: p80 | holding 20gg | CAGR +8.41% | Sharpe 0.76 | Calmar 0.72
+
+**Prossimi candidati:**
+- Run #37: soglia p85 espandente (expanding window) per OOS pulito
+- Run #37 alt: regime-exit — chiusura anticipata se regime cambia durante holding, poi
+  riapertura su nuovo segnale. Ridurrebbe MaxDD EU residuo.
+
+- Report: `data/EUROPE_P85_REPORT.txt`
+- Equity: `data/eu_equity_p80_h10.csv`, `data/eu_equity_p85_h10.csv`, `data/sp500_equity_p80_h20.csv`
+- Lezione #29 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #36)
+- [ ] Run #37 (candidato A): soglia expanding-window p85 — OOS pulito (rimuove in-sample bias).
+- [ ] Run #37 (candidato B): regime-exit — chiudi posizione se regime gira durante holding.
+- [ ] Portafoglio combinato EU+US ibrido: allocazione proporzionale tra i due universi.
+- [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

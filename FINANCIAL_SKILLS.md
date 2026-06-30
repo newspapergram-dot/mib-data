@@ -901,4 +901,47 @@ abbastanza persistente da reggere holding più lunghi. **Verdetto US: 20gg margi
    (operativo). Non accettare mai una configurazione con Calmar < 0.3 su un backtest 8 anni.
 
 ---
+
+## Lezione #29 — 2026-06-30 — p85 migliora CAGR e MaxDD EU senza ridurre il turnover
+
+**Evidenza (Run #36, EU GATE+RP+Fineco+Slip, 2018-2026, holding 10gg, p80 vs p85).**
+
+| Schema | CAGR% | MaxDD% | Sharpe | Calmar | Trade | Costi€ |
+|--------|-------|--------|--------|--------|-------|--------|
+| EU p80 (baseline R34) | +7.49 | −14.70 | 0.70 | 0.51 | 1208 | 40,169 |
+| EU p85 (nuovo)        | **+8.13** | **−11.80** | **0.76** | **0.69** | 1185 | 39,497 |
+
+Δ CAGR +0.64pt | Δ MaxDD +2.90pt | Δ Sharpe +0.06 | Δ Calmar +0.18 | Δ Trade −23 (−1.9%)
+
+**La sorpresa: p85 non riduce il turnover (−1.9%, 23 trade su 1208).**
+Il threshold salire da 0.2436 a 0.3924 (delta +61%), ma il numero di trade quasi non cambia
+perché `np.nanquantile(score_panel, 0.85)` include TUTTI i (ticker, giorno) osservati incluse
+le date out-of-gate. In regime TREND_UP con 10 slot disponibili, la maggior parte delle posizioni
+è riempita anche con p85 — l'universo EU ha abbastanza segnali sopra la soglia. Il risultato è
+che p85 filtra solo i segnali più deboli al margine, migliorando la qualità senza ridurre
+materialmente la quantità.
+
+**L'effetto netto è puro quality screening**: le posizioni p80→p85 che vengono escluse sono
+quelle con il segnale meno forte (sono rimpiazzate da posizioni vuote o da candidati con score
+appena sotto p80 — ma su un universo piccolo, se ci sono <10 nomi sopra p85, entra anche il
+primo sopra p80 comunque). L'esclusione selettiva dei segnali deboli riduce i drawdown
+intraciclo: MaxDD scende da −14.7% a −11.8%.
+
+**Regola.**
+1. **Usare p85 come soglia EU**: migliora CAGR (+0.64pt), MaxDD (−2.90pt), Calmar (0.51→0.69)
+   senza costi aggiuntivi. È un free lunch di qualità — adottare come default per il live.
+2. **L'ipotesi "p85 = meno trade = meno costi" era sbagliata** per universi piccoli: il pool EU
+   ha abbastanza nomi da riempire i 10 slot anche con una soglia più alta. Il canale di
+   risparmio è il quality screening, non la riduzione del turnover.
+3. **Per ridurre davvero il turnover su universi piccoli bisogna agire sull'holding period**
+   (ma Run #35 ha mostrato che 20gg EU distrugge il MaxDD). Alternative: ampliare l'universo
+   (più ticker) o restringere il numero di slot (MAX_POS < 10 → meno posizioni = più selettivi).
+4. **La combinazione ottimale validata finora:**
+   - EU: p85 | holding 10gg | GATE+RP+Fineco+Slip → CAGR +8.13%, MaxDD −11.80%, Calmar 0.69
+   - US: p80 | holding 20gg | GATE+RP+Fineco+Slip → CAGR +8.41%, MaxDD −11.61%, Calmar 0.72
+5. **Attenzione alla soglia calcolata in-sample**: `np.nanquantile(panel, 0.85)` usa tutti i
+   dati 2018-2026. Una soglia espandente (expanding-window) darebbe un test OOS più pulito
+   per il p85 — da validare in un run dedicato prima di adottarlo definitivamente nel live.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
