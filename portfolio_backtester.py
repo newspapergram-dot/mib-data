@@ -125,18 +125,46 @@ def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     return close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr
 
 
+def _expanding_thr_array(score_panel, top_q):
+    """Precompute expanding-window quantile threshold for each day in score_panel.
+
+    Returns a numpy array exp_thr where exp_thr[i] = nanquantile of all non-NaN score
+    values across all tickers from day 0 through day i (inclusive). Uses only past data,
+    removing the in-sample lookahead bias of the global nanquantile over the full panel.
+    """
+    n = len(score_panel)
+    exp_thr = np.full(n, np.nan)
+    all_scores = []
+    for i_d in range(n):
+        row_vals = score_panel.iloc[i_d].dropna().values
+        if len(row_vals):
+            all_scores.extend(row_vals.tolist())
+        if all_scores:
+            exp_thr[i_d] = np.nanquantile(all_scores, top_q)
+    return exp_thr
+
+
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
-             equity_out="data/portfolio_equity.csv", costs=False, _pre=None):
+             equity_out="data/portfolio_equity.csv", costs=False, expanding_threshold=False,
+             _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
                live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
        costs: False (default, comportamento precedente invariato) |
-              True (applica slippage SLIP + commissioni Fineco reali per singola gamba)."""
+              True (applica slippage SLIP + commissioni Fineco reali per singola gamba).
+       expanding_threshold: False (default, usa thr globale da prepare) |
+              True (soglia calcolata giorno per giorno su dati storici fino a t — OOS pulito).
+              Richiede top_q esplicito anche quando _pre e' fornito."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
     n = len(cal)
+
+    # Expanding-window threshold: precompute per-day thresholds usando solo il passato.
+    # exp_thr[i] = nanquantile(score_panel.iloc[:i+1], top_q) — nessun lookahead.
+    if expanding_threshold:
+        exp_thr = _expanding_thr_array(score_panel, top_q)
 
     cash = capital0
     positions = {}     # tk -> {shares, entry_i, entry_px}
@@ -171,7 +199,9 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
         if len(positions) < max_pos:
             prev = cal[i - 1]
             srow = score_panel.loc[prev]
-            elig = srow[(srow >= thr) & srow.notna()]
+            # expanding_threshold: usa la soglia calcolata sui dati fino a prev (i-1)
+            thr_now = float(exp_thr[i - 1]) if expanding_threshold else thr
+            elig = srow[(srow >= thr_now) & srow.notna()]
 
             def _regime_mult(tk):
                 # moltiplicatore di size dal regime del mercato al giorno-segnale (prev, no lookahead)
@@ -255,11 +285,14 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     avg_npos = float(eq["n_pos"].mean())
     calmar = cagr / abs(maxdd) if maxdd < 0 else np.nan
 
+    # score_thr: con expanding usa la soglia finale (ultima del periodo); con statico usa thr globale.
+    final_thr = float(exp_thr[-1]) if expanding_threshold else float(thr)
     res = {"start": str(cal[start].date()), "end": str(cal[-1].date()), "days": len(eq),
            "capital0": capital0, "equity_final": float(eq["equity"].iloc[-1]),
            "CAGR_pct": cagr * 100, "MaxDD_pct": maxdd * 100, "Sharpe_daily": sharpe,
            "Vol_ann_pct": vol, "Calmar": calmar, "avg_exposure_pct": avg_expo * 100,
-           "avg_n_pos": avg_npos, "trades": trades, "score_thr": float(thr),
+           "avg_n_pos": avg_npos, "trades": trades, "score_thr": final_thr,
+           "expanding_threshold": expanding_threshold, "top_q_used": top_q,
            "regime_mode": regime_mode, "sizing": sizing,
            "costs": costs, "total_costs_paid": round(total_costs_paid, 2)}
     return eq, res

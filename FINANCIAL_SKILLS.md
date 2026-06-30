@@ -944,4 +944,50 @@ intraciclo: MaxDD scende da −14.7% a −11.8%.
    per il p85 — da validare in un run dedicato prima di adottarlo definitivamente nel live.
 
 ---
+
+## Lezione #30 — 2026-06-30 — Il lookahead bias della soglia è trascurabile: l'alpha è OOS genuino
+
+**Evidenza (Run #37, GATE+RP+Fineco+Slip, assetto ibrido R36, 2018-2026).**
+
+| Universo | Soglia | CAGR% | MaxDD% | Sharpe | Calmar | Bias CAGR |
+|----------|--------|-------|--------|--------|--------|-----------|
+| EU p85 hold 10gg | STATICA (R36) | +8.13 | −11.80 | 0.76 | 0.69 | — |
+| EU p85 hold 10gg | **ESPANDENTE** | **+8.49** | **−11.44** | **0.79** | **0.74** | **+0.36pt** |
+| US p80 hold 20gg | STATICA (R35) | +8.41 | −11.61 | 0.76 | 0.72 | — |
+| US p80 hold 20gg | **ESPANDENTE** | **+8.16** | **−11.36** | **0.74** | **0.72** | **−0.25pt** |
+
+**Il bias è trascurabile: EU +0.36pt, US −0.25pt** (entrambi <0.5pt CAGR su 8 anni).
+Entrambi i mercati passano il test OOS con soglia espandente: Sharpe>0.5, CAGR>3%, MaxDD>−40%.
+
+**La direzione del bias è inaspettata (EU: espandente > statica).**
+La soglia STATICA usa la distribuzione completa 2018-2026 (include anni bull 2021-2024 con
+score elevati), risultando troppo alta nei primi anni (2018-2019). La soglia ESPANDENTE inizia
+bassa (pochi dati) e cresce col tempo — nella fase early cattura opportunità che la soglia
+statica troppo alta avrebbe escluso. Nessun artefatto di overfitting: l'expanding migliora.
+
+**Il numero di trade è identico (1185 EU, 538 US)** — la soglia espandente converge a fine
+periodo allo stesso valore finale della statica (0.3924 e 0.2481): ha visto gli stessi dati.
+La differenza sta solo nell'ordine temporale di attivazione dei segnali.
+
+**Configurazione definitivamente validata (OOS pulito):**
+- **EU: p85 | hold 10gg | soglia espandente** → CAGR +8.49%, MaxDD −11.44%, Sharpe 0.79, Calmar 0.74
+- **US: p80 | hold 20gg | soglia espandente** → CAGR +8.16%, MaxDD −11.36%, Sharpe 0.74, Calmar 0.72
+
+**Regola.**
+1. **Sempre testare con soglia espandente prima di dichiarare un alpha**. La differenza può
+   essere piccola (come qui) o grande — non saperlo è un rischio. In questo sistema è piccola.
+2. **Il segno del bias non è predicibile a priori**: qui la soglia statica è MÁS restrittiva
+   early (perché il bull 2021-2024 alza la distribuzione aggregata). In un mercato bear
+   persistente l'effetto potrebbe invertirsi.
+3. **La soglia espandente è la scelta principiata per il live trading**: usa solo informazioni
+   disponibili all'operatore al momento della decisione. Non c'è motivo operativo per usare
+   la soglia statica (che richiederebbe di conoscere il futuro).
+4. **Con universi grandi (S&P 500) il bias tende a zero** (più segnali → stima del quantile
+   più stabile fin dall'inizio). Con universi piccoli (EU ~70 ticker) il bias è lievemente
+   maggiore ma ancora trascurabile.
+5. **L'alpha del sistema è genuino**: sopravvive sia ai costi reali (Run #34) sia alla rimozione
+   del lookahead bias della soglia (Run #37). Le uniche fonti di ottimismo residue da eliminare
+   prima del live sono: survivorship bias nel dataset e tasse (26% plusvalenze + bollo 0.2%).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

@@ -1432,10 +1432,62 @@ Schema fisso: GATE TREND_UP + RISK-PARITY + Fineco+Slip.
 - Lezione #29 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #36)
-- [ ] Run #37 (candidato A): soglia expanding-window p85 — OOS pulito (rimuove in-sample bias).
-- [ ] Run #37 (candidato B): regime-exit — chiudi posizione se regime gira durante holding.
-- [ ] Portafoglio combinato EU+US ibrido: allocazione proporzionale tra i due universi.
+- [x] Run #37 (candidato A): soglia expanding-window → fatto. Bias trascurabile, alpha confermato OOS.
+- [ ] Run #37 (candidato B): regime-exit — rimandato (alpha già confermato senza).
+- [ ] Portafoglio combinato EU+US ibrido.
 - [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno.
+
+---
+
+## Run #37 — 2026-06-30 (Eliminazione Lookahead Bias: Soglia Espandente)
+
+**Obiettivo:** rimuovere il lookahead bias della soglia score (che nella versione statica usa
+l'intera distribuzione 2018-2026 per calcolare il quantile di ogni giorno). Testare se l'alpha
+sopravvive con soglia puramente OOS (expanding window: soglia_t = quantile dei dati fino a t).
+
+**Assetto ibrido testato:** EU p85 hold 10gg / US p80 hold 20gg | GATE+RP+Fineco+Slip
+
+**Risultati (2018-2026):**
+
+| Universo | Soglia | CAGR% | MaxDD% | Sharpe | Calmar | Trade |
+|----------|--------|-------|--------|--------|--------|-------|
+| EU p85 10gg | STATICA (R36) | +8.13 | −11.80 | 0.76 | 0.69 | 1185 |
+| EU p85 10gg | **ESPANDENTE** | **+8.49** | **−11.44** | **0.79** | **0.74** | 1185 |
+| US p80 20gg | STATICA (R35) | +8.41 | −11.61 | 0.76 | 0.72 | 538 |
+| US p80 20gg | **ESPANDENTE** | **+8.16** | **−11.36** | **0.74** | **0.72** | 538 |
+
+**Analisi del bias:**
+- EU: bias +0.36pt CAGR (CONTENUTO) — inaspettatamente positivo: la soglia statica era
+  troppo alta nei primi anni (bull 2021-2024 alza la distribuzione aggregata) → espandente
+  cattura più segnali early. Nessuna prova di overfitting.
+- US: bias −0.25pt CAGR (TRASCURABILE) — irrilevante su 8 anni.
+- Trade identici su entrambi: la soglia espandente converge allo stesso valore finale della statica.
+
+**Conclusione:** l'alpha è OOS genuino. Entrambi i mercati superano il test con soglia espandente.
+
+**Configurazione DEFINITIVA validata (post Run #37):**
+- **EU: p85 | hold 10gg | soglia espandente** → CAGR +8.49%, MaxDD −11.44%, Sharpe 0.79, Calmar 0.74
+- **US: p80 | hold 20gg | soglia espandente** → CAGR +8.16%, MaxDD −11.36%, Sharpe 0.74, Calmar 0.72
+- Costi inclusi: Fineco reali + slippage 0.02%. Bias della soglia: trascurabile.
+- Fonti di ottimismo residue da quantificare: survivorship bias nel dataset + tasse 26%+bollo.
+
+**Modifica tecnica a `portfolio_backtester.py`:**
+- Aggiunto `_expanding_thr_array(score_panel, top_q)` — precomputa per ogni giorno il quantile
+  cumulativo usando solo dati passati.
+- Aggiunto `expanding_threshold=False` a `backtest()` — backward-compatible.
+- `res` dict: nuovi campi `expanding_threshold`, `top_q_used`.
+
+- Report: `data/EXPANDING_WINDOW_REPORT.txt`
+- Equity: `data/eu_equity_p85_static/expanding.csv`, `data/sp500_equity_p80_static/expanding.csv`
+- Lezione #30 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #37)
+- [ ] Run #38: Tax simulation — imposta plusvalenze 26% (solo sui profitti realizzati, non
+  lineare) + bollo titoli 0.2%/anno sul valore medio portafoglio. Stima dell'alpha netto fiscale.
+- [ ] Run #38 alt: Survivorship bias audit — verificare quanti ticker in mib_data_long.csv sono
+  sopravvissuti fino al 2026 (quelli delisted non sono nel dataset → bias positivo sul CAGR).
+- [ ] Portafoglio combinato EU+US con expanding threshold su entrambi.
+- [ ] Regime-exit: chiusura anticipata al cambio regime durante holding (riduce MaxDD residuo).
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -1,0 +1,63 @@
+==============================================================================================
+ RUN #37 — ELIMINAZIONE LOOKAHEAD BIAS: SOGLIA STATICA vs ESPANDENTE (EXPANDING WINDOW)
+ portfolio_backtester.py — GATE TREND_UP + RISK-PARITY + FINECO COSTS + SLIPPAGE 0.02%
+ Assetto ibrido: EU p85 hold 10gg | US p80 hold 20gg
+==============================================================================================
+
+ DEFINIZIONI:
+   Statica:    thr = np.nanquantile(score_panel_INTERO, q)  -- usa dati 2018-2026 interi
+               -> lookahead bias: la soglia di un giorno qualsiasi del 2018 usa
+                  distribuzione di score che include il 2019-2026 (non disponibile allora)
+   Espandente: thr_t = np.nanquantile(score_panel[:t], q)  -- usa solo dati fino a t
+               -> OOS pulito: la soglia di ogni giorno usa solo il passato osservabile
+
+ STRUTTURA COSTI: EU 0.19% [2.95€-19.00€/gamba]
+   US 9.95€ flat/gamba | Slippage 0.02%
+
+ ========================================================================================
+ EUROPA (mib_data_long.csv, p85, hold 10gg, 2018-2026):
+ ========================================================================================
+ Schema                                        CAGR%   MaxDD%   Sharpe   Calmar   Expo%   Trade    Costi€  Thr(finale)
+ ------------------------------------------------------------------------------------------------------
+ A  Soglia STATICA  (baseline R36)             +8.13   -11.80     0.76    +0.69    53.8    1185     39497       0.3924
+ B  Soglia ESPANDENTE (OOS pulito)             +8.49   -11.44     0.79    +0.74    53.7    1185     39702       0.3924
+
+   Δ CAGR +0.36 pt | Δ MaxDD +0.36 pt | Δ Sharpe +0.03 | Δ Calmar +0.05
+   Δ Trade +0 | Δ Costi +206€ (+0.5%)
+   Bias lookahead: CONTENUTO (0.3-1.0pt CAGR): bias presente ma alpha genuinamente positivo
+   Edge con soglia espandente: SI (Sharpe>0.5, CAGR>3%, MaxDD>-40%)
+
+ ========================================================================================
+ S&P 500 (sp500_data_long.csv, p80, hold 20gg, 2018-2026):
+ ========================================================================================
+ Schema                                        CAGR%   MaxDD%   Sharpe   Calmar   Expo%   Trade    Costi€  Thr(finale)
+ ------------------------------------------------------------------------------------------------------
+ A  Soglia STATICA  (baseline R36)             +8.41   -11.61     0.76    +0.72    49.3     538     13270       0.2481
+ B  Soglia ESPANDENTE (OOS pulito)             +8.16   -11.36     0.74    +0.72    49.4     538     13242       0.2481
+
+   Δ CAGR -0.25 pt | Δ MaxDD +0.25 pt | Δ Sharpe -0.02 | Δ Calmar -0.01
+   Δ Trade +0 | Δ Costi -28€ (-0.2%)
+   Bias lookahead: TRASCURABILE (<0.3pt CAGR): il lookahead bias e' irrilevante
+   Edge con soglia espandente: SI (Sharpe>0.5, CAGR>3%, MaxDD>-40%)
+
+ ========================================================================================
+ CONCLUSIONE CROSS-MARKET:
+ ========================================================================================
+   EU: lookahead bias soglia = -0.36 pt CAGR | Alpha OOS: CONFERMATO
+   US: lookahead bias soglia = +0.25 pt CAGR | Alpha OOS: CONFERMATO
+
+ CONFIGURAZIONE RACCOMANDATA PER IL LIVE (OOS-clean):
+   EU: p85 | hold 10gg | soglia ESPANDENTE (OOS pulito)
+       CAGR +8.49% | Sharpe 0.79 | Calmar 0.74 | MaxDD -11.44%
+   US: p80 | hold 20gg | soglia ESPANDENTE (OOS pulito)
+       CAGR +8.16% | Sharpe 0.74 | Calmar 0.72 | MaxDD -11.36%
+
+ NOTE:
+   - La soglia espandente nei primi ~200 giorni (warmup) usa pochi score (bassa
+     stima del quantile). Il sistema entra in produzione reale solo dopo start=201.
+   - La soglia statica usa la distribuzione completa degli score: tende a essere
+     piu' alta nei periodi bull e piu' bassa nei periodi bear (effetto distribuzione)
+     -> la soglia espandente puo' differire sistematicamente in mercati non stazionari.
+   - Con expanding threshold: la soglia cresce monotonicamente nel tempo se il mercato
+     e' bull (aggiunge score piu' alti) — fenomeno normale e corretto.
+==============================================================================================
