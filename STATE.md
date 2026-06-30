@@ -1228,10 +1228,35 @@ Calmar 0.70). Motivo: con `risk_per_trade`=2.14% e stop ~2·ATR, la pos_value no
 - Report: `data/BASELINE_ALIGN_TEST.txt`. Lezione #24 punto 4 corretta.
 
 ### Watch list (aggiornata)
-- [ ] **INTEGRARE il risk-parity nel live** (Run #30+#31 lo validano): abbassare la size effettiva dei
-  nomi ad alta ATR sotto il 10% (es. `pos_cap` scalato da `min(medATR/ATR,1)` in `propose`/builder).
-  Cambio di produzione sul sizing → da fare con A/B sul builder, non a fine giornata.
+- [x] **INTEGRARE il risk-parity nel live** → fatto in Run #32.
 - [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+
+---
+
+## Run #32 — 2026-06-30 (Integrazione risk-parity in produzione)
+
+**Obiettivo:** integrare il risk-parity validato (IC95 [+1.07,+9.04] su ΔMaxDD, Run #30/#31)
+direttamente in `modules/trade_proposal.py` e `portfolio_builder.py`.
+
+**Meccanismo:**
+- `propose()` riceve un nuovo parametro `rp_scale=1.0` (default no-op, backward-compatible).
+  `eff_pos_cap = pos_cap * rp_scale` sostituisce `pos_cap` nel calcolo del cap.
+- `portfolio_builder.build()` calcola `med_atr_pct = np.median(elig["atr"] / elig["price"])`
+  sui nomi ELEGGIBILI (non sull'intero universo). Per ogni nome: `rp_scale = min(med_atr_pct / atr_pct_i, 1.0)`.
+
+**Effetto sul portafoglio 2026-06-26:**
+- medATR% = 2.31% della sessione. Nomi a bassa vol: RP×1.00 (cap 10% invariato).
+  Nomi ad alta vol: STMMI.MI RP×0.43 (cap 4.3%), EDEN.PA RP×0.58 (cap 5.8%), MB.MI RP×0.95 (cap 9.5%).
+- Esposizione 30.439 EUR (61%) su 10 nomi; nessun nome supera il cap aggiustato per la sua vol.
+- Output: colonna RP× aggiunta alla tabella; tag "RP x<val>" e "(capped RP N%)" nelle schede operative.
+
+**Backward-compatibility:** `rp_scale=1.0` = comportamento precedente esatto (include unicorn sleeve
+che mantiene `pos_cap=0.05` fisso senza RP addizionale).
+
+### Watch list (aggiornata)
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+- [ ] A/B test del RP sul builder live (next session): campionare i portafogli generati nelle
+  prossime settimane con e senza RP per misurare l'effetto reale out-of-sample.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

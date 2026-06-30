@@ -54,7 +54,7 @@ def confidence_level(score, ticker, hi=0.19, mid=0.13):
 
 def propose(ticker, entry, atr14, score, capital,
             risk_per_trade=0.0214, atr_mult_stop=2.0, n_positions=5,
-            regime_mult=1.0, pos_cap=0.10, size_mult=1.0,
+            regime_mult=1.0, pos_cap=0.10, size_mult=1.0, rp_scale=1.0,
             target_atr_mult=(2.0, 6.0, 10.0), target_rr_floor=(1.2, 3.0, 5.0)):
     """
     Genera la scheda operativa per un singolo candidato.
@@ -65,6 +65,9 @@ def propose(ticker, entry, atr14, score, capital,
     regime_mult: moltiplicatore di rischio dal regime di mercato (regime_filter.py).
     size_mult: moltiplicatore di convinzione (1.0 piena, <1 ridotta) per il portafoglio tiered.
     pos_cap: cap di valore della posizione in frazione del capitale (default 10%).
+    rp_scale: moltiplicatore di risk-parity = min(medATR%/ATR%_i, 1.0). Abbassa il cap
+        per i nomi ad alta volatilita' relativa; validato su ciclo 2018-2026 (IC95 [+1.07,+9.04]
+        su DeltaMaxDD). Default 1.0 = equal-weight (nessun aggiustamento).
     target_atr_mult / target_rr_floor: i 3 target (T1/T2/T3) sono il MASSIMO tra un multiplo
         di ATR (scala con la volatilita' del titolo) e un multiplo del rischio (garantisce R/R
         favorevole). Sostituiscono i vecchi target fissi +4.1%/+8.2% (R/R<1).
@@ -98,12 +101,18 @@ def propose(ticker, entry, atr14, score, capital,
     risk_eur = capital * risk_per_trade * eff_mult
     shares = int(risk_eur / risk_per_share) if risk_per_share > 0 else 0
     pos_value = shares * entry
-    max_pos_value = capital * pos_cap * eff_mult   # cap modulato da regime e convinzione
+    # Risk-parity: pos_cap ridotto per nomi ad alta ATR (rp_scale = min(medATR/ATR_i, 1.0)).
+    # Validato 2018-2026: MaxDD -17.81% -> -13.15%, IC95 [+1.07,+9.04], Calmar +0.70 -> +0.89.
+    eff_pos_cap = pos_cap * rp_scale
+    max_pos_value = capital * eff_pos_cap * eff_mult   # cap modulato da regime, convinzione e RP
     binding = ""
     if pos_value > max_pos_value:
         shares = int(max_pos_value / entry) if entry > 0 else 0
         pos_value = shares * entry
-        binding = f" (capped a {pos_cap*100:.0f}% x conv)"
+        if rp_scale < 0.999:
+            binding = f" (capped RP {eff_pos_cap*100:.0f}%)"
+        else:
+            binding = f" (capped a {pos_cap*100:.0f}% x conv)"
 
     # Guadagno POTENZIALE per ciascun target, netto costi, in % e in EUR sulla posizione.
     def _gain(t):
@@ -131,7 +140,7 @@ def propose(ticker, entry, atr14, score, capital,
         "shares": shares, "pos_value": round(pos_value,2), "pos_pct": round(pos_value/capital*100,1),
         "risk_eur": round(shares*risk_per_share,2), "cost_pct": cost,
         "net_exp_pct": round(net_exp,2), "eur_exp": round(eur_exp,2), "binding": binding,
-        "regime_mult": regime_mult, "size_mult": size_mult,
+        "regime_mult": regime_mult, "size_mult": size_mult, "rp_scale": round(rp_scale, 3),
     }
 
 def render(p):
@@ -145,7 +154,8 @@ def render(p):
     out.append(f" Target 2: {p['t2']:.4f} (R/R {p['rr2']}:1 | +{p['g2_pct']:.1f}% net = {p['g2_eur']:+.0f}EUR)")
     out.append(f" Target 3: {p['t3']:.4f} (R/R {p['rr3']}:1 | +{p['g3_pct']:.1f}% net = {p['g3_eur']:+.0f}EUR)  [runner]")
     out.append("")
-    out.append(f" Regime x{p['regime_mult']} | convinzione x{p['size_mult']}")
+    rp_str = f" | RP x{p['rp_scale']:.2f}" if p.get("rp_scale", 1.0) < 0.999 else ""
+    out.append(f" Regime x{p['regime_mult']} | convinzione x{p['size_mult']}{rp_str}")
     out.append(f" SIZING:  {p['shares']} azioni = {p['pos_value']:.0f}EUR ({p['pos_pct']}% portaf.){p['binding']}")
     out.append(f"          Rischio massimo posizione: {p['risk_eur']:.0f}EUR")
     out.append("")

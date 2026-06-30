@@ -224,6 +224,15 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
                 .drop_duplicates("dg", keep="first")
                 .sort_values("conv", ascending=False))
 
+    # Risk-parity: medATR% cross-sezionale sui nomi eleggibili -> rp_scale = min(med/ATR_i, 1).
+    # Validato su ciclo 2018-2026 (portfolio_backtester, Run #30/#31): MaxDD -17.81%->-13.15%,
+    # IC95 [+1.07,+9.04] esclude zero, Calmar +0.70->+0.89; equal-weight ≡ live senza questo.
+    if not elig.empty:
+        atr_pcts = elig["atr"] / elig["price"]
+        med_atr_pct = float(np.median(atr_pcts))
+    else:
+        med_atr_pct = 0.02
+
     budget = exposure_cap * capital
     picked, exposure = [], 0.0
     sec_count = {}
@@ -231,8 +240,10 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
         sec = SECTOR.get(r.ticker, "Altro")
         if sec_count.get(sec, 0) >= MAX_PER_SECTOR:
             continue
+        atr_pct_i = r.atr / r.price if r.price > 0 else med_atr_pct
+        rp_scale = float(min(med_atr_pct / atr_pct_i, 1.0)) if atr_pct_i > 0 else 1.0
         p = propose(r.ticker, entry=r.price, atr14=r.atr, score=r.score, capital=capital,
-                    regime_mult=mult_by_mkt.get(r.mkt, 0.5), size_mult=r.size_mult)
+                    regime_mult=mult_by_mkt.get(r.mkt, 0.5), size_mult=r.size_mult, rp_scale=rp_scale)
         p["confidence"] = r.conf      # confidenza con soglie LIVE (percentili)
         if p["shares"] <= 0 or exposure + p["pos_value"] > budget:
             continue
@@ -269,6 +280,9 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w(" ROBUSTEZZA CICLO COMPLETO 2018-2026 (robustness_consolidate): Sharpe 1.0, MaxDD -13.8%,")
     w("   CAGR +14%, PSR 0.98 (edge REALE) ma DSR<0.95 (non blindato) -> SIZE MODERATA, mai leverage:")
     w("   il profitto si protegge col gate di regime + STOP, non con un Sharpe alto (bull-concentrato).")
+    w(f" RISK-PARITY SIZING (Run #30/#31, validato 2018-2026): pos_cap scalato da medATR%={med_atr_pct*100:.2f}%.")
+    w("   MaxDD -17.81%->-13.15%, Calmar +0.70->+0.89 (IC95 [+1.07,+9.04] esclude zero)."
+      " I nomi ad alta ATR ricevono size proporzionalmente ridotta.")
     w(" QUALITA' FONDAMENTALE PIT (SEC EDGAR): leva DIFENSIVA (validata 2018-2026, pit_validate).")
     w("   Aiuta in BEAR (ret +0.63%/win +3.7%/Sharpe +0.48), non in bull -> morde solo nei mercati")
     w("   NON in TREND_UP (Q+ piena, Q/Q- ridotta); in TREND_UP neutra. USA only (EU=n/d).")
@@ -280,13 +294,14 @@ def build(capital=50000.0, max_names=12, exposure_cap=0.85, include_pullback=Fal
     w(f" SELEZIONATI: {len(picked)} ({n_core} CORE / {len(picked)-n_core} SAT) | "
       f"esposizione {exposure:.0f} EUR ({exposure/capital*100:.0f}% del capitale)")
     w("-" * 92)
-    w(f" {'TICK':9s}{'NOME':20s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'FQ':>4s}{'CONF':>6s}{'SIZE×':>6s}{'AZ':>5s}{'VALORE':>9s}"
+    w(f" {'TICK':9s}{'NOME':20s}{'SCORE':>6s}{'SM$':>6s}{'ROLE':>5s}{'FQ':>4s}{'CONF':>6s}{'SIZE×':>6s}{'RP×':>5s}{'AZ':>5s}{'VALORE':>9s}"
       f"{'T1%':>7s}{'T2%':>7s}{'T3%':>7s}")
     t1 = t2 = t3 = 0.0
     expo_mkt = {}
     for r, p in picked:
         cname = tk_names.get(r.ticker, r.ticker)[:19]
-        w(f" {r.ticker:9s}{cname:20s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.fq:>4s}{r.conf:>6s}{r.size_mult:6.2f}{p['shares']:5d}"
+        w(f" {r.ticker:9s}{cname:20s}{r.score:6.3f}{r.sm:6.2f}{r.role:>5s}{r.fq:>4s}{r.conf:>6s}{r.size_mult:6.2f}"
+          f"{p['rp_scale']:5.2f}{p['shares']:5d}"
           f"{p['pos_value']:9.0f}{p['g1_pct']:7.1f}{p['g2_pct']:7.1f}{p['g3_pct']:7.1f}")
         t1 += p['g1_eur']; t2 += p['g2_eur']; t3 += p['g3_eur']
         expo_mkt[r.mkt] = expo_mkt.get(r.mkt, 0.0) + p['pos_value']

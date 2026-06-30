@@ -740,4 +740,44 @@ del harness per-segnale (fix4/fix5): conferma la Lezione #22 (lo strumento sbagl
    Lezione meta: "la formula c'e'" non basta; controlla se un altro vincolo (qui il cap) la annulla nei fatti.
 
 ---
+
+## Lezione #25 — 2026-06-30 — Risk-parity integrato nel live: come farlo senza rompere il builder
+
+**Evidenza (Run #32, integrazione in produzione).**
+Il cap del 10% nella `propose()` domina sempre (Lezione #24, Run #31): il live era equal-weight di fatto.
+Per attivare il risk-parity validato (IC95 [+1.07,+9.04] su ΔMaxDD, Lezione #24) si introduce:
+
+```python
+# In modules/trade_proposal.py: nuovo parametro rp_scale (default 1.0 = no-op)
+eff_pos_cap = pos_cap * rp_scale          # riduce il cap per nomi ad alta ATR
+max_pos_value = capital * eff_pos_cap * eff_mult
+
+# In portfolio_builder.build(): calcolo cross-sezionale sui nomi eleggibili
+med_atr_pct = np.median(elig["atr"] / elig["price"])   # mediana ATR% del giorno
+rp_scale = min(med_atr_pct / atr_pct_i, 1.0)           # >= 1 clampato a 1
+```
+
+**Effetto concreto (portafoglio 2026-06-26)**:
+- medATR% = 2.31%: nomi a bassa volatilita' (CS.PA, ENEL.MI) restano al 10%; nomi ad alta
+  volatilita' (STMMI.MI RP×0.43 → cap 4.3%, EDEN.PA RP×0.58 → cap 5.8%) ridotti proporzionalmente.
+- Esposizione totale 61% (vs 85% max teorico): il gate di regime (go-flat US) e la riduzione RP
+  combinano, nessun nome supera il cap aggiustato per la sua volatilita'.
+- L'output mostra la colonna RP× in tabella e "RP x<val>" nella scheda operativa.
+
+**Regola.**
+1. **Il rp_scale e' backward-compatible**: default 1.0 = comportamento precedente esatto. Nessuna
+   regressione nei test o nei chiamanti che non passano il parametro.
+2. **Il med_atr_pct si calcola DOPO la selezione eleggibile**, non su tutto l'universo: evita
+   di usare la distribuzione delle ATR di nomi esclusi (diversa dal set operativo del giorno).
+3. **La riduzione RP diminuisce sia il pos_cap base sia quello modulato da size_mult e regime_mult**:
+   l'ordine corretto e' `eff_pos_cap = pos_cap * rp_scale` e poi `max_pos = capital * eff_pos_cap * eff_mult`.
+   Non modificare il risk_per_trade: lo stop rimane invariato.
+4. **Tracciabilita'**: la colonna RP× in tabella e il tag "(capped RP N%)" nel binding rendono ogni
+   riduzione di size trasparente. Non nascondere la leva — il trader deve capire PERCHE' una posizione
+   e' piu' piccola.
+5. **Unicorn sleeve non modificato**: usa gia' `pos_cap=0.05` (meta' del core) e `size_mult=0.5`;
+   l'ATR elevata degli unicorni renderebbe il RP aggiuntivo eccessivamente restrittivo su un sleeve
+   gia' gated e dimensionato per l'high-beta.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
