@@ -856,4 +856,49 @@ US drag annuo: 3.06% (23,458€ / 8 anni / 100k) — costo medio per trade RT 24
    fiscale separata prima di prendere decisioni finali.
 
 ---
+
+## Lezione #28 — 2026-06-30 — Holding 20gg: EU distrugge il MaxDD, US migliora
+
+**Evidenza (Run #35, GATE+RP+Fineco+Slip, 2018-2026, holding 10gg vs 20gg).**
+
+| Universo | Hold | CAGR% | MaxDD% | Sharpe | Calmar | Trade | Costi€ |
+|----------|------|-------|--------|--------|--------|-------|--------|
+| EU | 10gg | +7.49 | −14.70 | 0.70 | 0.51 | 1208 | 40,169 |
+| EU | 20gg | +4.86 | **−36.87** | 0.40 | 0.13 | 674 | 21,394 |
+| US | 10gg | +8.03 | −12.19 | 0.77 | 0.66 | 952 | 23,458 |
+| US | 20gg | +8.41 | −11.61 | 0.76 | **0.72** | 538 | 13,270 |
+
+EU: 20gg riduce i costi del 46.7% (−18,775€) ma crolla il MaxDD da −14.7% a **−36.9%** e il
+CAGR perde 2.63pt. Il risparmio commissionale è completamente sovrastato dal deterioramento del
+profilo di rischio. **Verdetto EU: 10gg dominante.**
+
+US: 20gg migliora LEGGERMENTE tutto — CAGR +0.38pt, MaxDD migliora (+0.58pt), costi −43.4%.
+Il flat rate di 9.95€/gamba non penalizza come il percentuale EU, e il trend USA 2018-2026 è
+abbastanza persistente da reggere holding più lunghi. **Verdetto US: 20gg marginalmente migliore.**
+
+**Perché EU crolla con 20gg?**
+- L'EU con 10gg sfrutta breakout di momentum di breve durata. A 20gg, le posizioni attraversano
+  l'intera fase di ritracciamento dopo il breakout — il segnale score_new non ha persistenza a
+  20gg su questo universo.
+- Il gate TREND_UP NON chiude posizioni anticipatamente se il regime cambia durante l'holding:
+  la posizione 20gg resta aperta anche se il mercato si gira dopo 10gg, amplificando i drawdown
+  intraciclo (questo effetto è amplificato da mercati EU più volatili e meno trending).
+- Con 20gg il numero di slot occupati aumenta simultaneamente (più sovrapposizione): ExpoMean
+  sale da 54.4% a 60.6%. Più esposizione in regime che può essere cambiato = più rischio.
+
+**Regola.**
+1. **L'holding period ottimale è specifico per mercato**: EU 10gg, US 20gg (o più)
+   riflette la diversa persistenza del momentum tra i due universi.
+2. **Allungare l'holding per risparmiare commissioni è un'euristica pericolosa**: il risparmio
+   reale dipende interamente da quante barre il segnale mantiene potere predittivo. Misurare
+   sempre il Calmar e il MaxDD, non solo il Δ costi.
+3. **Il gate di regime va abbinato a una logica di uscita anticipata (regime-exit)**:
+   se il mercato gira a TREND_DOWN/LATERALE durante una posizione 20gg, chiudere pro-quota
+   ridurrebbe il MaxDD EU di 20gg. Da implementare come Run #36 candidato.
+4. **Strategia ibrida possibile**: holding 10gg per EU (protezione del MaxDD) + holding 20gg
+   per azioni US quando ^GSPC è TREND_UP (risparmio commissionale + Calmar migliore).
+5. **Il Calmar è la sentinella**: EU 20gg Calmar 0.13 (inutilizzabile) vs 10gg Calmar 0.51
+   (operativo). Non accettare mai una configurazione con Calmar < 0.3 su un backtest 8 anni.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

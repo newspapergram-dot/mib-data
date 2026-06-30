@@ -1346,10 +1346,55 @@ il numero di trade EU da 153 a ~76/anno → atteso risparmio ~2 pt CAGR su EU.
 - Lezione #27 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #34)
-- [ ] Run #35: holding period 10→20 giorni → misurare riduzione turnover e drag EU.
+- [x] Run #35: holding period 10→20 giorni → fatto. EU: 10gg dominante. US: 20gg marginalmente migliore.
 - [ ] Soglia score espandente (expanding window, OOS pulito) — rimuove il bias in-sample sul p80.
 - [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno (drag aggiuntivo fisso).
 - [ ] Integrare US tickers nel portafoglio live quando ^GSPC torna TREND_UP.
+
+---
+
+## Run #35 — 2026-06-30 (Ottimizzazione Holding Period: 10 vs 20 giorni)
+
+**Obiettivo:** verificare se raddoppiare l'holding period da 10 a 20 giorni riduce il drag
+commissionale EU senza deteriorare significativamente l'alpha. Schema fisso: GATE+RP+Fineco+Slip.
+
+**Risultati (2018-2026, GATE TREND_UP + RISK-PARITY + Fineco+Slip):**
+
+| Universo | Hold | CAGR% | MaxDD% | Sharpe | Calmar | Trade | Costi€ |
+|----------|------|-------|--------|--------|--------|-------|--------|
+| EU | 10gg | +7.49 | −14.70 | 0.70 | 0.51 | 1208 | 40,169 |
+| EU | **20gg** | +4.86 | **−36.87** | 0.40 | 0.13 | 674 | 21,394 |
+| US | 10gg | +8.03 | −12.19 | 0.77 | 0.66 | 952 | 23,458 |
+| US | **20gg** | +8.41 | −11.61 | 0.76 | **0.72** | 538 | 13,270 |
+
+**Analisi del delta:**
+- EU 20gg: risparmio commissioni 46.7% (−18,775€) ma MaxDD esplode da −14.7% a −36.9% (Δ −22.17pt).
+  Il segnale score_new EU non ha persistenza oltre i 10gg. Il gate non chiude posizioni se il
+  regime cambia durante l'holding → le posizioni 20gg attraversano regressions complete.
+- US 20gg: risparmio commissioni 43.4% (−10,188€), CAGR +0.38pt, MaxDD invariato. Trend USA
+  più persistente, flat fee non scalante → 20gg vantaggioso.
+
+**Conclusioni:**
+- EU: **10gg dominante** (Calmar 0.51 vs 0.13, Sharpe 0.70 vs 0.40).
+- US: **20gg marginalmente migliore** (Calmar 0.72 vs 0.66, minori costi).
+- Strategia ibrida raccomandata: 10gg per EU, 20gg per US quando ^GSPC TREND_UP.
+
+**Prossimo candidato (Run #36):** uscita anticipata per cambio regime (regime-exit) —
+chiudere la posizione se il mercato gira TREND_DOWN durante l'holding, riducendo il MaxDD EU 20gg.
+Alternativa più semplice: filtro score minimo p85 (vs p80 attuale) per ridurre il turnover EU
+senza estendere l'holding.
+
+- Report: `data/HOLDING_20D_REPORT.txt`
+- Equity: `data/eu_equity_hold10/20.csv`, `data/sp500_equity_hold10/20.csv`
+- Lezione #28 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #35)
+- [ ] Run #36 (candidato A): regime-exit — uscita anticipata se il mercato gira TREND_DOWN
+  durante l'holding. Riduce MaxDD 20gg EU senza aumentare il turnover.
+- [ ] Run #36 (candidato B): filtro score p85 (vs p80) — meno trade, stessa qualità del segnale.
+- [ ] Strategia ibrida EU(10gg) + US(20gg) su portafoglio combinato.
+- [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno.
+- [ ] Soglia score espandente (expanding window, OOS pulito).
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
