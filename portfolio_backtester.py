@@ -185,7 +185,7 @@ def _expanding_thr_array(score_panel, top_q):
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
              equity_out="data/portfolio_equity.csv", costs=False, expanding_threshold=False,
-             taxes=False, _pre=None):
+             taxes=False, return_trade_log=False, _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
                live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
@@ -209,6 +209,7 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     total_costs_paid = 0.0   # commissioni + slippage cumulati (solo se costs=True)
     total_taxes_paid = 0.0   # CGT + bollo cumulati (solo se taxes=True)
     zainetto = []            # crediti da minusvalenza: [{"year": int, "credit": float}, ...]
+    trade_log = [] if return_trade_log else None  # log dei trade chiusi per stress test MC
     start = 201        # serve uno storico per gli score e un giorno-segnale precedente
 
     for i in range(start, n):
@@ -223,15 +224,27 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 exit_comm = _txn_cost(tk, proceeds) if costs else 0.0
                 slip_cost = positions[tk]["shares"] * float(px_exit) * SLIP if costs else 0.0
                 net_proceeds = proceeds - exit_comm
+                trade_cost_basis = positions[tk].get("cost_basis", 0.0)
                 cash += net_proceeds
                 total_costs_paid += (exit_comm + slip_cost)
+                cgt = 0.0
                 # CGT 26% sul gain netto (plusvalenza = net_proceeds - cost_basis)
                 if taxes:
-                    raw_gain = net_proceeds - positions[tk].get("cost_basis", 0.0)
+                    raw_gain = net_proceeds - trade_cost_basis
                     cgt = _apply_capital_gains_tax(raw_gain, day.year, zainetto)
                     cash -= cgt
                     total_taxes_paid += cgt
                 positions.pop(tk)
+                if trade_log is not None:
+                    trade_log.append({
+                        "ticker": tk,
+                        "market": "EU" if tk.endswith((".MI", ".PA", ".AS")) else "US",
+                        "exit_date": day,
+                        "cost_basis": trade_cost_basis,
+                        "net_proceeds": net_proceeds,
+                        "cgt_paid": cgt,
+                        "net_proceeds_post_tax": net_proceeds - cgt,
+                    })
 
         # 2) MARK-TO-MARKET (valore di portafoglio a inizio giornata, post-uscite)
         holdings_val = sum(p["shares"] * float(close_mtm.at[day, tk])
@@ -354,6 +367,8 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
            "costs": costs, "total_costs_paid": round(total_costs_paid, 2),
            "taxes": taxes, "total_taxes_paid": round(total_taxes_paid, 2),
            "zainetto_remaining": zainetto_rem}
+    if return_trade_log:
+        res["_trade_log"] = trade_log
     return eq, res
 
 

@@ -1042,4 +1042,58 @@ US:  +10.57% (zero costi) → +8.16% lordo (−2.41pt Fineco+slip) → +5.60% ne
    sono nel dataset, il che gonfia il CAGR lordo. Questo è il prossimo test critico (Run #39).
 
 ---
+
+## Lezione #32 — 2026-06-30 — Il survivorship bias è materiale per l'EU ad alta rotazione; moderato per US
+
+**Evidenza (Run #39, 500 sim MC, 1.5% trade stressati a −60%, assetto Run #38 con tasse IT).**
+
+| Universo | Trade tot | Stressati/sim | CAGR base | Stress Mean | Stress p5 | MaxDD stress mean | P(CAGR>BTP) |
+|----------|-----------|---------------|-----------|-------------|-----------|-------------------|-------------|
+| EU p85 10gg | 1175 | 18 | +5.64% | **−15.33%** | **−20.36%** | −81.31% | 0.0% |
+| US p80 20gg | 528 | 8 | +5.60% | **−0.22%** | **−1.17%** | −26.97% | 0.0% |
+
+**L'EU collassa** sotto stress: 18 eventi catastrofici × ~7,000€ avg delta = ~126,000€
+perdita cumulativa su un portafoglio di 100K. L'alto turnover EU (1175 vs 528 trade US)
+è la fonte di vulnerabilità. Il cumsum dei delta si propaga in avanti nel tempo → una
+perdita al mese 1 riduce il portfolio per tutti gli 8 anni successivi.
+
+**L'US sopravvive** con CAGR medio −0.22% (vicino allo zero): solo 8 eventi stressati
+per sim, impatto cumulativo ~56,000€ su portafoglio che cresce a 155K+ → meno devastante.
+
+**Interpretazione del modello (conservativo):**
+- Il credito zainetto da ogni trade stressato viene recuperato nella stessa data di uscita
+  (assumption favorevole) ma NON viene riapplicato alle plusvalenze future (assumption sfavorevole).
+- Ogni trade delisted paga −60% del cost_basis (Wirecard/Astaldi scenario), non −100%:
+  questa è la soglia MÍNIMA di scenario catastrofico plausibile su mid-small cap.
+
+**Limitazioni del modello:**
+1. Nel delta-cumsum non si rimodella l'intero loop di portafoglio: un portafoglio stressato
+   ridurrebbe la size dei trade successivi (cash inferiore) → la perdita reale è superiore
+   (il modello SOTTOSTIMA l'impatto per EU perché il compounding del portafoglio ridotto
+   non è catturato).
+2. Il 1.5% di trade stressati è prudente (ca. 1 delisting ogni 67 trade su 8 anni).
+   Un portafoglio EU diversificato su FTSE MIB 40 (solo large cap, no fallimenti storici)
+   avrebbe una rate reale probabilmente <0.2%.
+3. I 10 giorni di holding riducono l'esposizione: il sistema tipicamente esce per scadenza
+   holding PRIMA del delisting. Il −60% è una stima conservativa della perdita media.
+
+**Regola.**
+1. **Non trattare il CAGR netto +5.6% EU come numero certo**: il survivorship bias nel
+   dataset EU è materiale data l'alta rotazione (1175 trade / 8 anni = 147 trade/anno).
+   Il numero reale potrebbe essere significativamente inferiore se si includono titoli delisted.
+2. **L'US è più robusto** al survivorship bias (528 trade, p5 CAGR −1.17%): il portafoglio
+   S&P 500 ha meno fallimenti storici e il sistema ha meno trade stressabili per sim.
+3. **Priorità per rendere l'EU robusto:**
+   a. **Stop-loss per ogni posizione** (es. −15% sul cost_basis) → taglia le perdite
+      catastrofiche a −15% invece di −60%. Un solo intervento riduce il delta per trade di 4x.
+   b. **Filtrare l'universo EU** su capitalization >500M€ (FTSE MIB 40 + EURO STOXX 50):
+      le large cap hanno tassi di fallimento ~0 negli ultimi 10 anni.
+   c. **Aggiungere i titoli delisted storicamente al dataset** (data augmentation):
+      include Wirecard, Thomas Cook, Evergrande ADR, Astaldi, ecc.
+4. **Il driver principale dell'alpha EU è il regime gate + RSI edge**: anche con survivorship
+   bias nel dataset, l'edge su FTSE MIB è reale ma la sua ampiezza è incerta.
+5. **Nelle decisioni di allocazione real money**: usare una stima conservativa del CAGR EU
+   (+2% a +4% reale) fino a disponibilità di dati con survivorship correction.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

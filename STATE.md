@@ -1527,9 +1527,73 @@ Fonte di ottimismo residua: survivorship bias nel dataset (ticker delisted esclu
 - Lezione #31 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #38)
-- [ ] Run #39 (priorità): Survivorship bias audit — ticker delisted 2018-2026 non nel dataset.
+- [x] Run #39: Survivorship bias stress test → fatto. EU alta sensibilità, US moderata.
 - [ ] Regime-exit: chiusura anticipata al cambio di regime durante holding.
 - [ ] Portafoglio combinato EU+US con allocazione proporzionale.
+
+---
+
+## Run #39 — 2026-06-30 (Stress Test Survivorship Bias: Monte Carlo Degradation)
+
+**Obiettivo:** quantificare l'impatto del survivorship bias simulando titoli delistati/falliti
+con perdita catastrofica −60% sul 1.5% dei trade. 500 simulazioni MC per distribuzione statistica.
+
+**Implementazione tecnica in `portfolio_backtester.py`:**
+- Aggiunto `return_trade_log=False` a `backtest()` (backward-compatible)
+- `trade_log = [] if return_trade_log else None` nel tracking variables block
+- Exit block modificato: `trade_cost_basis` salvato prima di `positions.pop()`;
+  `cgt=0.0` inizializzato; `trade_log.append({ticker, market, exit_date, cost_basis,
+  net_proceeds, cgt_paid, net_proceeds_post_tax})` dopo il pop
+- `res["_trade_log"] = trade_log` gated su `return_trade_log`
+
+**Approccio delta-cumsum (O(n) per iterazione, ~500 sim < 5s):**
+- Esecuzione backtest base UNA VOLTA con `return_trade_log=True`
+- Per ogni sim: seleziona 1.5% dei trade → calcola delta = `stressed_net - net_proceeds_post_tax`
+  (dove `stressed_net = cost_basis × 0.40 + cgt_paid_originale`)
+- Applica cumsum dei delta alla curva equity base → CAGR/MaxDD/Sharpe sulla curva stressata
+
+**Risultati (500 sims, seed=42, 1.5% trade a −60%, assetto Run #38 netto):**
+
+| Universo | Trade | Stress/sim | Base CAGR | Mean CAGR | p5 CAGR | p50 CAGR | MaxDD mean | P(>0%) | P(>BTP) |
+|----------|-------|------------|-----------|-----------|---------|---------|------------|--------|---------|
+| EU p85 10gg | 1175 | 18 | +5.64% | **−15.33%** | **−20.36%** | −14.98% | −81.31% | 0.0% | 0.0% |
+| US p80 20gg | 528 | 8 | +5.60% | **−0.22%** | **−1.17%** | −0.24% | −26.97% | 34.0% | 0.0% |
+
+**Diagnosi del collasso EU:**
+L'EU ha 1175 trade in 8 anni (147/anno): 18 eventi stressati/sim × ~7,000€ avg delta =
+~126,000€ di perdita cumulativa su portafoglio da 100K. Il cumsum propaga ogni perdita
+avanti nel tempo → l'effetto è amplificato dal compounding. L'alto turnover EU è la
+vulnerabilità strutturale. L'US con 528 trade (8 stressati) accumula ~56,000€ di perdita
+su un portafoglio cresciuto a 155K+ → meno devastante ma comunque materiale.
+
+**Verdetto robustezza:**
+- EU: NON ROBUSTO — CAGR medio −15.33%, MaxDD stress −81.31% → il survivorship bias
+  è un rischio materiale dato l'universo mid-small cap ad alta rotazione.
+- US: NON ROBUSTO (ma marginalmente) — CAGR medio −0.22%, 34% probabilità di restare
+  positivo → il bias è misurabile ma non catastrofico per il portafoglio US.
+
+**Azioni correttive identificate:**
+1. **Stop-loss esplicito** (es. −15%) → taglia la perdita catastrofica da −60% a −15%
+   (4x riduzione del delta per trade stressato).
+2. **Filtrare universo EU** su large cap (FTSE MIB 40 + EURO STOXX 50 >500M€):
+   tassi di fallimento storicamente ~0 sulle large cap EU negli ultimi 10 anni.
+3. **Data augmentation**: includere titoli delisted nel dataset per correzione realistica.
+
+**Modifica tecnica a `portfolio_backtester.py`:**
+- `return_trade_log=False` aggiunto a firma `backtest()`
+- `trade_log` tracking nel loop principale + append post-exit
+- `res["_trade_log"]` restituito se `return_trade_log=True`
+
+- Report: `data/SURVIVORSHIP_STRESS_REPORT.txt`
+- Equity base: `data/eu_equity_stress_base.csv`, `data/sp500_equity_stress_base.csv`
+- Lezione #32 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #39)
+- [ ] Run #40: Stop-loss esplicito (−15%) — testa l'impatto su CAGR netto e riduzione
+      del survivorship bias exposure. Mantieni assetto Run #38.
+- [ ] Regime-exit: chiusura anticipata al cambio di regime durante holding.
+- [ ] Portafoglio combinato EU+US con allocazione proporzionale.
+- [ ] Data augmentation EU: aggiungere titoli delisted (Astaldi, Carige, ecc.) al dataset.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
