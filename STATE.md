@@ -1052,4 +1052,211 @@ MAI registrare una barra di sessione non chiusa (radice della Lezione #20) — p
 - [ ] IT TREND_UP confermato su chiusura 06-26; rivalutare a fine sessione 06-29 reale.
 
 ---
+
+## Run #26 — 2026-06-29 (FIX 5: risk parity inverse-ATR — respinto dal backtest, harness inadatto)
+
+**Obiettivo:** testare il sizing a rischio paritario (peso ∝ 1/ATR%14) vs equal-weight sul ciclo
+completo, con focus su MaxDD e Sharpe; integrare in `portfolio_builder` solo se il MaxDD si abbatte
+in modo sistematico (ΔMaxDD IC95% che non attraversa lo 0).
+
+### Test (fix5_validate.py, 2018-2026, 6329 segnali / 1004 date, bootstrap PAIRED)
+| Schema | Sharpe | MaxDD% | Vol%ann |
+|--------|--------|--------|---------|
+| A EQUAL | 0.55 | −95.7 | 94.3 |
+| B RISK-PARITY (1/ATR%) | 0.52 | −95.7 | 91.4 |
+| C RP-CAPPED (3x) | 0.51 | −95.7 | 91.4 |
+
+- ΔMaxDD vs equal: B +0.00pt [−2.35,+3.68], C +0.01pt [−2.11,+3.47] → **IC attraversa lo 0**.
+- ΔSharpe: B/C −0.05 (rumore). **Soglia non soddisfatta → FIX 5 NON INTEGRATO.**
+
+### Scoperta metodologica (più importante del risultato)
+- MaxDD **identico −95.7%** tra schemi perche' le date di peggior drawdown hanno **1 solo nome**
+  (worst: 2025-04-08 −45.8%, 2018-12-24 −44.7%, 2020-03-02 −41.9%, tutte n=1). 23% delle date ha
+  1 nome, 34% ≤2 (mediana 5). Il sizing cross-sectional non puo' diversificare un tail a nome singolo.
+- Il harness per-segnale (portfolio_sim, rendimenti 10gg sovrapposti) **non e' lo strumento giusto**
+  per il vol-sizing, che agisce tra posizioni CONCORRENTI. "Nessun effetto" qui = strumento inadatto,
+  non ipotesi falsa. Non si tocca `portfolio_builder` su questa base. Esito: `data/FIX5_VALIDATE.txt`.
+
+### Watch list
+- [ ] **Held-portfolio backtest**: simulare il portafoglio REALMENTE detenuto (~10 nomi concorrenti,
+  posizioni sovrapposte, equity giornaliera vera) per testare correttamente risk parity / vol-sizing.
+  Solo lì il FIX 5 puo' essere validato o respinto in modo equo.
+- [ ] (da Run #25) size graduata per sm: candidata a /simplify; IT TREND_UP da rivalutare a fine 06-29.
+
+---
+
+## Run #27 — 2026-06-29 (Held-Portfolio Backtester: equity di percorso reale)
+
+**Obiettivo:** costruire il motore mancante per testare correttamente sizing/drawdown — un
+portafoglio REALMENTE detenuto con equity giornaliera, non bet per-segnale indipendenti (lo
+strumento giusto chiesto a fine Run #26).
+
+### Architettura (portfolio_backtester.py)
+- Capitale 100k, mark-to-market giornaliero (equity = cassa + posizioni).
+- Max 10 posizioni simultanee, max 10% del capitale totale per posizione.
+- Segnali validi < 10 → resto in CASSA (mai >100% investito, nessuna leva implicita).
+- Holding 10 giorni operativi: ingresso al close t+1 (segnale di t, no lookahead), uscita al
+  close del 10° giorno successivo.
+- Segnale: `score_series` = score_new VETTORIZZATO, validato identico a score_new (0 mismatch/25;
+  ADX/RSI/rolling sono causali → valore a t su serie intera == su slice [:t+1]).
+
+### Risultati (2018-10-11 → 2026-06-25, 1991 sedute)
+| Metrica | Valore |
+|---------|--------|
+| CAGR | +12.21% |
+| **MaxDD (path reale)** | **−32.11%** |
+| Sharpe (daily) | +0.80 |
+| Vol annua | 16.04% |
+| Calmar | +0.38 |
+| Market Exposure | 93.2% media, 9.4 posizioni |
+| Trade | 1876 |
+
+### Perche' conta
+- **MaxDD reale −32% vs artefatto −95.7%** (harness per-segnale fix4/5): conferma Lezione #22.
+  Questo motore sblocca il test CORRETTO di risk parity/vol-sizing (FIX 5) e size per smart money.
+- Bug trovato e corretto in corsa: display vol annua (frazione stampata come %, 0.16%→16.04%);
+  equity/Sharpe/MaxDD erano gia' corretti (verificato ricalcolando da portfolio_equity.csv).
+- Report: `data/PORTFOLIO_BACKTEST.txt`; equity giornaliera: `data/portfolio_equity.csv`.
+
+### Watch list
+- [ ] **Aggiungere il gate di regime** al motore (go-flat fuori TREND_UP): atteso abbattimento del
+  MaxDD verso il −13.8% di robustness_consolidate. Primo A/B sul nuovo motore.
+- [ ] **Ri-testare FIX 5 (risk parity) e size-per-smart-money** su questo motore (dove le posizioni
+  concorrenti rendono il vol-sizing osservabile).
+- [ ] **Costi di transazione** nel motore (1876 trade, non trascurabili) + soglia score espandente
+  per un OOS pulito (ora p80 globale, lieve bias in-sample).
+
+## Run #28 — 2026-06-29 (A/B Regime Gate sul Held-Portfolio Backtester)
+
+**Obiettivo:** primo A/B sul motore di Run #27 — misurare l'effetto del gate di regime
+(ingressi solo in TREND_UP per mercato; posizioni a scadenza, capitale in cassa nei non-trend)
+su MaxDD, Calmar ed esposizione. Logica validata `classify_regime` vettorizzata (0 mismatch/15).
+
+### Risultato (2018-2026, stesso universo e soglia, cambia SOLO il gate)
+| Metrica | A Baseline (always-in) | B Regime-Gate | Δ (B−A) |
+|---------|------------------------|----------------|---------|
+| CAGR % | +12.21 | **+12.44** | +0.23 |
+| **MaxDD % (path)** | −32.11 | **−17.81** | **+14.30** |
+| Sharpe (daily) | +0.80 | +0.93 | +0.13 |
+| Calmar | +0.38 | **+0.70** | +0.32 |
+| Market Exposure % | 93.2 | 59.9 | −33.3 |
+| Posizioni medie | 9.4 | 6.0 | −3.4 |
+| Trade | 1876 | 1208 | −668 |
+
+### Lettura
+- **Il gate quasi DIMEZZA il MaxDD (−32%→−18%) SENZA costare CAGR** (anzi +0.23 pt): protezione
+  del drawdown sostanzialmente gratuita su questo ciclo. Calmar quasi raddoppia (0.38→0.70).
+- L'esposizione media scende al 60% (40% del tempo in cassa nei regimi non-trend): è il meccanismo
+  della protezione, non un effetto collaterale. Conferma il "go-flat" come fonte di robustezza.
+- **Valida il design GIA' PRESENTE nel modello live**: `portfolio_builder` opera di default solo in
+  TREND_UP (`include_pullback=False`). Questo A/B quantifica perche' quel gate e' corretto.
+- Il MaxDD residuo −17.81% si avvicina al −13.8% di `robustness_consolidate`; il gap restante e'
+  probabilmente la size dimezzata in PULLBACK + universo/periodo (prossimo affinamento).
+- Report: `data/REGIME_PORTFOLIO_TEST.txt`; equity: `portfolio_equity.csv` (A) e
+  `portfolio_equity_regime.csv` (B).
+
+### Watch list
+- [ ] Variante PULLBACK a mezza size (oggi il gate e' binario TREND_UP-only) per recuperare un po'
+  di esposizione/CAGR mantenendo il DD basso.
+- [ ] Costi di transazione nel motore (1208-1876 trade) + soglia score espandente (OOS pulito).
+- [ ] Ri-testare FIX 5 risk-parity su questo motore CON il gate attivo (dove il vol-sizing conta).
+
+## Run #29 — 2026-06-29 (PULLBACK a mezza size: respinto, si tiene il gate binario)
+
+**Obiettivo:** verificare se aprire a META' size anche in PULLBACK (px<SMA20 ma >SMA200) recupera
+esposizione/CAGR senza riportare su il MaxDD. A/B a 3 vie sul motore held-portfolio.
+
+| Metrica | A OFF | B GATE (TREND_UP) | C TIERED (+PULLBACK 1/2) |
+|---------|-------|-------------------|--------------------------|
+| CAGR % | +12.21 | +12.44 | +9.95 |
+| MaxDD % | −32.11 | −17.81 | −16.60 |
+| Calmar | +0.38 | **+0.70** | +0.60 |
+| Exposure % | 93.2 | 59.9 | 60.8 |
+
+- Il TIERED abbassa il MaxDD di solo 1.2 pt ma **costa 2.5 pt di CAGR** → Calmar 0.60 < 0.70.
+  **Respinto: si tiene il gate binario TREND_UP-only.** Conferma `include_pullback=False` del live.
+- Motivo: il PULLBACK (px sotto SMA20) e' spesso debolezza precoce; entrarci, anche a mezza size,
+  cattura piu' perdenti di quanto risparmi in drawdown. Report: `data/REGIME_PULLBACK_TEST.txt`.
+
+## Run #30 — 2026-06-29 (Risk parity sul motore REALE: FIX 5 validato — e gia' nel live)
+
+**Obiettivo:** ri-testare FIX 5 (risk parity inverse-ATR) sul motore held-portfolio col gate attivo,
+dove il vol-sizing agisce tra posizioni CONCORRENTI (il test equo che il harness per-segnale di
+Run #26 non permetteva, Lezione #22).
+
+| Metrica | EQUAL-WEIGHT (10% flat) | RISK-PARITY (inverse-ATR, cap 10%) |
+|---------|-------------------------|-------------------------------------|
+| CAGR % | +12.44 | +11.73 |
+| **MaxDD % (path)** | −17.81 | **−13.15** |
+| Sharpe (daily) | +0.93 | **+1.04** |
+| Calmar | +0.70 | **+0.89** |
+| Exposure % | 59.9 | 54.4 |
+
+- **ΔMaxDD +4.65 pt, bootstrap PAIRED IC95% [+1.07, +9.04] → ESCLUDE lo 0**: abbattimento
+  SISTEMATICO confermato. ΔSharpe [−0.00, +0.24] (non peggiora). MaxDD −13.15% ≈ il −13.8% di
+  robustness_consolidate.
+- **Vindicazione di FIX 5 e della Lezione #22**: la STESSA ipotesi respinta sul harness artefatto
+  (Run #26, MaxDD −95% non misurabile) PASSA sul motore reale. Lo strumento era sbagliato, non l'idea.
+- **INTEGRAZIONE — gia' fatta nel live**: `trade_proposal.propose` dimensiona per rischio ATR
+  (`shares = risk_eur/(entry−stop)`, stop ~ entry−2·ATR → pos_value ∝ 1/ATR%, cap 10%) = e' gia'
+  risk-parity. Questo test VALIDA quel design; il baseline equal-weight 10% flat era il ramo NON
+  rappresentativo del live. **Nessun nuovo codice di sizing**: duplicarlo sarebbe doppio conteggio.
+  Report: `data/RISKPARITY_HELD_TEST.txt`.
+
+### Watch list
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito) — restano aperti.
+
+## Run #31 — 2026-06-29 (Baseline alignment + CORREZIONE di Run #30)
+
+**Obiettivo:** allineare il baseline del backtester al sizing del modello live e rimisurare il
+risk-parity contro quel baseline (ultimo task di consolidamento).
+
+**Scoperta (corregge Run #30):** il sizing "live" (replica di `propose`: risk budget su stop ATR,
+cap 10%) sul motore da' metriche **IDENTICHE all'equal-weight** (equity 252.542, MaxDD −17.81,
+Calmar 0.70). Motivo: con `risk_per_trade`=2.14% e stop ~2·ATR, la pos_value non-capata e' sempre
+4-10x il cap del 10% → **il cap vince sempre**, la size = 10%×convinzione, NON dipende dall'ATR.
+
+| Metrica | LIVE (propose) | EQUAL-WEIGHT | RISK-PARITY |
+|---------|----------------|--------------|-------------|
+| CAGR % | +12.44 | +12.44 | +11.73 |
+| MaxDD % | −17.81 | −17.81 | **−13.15** |
+| Calmar | +0.70 | +0.70 | **+0.89** |
+
+- **Correzione**: in Run #30 avevo concluso "il live e' gia' risk-parity → niente da integrare".
+  ERA SBAGLIATO. Il live ≡ equal-weight (cap dominante); il **risk-parity e' un miglioramento REALE
+  non catturato** (ΔMaxDD +4.65 pt, IC95% [+1.07,+9.04] esclude 0) → vero candidato all'integrazione.
+- Report: `data/BASELINE_ALIGN_TEST.txt`. Lezione #24 punto 4 corretta.
+
+### Watch list (aggiornata)
+- [x] **INTEGRARE il risk-parity nel live** → fatto in Run #32.
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+
+---
+
+## Run #32 — 2026-06-30 (Integrazione risk-parity in produzione)
+
+**Obiettivo:** integrare il risk-parity validato (IC95 [+1.07,+9.04] su ΔMaxDD, Run #30/#31)
+direttamente in `modules/trade_proposal.py` e `portfolio_builder.py`.
+
+**Meccanismo:**
+- `propose()` riceve un nuovo parametro `rp_scale=1.0` (default no-op, backward-compatible).
+  `eff_pos_cap = pos_cap * rp_scale` sostituisce `pos_cap` nel calcolo del cap.
+- `portfolio_builder.build()` calcola `med_atr_pct = np.median(elig["atr"] / elig["price"])`
+  sui nomi ELEGGIBILI (non sull'intero universo). Per ogni nome: `rp_scale = min(med_atr_pct / atr_pct_i, 1.0)`.
+
+**Effetto sul portafoglio 2026-06-26:**
+- medATR% = 2.31% della sessione. Nomi a bassa vol: RP×1.00 (cap 10% invariato).
+  Nomi ad alta vol: STMMI.MI RP×0.43 (cap 4.3%), EDEN.PA RP×0.58 (cap 5.8%), MB.MI RP×0.95 (cap 9.5%).
+- Esposizione 30.439 EUR (61%) su 10 nomi; nessun nome supera il cap aggiustato per la sua vol.
+- Output: colonna RP× aggiunta alla tabella; tag "RP x<val>" e "(capped RP N%)" nelle schede operative.
+
+**Backward-compatibility:** `rp_scale=1.0` = comportamento precedente esatto (include unicorn sleeve
+che mantiene `pos_cap=0.05` fisso senza RP addizionale).
+
+### Watch list (aggiornata)
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+- [ ] A/B test del RP sul builder live (next session): campionare i portafogli generati nelle
+  prossime settimane con e senza RP per misurare l'effetto reale out-of-sample.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

@@ -1,0 +1,27 @@
+==========================================================================================
+ REGIME SIZING — 3 vie (Run #29): OFF vs GATE (TREND_UP) vs TIERED (TREND_UP + PULLBACK 1/2)
+ Il TIERED apre a META' size anche in PULLBACK (px sotto SMA20 ma sopra SMA200): recupera
+ esposizione mantenendo il go-flat nei regimi davvero ostili (LATERALE/TREND_DOWN).
+==========================================================================================
+ Periodo 2018-10-11 -> 2026-06-25 | capitale 100000
+
+ METRICA                              A OFF          B GATE        C TIERED
+ --------------------------------------------------------------------------
+ Equity finale                      248,537         252,542         211,646
+ CAGR %                              +12.21          +12.44           +9.95
+ MaxDD % (path)                      -32.11          -17.81          -16.60
+ Sharpe (daily)                       +0.80           +0.93           +0.79
+ Vol annua %                          16.04           13.65           13.03
+ Calmar                               +0.38           +0.70           +0.60
+ Market Exposure % media               93.2            59.9            60.8
+ Posizioni medie                        9.4             6.0             7.2
+ Trade totali                          1876            1208            1445
+
+ LETTURA (focus: il TIERED recupera CAGR/esposizione senza riportare su il MaxDD?):
+  - MaxDD:  OFF -32.11 | GATE -17.81 | TIERED -16.60
+  - Calmar: OFF +0.38 | GATE +0.70 | TIERED +0.60
+  - Expo%:  OFF 93.2 | GATE 59.9 | TIERED 60.8
+  - Miglior Calmar tra GATE/TIERED: GATE (+0.70). Il PULLBACK a mezza size NON migliora: tenere il gate binario.
+
+ NB: stesso universo e soglia (p80 globale); cambia SOLO la regola di regime/size. Costi non modellati.
+==========================================================================================

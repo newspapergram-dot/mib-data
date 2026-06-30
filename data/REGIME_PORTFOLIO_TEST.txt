@@ -1,0 +1,29 @@
+====================================================================================
+ A/B REGIME GATE — Held-Portfolio Backtester (Run #28)
+ Ingressi bloccati fuori da TREND_UP (per mercato: IT=FTSEMIB, FR=^FCHI, US=^GSPC);
+ le posizioni aperte vanno a scadenza (10gg) e il capitale torna in CASSA.
+====================================================================================
+ Periodo 2018-10-11 -> 2026-06-25 | capitale 100000
+
+ METRICA                         A BASELINE   B REGIME-GATE       Δ (B-A)
+ ------------------------------------------------------------------------
+ Equity finale                      248,537         252,542      +4004.72
+ CAGR %                              +12.21          +12.44         +0.23
+ MaxDD % (path)                      -32.11          -17.81        +14.30
+ Sharpe (daily)                       +0.80           +0.93         +0.13
+ Vol annua %                          16.04           13.65         -2.40
+ Calmar                               +0.38           +0.70         +0.32
+ Market Exposure % media               93.2            59.9        -33.30
+ Posizioni medie                        9.4             6.0         -3.37
+ Trade totali                          1876            1208          -668
+ ------------------------------------------------------------------------
+
+ LETTURA:
+  - ΔMaxDD: +14.30 pt  (drawdown RIDOTTO; MaxDD e' negativo, Δ>0 = meno profondo).
+  - Calmar: +0.38 -> +0.70 (MIGLIORA: rendimento per unita' di DD).
+  - Market Exposure: 93.2% -> 59.9% (il gate riduce l'esposizione restando in cassa nei regimi non-trend).
+  - CAGR: +0.23 pt ANCHE col gate (il dimezzamento del DD NON costa rendimento su questo ciclo): protezione gratuita, da giudicare col Calmar.
+
+ NB: confronto sullo STESSO universo e soglia (p80 globale); cambia SOLO il gate di regime.
+ NB: costi di transazione non ancora modellati (vale per entrambi i rami).
+====================================================================================
