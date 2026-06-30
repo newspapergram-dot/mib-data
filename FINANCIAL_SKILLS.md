@@ -817,4 +817,43 @@ Bootstrap RP: ΔMaxDD IC95 [+0.09, +5.98] (esclude 0, marginalmente ma valido).
    TREND_UP, si possono aggiungere azioni USA selezionate dallo stesso score_new.
 
 ---
+
+## Lezione #27 — 2026-06-30 — Le commissioni Fineco mangiano ~4 pt di CAGR ma l'edge sopravvive
+
+**Evidenza (Run #34, GATE+RP, 2018-2026, struttura Fineco reale + slippage 0.02%).**
+
+| Universo | CAGR (no costi) | CAGR (con costi) | Drag | Sharpe | Calmar |
+|----------|-----------------|------------------|------|--------|--------|
+| EU       | +11.73%         | **+7.49%**        | −4.25 pt | 0.70 | 0.51 |
+| S&P 500  | +10.57%         | **+8.03%**        | −2.54 pt | 0.77 | 0.66 |
+
+EU drag annuo: 5.08% (40,169€ / 8 anni / 100k) — costo medio per trade RT (2 gambe) 33.3€.
+US drag annuo: 3.06% (23,458€ / 8 anni / 100k) — costo medio per trade RT 24.6€ (di cui 19.90€ flat).
+
+**Perché EU costa di più nonostante la struttura percentuale?**
+- La struttura 0.19% (cap 19€ per gamba) su una posizione tipica di 5k-10k dà 9.5-19€ per gamba.
+  Una posizione >5,263€ paga più della US flat (9.95€ per gamba). Su portafoglio crescente (capitale
+  che cresce da 100k a ~165k) le posizioni medie crescono e la spesa supera la tariffa US.
+- In più, EU ha 1208 trades vs US 952 (26% più turnover, stesso holding 10gg ma universo più piccolo
+  produce meno slot liberi → paradossalmente, un universo piccolo trada di più proporzionalmente
+  perché riempie le 10 slot con un sottoinsieme più ristretto — minor diversification of turnover).
+
+**Regola.**
+1. **L'edge esiste anche netto di commissioni reali** — Sharpe 0.70 e CAGR 7.49% (EU), 0.77 e 8.03%
+   (US). Non è il sogno del lordo, ma è un profitto reale. Non gonfiare le aspettative col backtest
+   a zero costi.
+2. **Il turnover (10gg holding, ~150 trade/anno) è il fattore critico**, non la tariffazione unitaria.
+   Ogni giorno in più di holding riduce i trade proporzionalmente: raddoppiare il holding a 20gg
+   dimezzerebbe i trade e risparmierebbe ~2 pt di CAGR. Da testare (Run #35 candidato).
+3. **La struttura Fineco EU penalizza posizioni medie (5-10k€)**. Su posizioni >10k€ il cap 19€
+   diventa conveniente (0.19% → non paghi più). Il sistema scala meglio con capitale maggiore
+   (la commissione non scala sopra i 10k ma il profitto sì): con 200k capitale, stesso drag in EUR
+   = drag % dimezzato.
+4. **US flat 9.95€/gamba è più prevedibile**: su qualsiasi posizione > 1.000$ conviene più del
+   percentuale EU. Per un conto US puro la struttura flat è favorevole a posizioni piccole.
+5. **Costi non inclusi nel backtest ma rilevanti in Italia**: bollo titoli 0.2%/anno (≈ 0.1% sul
+   capitale totale con 50% exposure media) e imposta plusvalenze 26%. Aggiungere in una simulazione
+   fiscale separata prima di prendere decisioni finali.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

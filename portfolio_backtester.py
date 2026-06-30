@@ -29,6 +29,13 @@ CAPITAL0 = 100_000.0
 MAX_POS = 10
 POS_CAP = 0.10           # 10% del capitale totale per posizione
 HOLD = 10                # giorni operativi
+
+# ---- Struttura costi Fineco (Run #34) ----
+SLIP           = 0.0002   # 0.02% slippage su ogni eseguito (acquisto al rialzo, vendita al ribasso)
+FINECO_EU_PCT  = 0.0019   # 0.19% sul controvalore per titoli EU (.MI/.PA/.AS)
+FINECO_EU_MIN  = 2.95     # minimo EUR per singola gamba EU
+FINECO_EU_MAX  = 19.00    # massimo EUR per singola gamba EU
+FINECO_US_FLAT = 9.95     # tariffa fissa per titoli US, trattata come EUR (USD≈EUR, err<5%)
 TOP_Q = 0.80
 ANN = 252
 FAVORABLE = {"TREND_UP"}     # regimi in cui si aprono NUOVE posizioni (go-flat validato: solo trend)
@@ -84,6 +91,15 @@ def _max_drawdown(equity):
     return float((equity / peak - 1).min())
 
 
+def _txn_cost(ticker, trade_value):
+    """Costo di transazione per SINGOLA GAMBA (ingresso O uscita) — struttura Fineco.
+    EU (.MI/.PA/.AS): 0.19% del controvalore, min 2.95€, max 19.00€.
+    US (tutto il resto): 9.95 flat (USD ≈ EUR, approssimazione < 5% al cambio corrente)."""
+    if ticker.endswith((".MI", ".PA", ".AS")):
+        return float(np.clip(FINECO_EU_PCT * trade_value, FINECO_EU_MIN, FINECO_EU_MAX))
+    return FINECO_US_FLAT
+
+
 def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     """Precompute (costoso) condiviso tra i due rami dell'A/B: prezzi, score, regime per mercato."""
     px = pd.read_csv(px_path, parse_dates=["date"]).dropna(subset=["close"]).sort_values(["ticker", "date"])
@@ -111,10 +127,12 @@ def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
 
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
-             equity_out="data/portfolio_equity.csv", _pre=None):
+             equity_out="data/portfolio_equity.csv", costs=False, _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
-               live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%)."""
+               live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
+       costs: False (default, comportamento precedente invariato) |
+              True (applica slippage SLIP + commissioni Fineco reali per singola gamba)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
@@ -124,6 +142,7 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     positions = {}     # tk -> {shares, entry_i, entry_px}
     recs = []
     trades = 0
+    total_costs_paid = 0.0   # commissioni + slippage cumulati (solo se costs=True)
     start = 201        # serve uno storico per gli score e un giorno-segnale precedente
 
     for i in range(start, n):
@@ -133,7 +152,12 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
         for tk in [t for t, p in positions.items() if i - p["entry_i"] >= hold]:
             px_exit = close_mtm.at[day, tk]
             if pd.notna(px_exit):
-                cash += positions[tk]["shares"] * float(px_exit)
+                eff_exit = float(px_exit) * (1 - SLIP) if costs else float(px_exit)
+                proceeds = positions[tk]["shares"] * eff_exit
+                exit_comm = _txn_cost(tk, proceeds) if costs else 0.0
+                slip_cost = positions[tk]["shares"] * float(px_exit) * SLIP if costs else 0.0
+                cash += (proceeds - exit_comm)
+                total_costs_paid += (exit_comm + slip_cost)
                 positions.pop(tk)
 
         # 2) MARK-TO-MARKET (valore di portafoglio a inizio giornata, post-uscite)
@@ -177,6 +201,7 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 if len(positions) >= max_pos:
                     break
                 price = float(close_raw.at[day, tk])
+                eff_entry = price * (1 + SLIP) if costs else price   # slippage: compra più caro
                 regmult = _regime_mult(tk)
                 if sizing == "live":
                     # fedele a propose(): risk budget su stop ATR, poi cap al 10% (che di norma vince)
@@ -187,12 +212,24 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 else:
                     budget = pos_cap * regmult * _vol_mult(tk) * total_value
                 budget = min(budget, cash)                   # size = 10% x regime x (vol|live), mai > 10%
-                shares = int(budget / price) if price > 0 else 0
+                shares = int(budget / eff_entry) if eff_entry > 0 else 0
                 if shares <= 0:
                     continue
-                cost = shares * price
-                cash -= cost
-                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": price}
+                trade_val = shares * eff_entry
+                entry_comm = _txn_cost(tk, trade_val) if costs else 0.0
+                slip_cost  = shares * price * SLIP if costs else 0.0
+                # Verifica cassa: trade + commissione devono stare nella liquidita' disponibile
+                if trade_val + entry_comm > cash:
+                    max_sh = int((cash - entry_comm) / eff_entry) if (cash - entry_comm) > 0 else 0
+                    if max_sh <= 0:
+                        continue
+                    shares = max_sh
+                    trade_val  = shares * eff_entry
+                    slip_cost  = shares * price * SLIP if costs else 0.0
+                    entry_comm = _txn_cost(tk, trade_val) if costs else 0.0
+                cash -= (trade_val + entry_comm)
+                total_costs_paid += (entry_comm + slip_cost)
+                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": eff_entry}
                 trades += 1
 
         # 4) MTM di chiusura giornata (dopo gli ingressi) per l'equity
@@ -223,7 +260,8 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
            "CAGR_pct": cagr * 100, "MaxDD_pct": maxdd * 100, "Sharpe_daily": sharpe,
            "Vol_ann_pct": vol, "Calmar": calmar, "avg_exposure_pct": avg_expo * 100,
            "avg_n_pos": avg_npos, "trades": trades, "score_thr": float(thr),
-           "regime_mode": regime_mode, "sizing": sizing}
+           "regime_mode": regime_mode, "sizing": sizing,
+           "costs": costs, "total_costs_paid": round(total_costs_paid, 2)}
     return eq, res
 
 

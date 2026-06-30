@@ -1296,7 +1296,60 @@ Implicazione: il modello e' candidato a coprire azioni USA in regime TREND_UP (^
 - [ ] Integrare US tickers nel portafoglio live quando ^GSPC torna TREND_UP (usa sp500_data_long
   come universo, stessa score_new, regime ^GSPC come gate). Richiede aggiornamento giornaliero
   dello sp500_data_long (fetch_sp500.py --update).
-- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+- [x] Costi di transazione nel motore → fatto in Run #34.
+
+---
+
+## Run #34 — 2026-06-30 (Commissioni Reali Fineco + Slippage)
+
+**Obiettivo:** integrare i costi di transazione reali Fineco nel motore di backtest e misurare
+il drag sul CAGR e sulle metriche di rischio. Verificare che l'edge sopravviva ai costi reali.
+
+**Struttura costi implementata:**
+- EU (.MI/.PA/.AS): 0.19% controvalore | min 2.95€ | max 19.00€ per singola gamba
+- US (altri): 9.95€ flat per singola gamba (USD ≈ EUR)
+- Slippage: 0.02% su ogni prezzo eseguito (acquisto +slip, vendita −slip)
+- Ogni round-trip = 2 gambe → costo RT = 2× la singola gamba
+
+**Modifiche al codice:**
+- `portfolio_backtester.py`: aggiunto blocco costanti (`SLIP`, `FINECO_EU_PCT/MIN/MAX`, `FINECO_US_FLAT`),
+  funzione `_txn_cost(ticker, trade_value)`, parametro `costs=False` a `backtest()`,
+  tracking `total_costs_paid` e aggiustamento dei prezzi eseguiti per lo slippage.
+- `run34_fineco_costs.py` (nuovo): 4 arm (EU/US × zero-cost/Fineco+slip, schema GATE+RP).
+  Report: `data/FINECO_COSTS_REPORT.txt`.
+
+**Risultati (2018-2026, GATE TREND_UP + RISK-PARITY):**
+
+| Universo | Schema | CAGR% | MaxDD% | Sharpe | Calmar | Trade | Costi€ |
+|----------|--------|-------|--------|--------|--------|-------|--------|
+| EU | zero costi | +11.73 | −13.15 | 1.04 | 0.89 | 1208 | — |
+| EU | Fineco+slip | +7.49 | −14.70 | 0.70 | 0.51 | 1208 | 40,169 |
+| US | zero costi | +10.57 | −11.92 | 0.99 | 0.89 | 952 | — |
+| US | Fineco+slip | +8.03 | −12.19 | 0.77 | 0.66 | 952 | 23,458 |
+
+**Analisi del drag:**
+- EU: Δ CAGR −4.25 pt | Drag annuo 5.08% | 33.3€/trade RT | 153 trade/anno
+- US: Δ CAGR −2.54 pt | Drag annuo 3.06% | 24.6€/trade RT | 124 trade/anno
+- EU più costoso perché 0.19% su posizioni >5.263€ supera il flat US da 9.95€/gamba
+
+**Edge sopravvive:** SI per entrambi i mercati (Sharpe>0.5, CAGR>3%, MaxDD>−40%).
+
+**Conclusione:** il modello è OPERATIVO con costi reali. Il drag EU del 5.08%/anno è il principale
+leva di ottimizzazione: ridurre il turnover (holding più lungo) abbassa il drag proporzionalmente.
+
+**Prossimo candidato (Run #35):** raddoppiare l'holding period da 10→20 giorni per ridurre
+il numero di trade EU da 153 a ~76/anno → atteso risparmio ~2 pt CAGR su EU.
+
+- Report: `data/FINECO_COSTS_REPORT.txt`
+- Equity: `data/eu_equity_nocost.csv`, `data/eu_equity_fineco.csv`,
+          `data/sp500_equity_nocost.csv`, `data/sp500_equity_fineco.csv`
+- Lezione #27 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #34)
+- [ ] Run #35: holding period 10→20 giorni → misurare riduzione turnover e drag EU.
+- [ ] Soglia score espandente (expanding window, OOS pulito) — rimuove il bias in-sample sul p80.
+- [ ] Tax simulation: imposta plusvalenze 26% + bollo titoli 0.2%/anno (drag aggiuntivo fisso).
+- [ ] Integrare US tickers nel portafoglio live quando ^GSPC torna TREND_UP.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
