@@ -38,6 +38,11 @@ FINECO_EU_MAX  = 19.00    # massimo EUR per singola gamba EU
 FINECO_US_FLAT = 9.95     # tariffa fissa per titoli US, trattata come EUR (USD≈EUR, err<5%)
 TOP_Q = 0.80
 ANN = 252
+
+# ---- Regime fiscale amministrato italiano (Run #38) ----
+TAX_CAPITAL_GAIN = 0.26   # aliquota 26% sulle plusvalenze realizzate
+TAX_BOLLO        = 0.0020 # imposta di bollo 0.20%/anno sul valore totale portafoglio
+TAX_CREDIT_YEARS = 4      # anni di validità dei crediti da minusvalenza (zainetto fiscale)
 FAVORABLE = {"TREND_UP"}     # regimi in cui si aprono NUOVE posizioni (go-flat validato: solo trend)
 RISK_PER_TRADE = 0.0214      # come trade_proposal.propose (per il sizing "live" fedele)
 
@@ -100,6 +105,39 @@ def _txn_cost(ticker, trade_value):
     return FINECO_US_FLAT
 
 
+def _apply_capital_gains_tax(raw_gain, trade_year, zainetto):
+    """Regime amministrato italiano: 26% sulla plusvalenza netta con zainetto fiscale.
+
+    raw_gain: plusvalenza (>0) o minusvalenza (<0) del singolo trade, già netta di commissioni.
+    trade_year: anno solare del trade (per gestire scadenza crediti a 4 anni).
+    zainetto: lista di dict {'year': int, 'credit': float} — modificata in-place.
+
+    Ritorna la tassa dovuta (€) da detrarre dalla cassa. Se raw_gain <= 0, la perdita
+    viene aggiunta allo zainetto come credito e la funzione ritorna 0.0.
+    """
+    # Rimuovi crediti scaduti (generati più di TAX_CREDIT_YEARS anni fa)
+    zainetto[:] = [e for e in zainetto if trade_year - e["year"] <= TAX_CREDIT_YEARS]
+
+    if raw_gain <= 0:
+        # Minusvalenza: accumula nel zainetto
+        if raw_gain < 0:
+            zainetto.append({"year": trade_year, "credit": abs(raw_gain)})
+        return 0.0
+
+    # Plusvalenza: consuma crediti zainetto FIFO (dal più vecchio) fino ad esaurimento
+    taxable = raw_gain
+    for entry in zainetto:
+        if taxable <= 1e-6:
+            break
+        consumed = min(entry["credit"], taxable)
+        entry["credit"] -= consumed
+        taxable -= consumed
+    # Rimuovi crediti esauriti
+    zainetto[:] = [e for e in zainetto if e["credit"] > 1e-6]
+
+    return max(0.0, taxable) * TAX_CAPITAL_GAIN
+
+
 def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     """Precompute (costoso) condiviso tra i due rami dell'A/B: prezzi, score, regime per mercato."""
     px = pd.read_csv(px_path, parse_dates=["date"]).dropna(subset=["close"]).sort_values(["ticker", "date"])
@@ -147,15 +185,13 @@ def _expanding_thr_array(score_panel, top_q):
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
              equity_out="data/portfolio_equity.csv", costs=False, expanding_threshold=False,
-             _pre=None):
+             taxes=False, _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
                live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
-       costs: False (default, comportamento precedente invariato) |
-              True (applica slippage SLIP + commissioni Fineco reali per singola gamba).
-       expanding_threshold: False (default, usa thr globale da prepare) |
-              True (soglia calcolata giorno per giorno su dati storici fino a t — OOS pulito).
-              Richiede top_q esplicito anche quando _pre e' fornito."""
+       costs: False (default) | True (slippage SLIP + commissioni Fineco reali per singola gamba).
+       expanding_threshold: False (default) | True (soglia OOS pulita, calcolata giorno per giorno).
+       taxes: False (default) | True (regime amministrato IT: CGT 26% + zainetto 4 anni + bollo 0.20%)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
@@ -167,10 +203,12 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
         exp_thr = _expanding_thr_array(score_panel, top_q)
 
     cash = capital0
-    positions = {}     # tk -> {shares, entry_i, entry_px}
+    positions = {}     # tk -> {shares, entry_i, entry_px, cost_basis}
     recs = []
     trades = 0
     total_costs_paid = 0.0   # commissioni + slippage cumulati (solo se costs=True)
+    total_taxes_paid = 0.0   # CGT + bollo cumulati (solo se taxes=True)
+    zainetto = []            # crediti da minusvalenza: [{"year": int, "credit": float}, ...]
     start = 201        # serve uno storico per gli score e un giorno-segnale precedente
 
     for i in range(start, n):
@@ -184,8 +222,15 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 proceeds = positions[tk]["shares"] * eff_exit
                 exit_comm = _txn_cost(tk, proceeds) if costs else 0.0
                 slip_cost = positions[tk]["shares"] * float(px_exit) * SLIP if costs else 0.0
-                cash += (proceeds - exit_comm)
+                net_proceeds = proceeds - exit_comm
+                cash += net_proceeds
                 total_costs_paid += (exit_comm + slip_cost)
+                # CGT 26% sul gain netto (plusvalenza = net_proceeds - cost_basis)
+                if taxes:
+                    raw_gain = net_proceeds - positions[tk].get("cost_basis", 0.0)
+                    cgt = _apply_capital_gains_tax(raw_gain, day.year, zainetto)
+                    cash -= cgt
+                    total_taxes_paid += cgt
                 positions.pop(tk)
 
         # 2) MARK-TO-MARKET (valore di portafoglio a inizio giornata, post-uscite)
@@ -193,6 +238,15 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                            for tk, p in positions.items()
                            if pd.notna(close_mtm.at[day, tk]))
         total_value = cash + holdings_val
+
+        # Imposta di Bollo 0.20%/anno: applicata il primo giorno dell'anno sul valore
+        # di chiusura dell'ultimo giorno dell'anno precedente (recs[-1]["equity"]).
+        if taxes and recs and day.year > recs[-1]["date"].year:
+            bollo_base = recs[-1]["equity"]
+            bollo = bollo_base * TAX_BOLLO
+            cash -= bollo
+            total_taxes_paid += bollo
+            total_value = cash + holdings_val   # aggiorna total_value post-bollo
 
         # 3) INGRESSI: segnali validi del giorno PRECEDENTE (no lookahead), nomi non gia' detenuti,
         #    con barra REALE oggi per il fill. Riempi gli slot liberi, size 10% del totale per nome.
@@ -259,7 +313,9 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                     entry_comm = _txn_cost(tk, trade_val) if costs else 0.0
                 cash -= (trade_val + entry_comm)
                 total_costs_paid += (entry_comm + slip_cost)
-                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": eff_entry}
+                # cost_basis: costo totale d'acquisto (valore + commissione) per il calcolo CGT
+                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": eff_entry,
+                                 "cost_basis": trade_val + entry_comm}
                 trades += 1
 
         # 4) MTM di chiusura giornata (dopo gli ingressi) per l'equity
@@ -287,6 +343,7 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
 
     # score_thr: con expanding usa la soglia finale (ultima del periodo); con statico usa thr globale.
     final_thr = float(exp_thr[-1]) if expanding_threshold else float(thr)
+    zainetto_rem = round(sum(e["credit"] for e in zainetto), 2)
     res = {"start": str(cal[start].date()), "end": str(cal[-1].date()), "days": len(eq),
            "capital0": capital0, "equity_final": float(eq["equity"].iloc[-1]),
            "CAGR_pct": cagr * 100, "MaxDD_pct": maxdd * 100, "Sharpe_daily": sharpe,
@@ -294,7 +351,9 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
            "avg_n_pos": avg_npos, "trades": trades, "score_thr": final_thr,
            "expanding_threshold": expanding_threshold, "top_q_used": top_q,
            "regime_mode": regime_mode, "sizing": sizing,
-           "costs": costs, "total_costs_paid": round(total_costs_paid, 2)}
+           "costs": costs, "total_costs_paid": round(total_costs_paid, 2),
+           "taxes": taxes, "total_taxes_paid": round(total_taxes_paid, 2),
+           "zainetto_remaining": zainetto_rem}
     return eq, res
 
 

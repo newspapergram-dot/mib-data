@@ -990,4 +990,56 @@ La differenza sta solo nell'ordine temporale di attivazione dei segnali.
    prima del live sono: survivorship bias nel dataset e tasse (26% plusvalenze + bollo 0.2%).
 
 ---
+
+## Lezione #31 — 2026-06-30 — Il CAGR netto dopo tasse IT è ~5.6%: edge reale confermato
+
+**Evidenza (Run #38, regime amministrato IT, CGT 26% + zainetto 4 anni + bollo 0.20%).**
+
+| Universo | CAGR Lordo | CAGR Netto | Δ (tax drag) | Tasse totali | Calmar netto |
+|----------|-----------|-----------|--------------|-------------|--------------|
+| EU p85 10gg | +8.49% | **+5.64%** | −2.86pt | 23,714€ | 0.45 |
+| US p80 20gg | +8.16% | **+5.60%** | −2.56pt | 22,631€ | 0.49 |
+
+Zainetto residuo a fine periodo: EU 4,097€ / US 6,344€ (crediti da minus non recuperati).
+Aliquota effettiva: EU 26.2% / US 27.4% (vicina al 26% teorico — zainetto ha ridotto la base).
+MaxDD dopo tasse: EU −12.53% (Δ −1.09pt) / US −11.35% (invariato) — tasse non amplificano i drawdown.
+
+**Edge dopo tasse: CONFERMATO su entrambi i mercati** (Sharpe>0.5, CAGR>2%).
+
+**Cumulo drag 2018-2026 rispetto al backtest a zero costi (baseline R30/33):**
+```
+EU:  +11.73% (zero costi) → +8.49% lordo (−3.24pt Fineco+slip) → +5.64% netto (−2.85pt tasse)
+     Drag totale: −6.09 pt CAGR | CAGR netto / anno: +5.64%
+US:  +10.57% (zero costi) → +8.16% lordo (−2.41pt Fineco+slip) → +5.60% netto (−2.56pt tasse)
+     Drag totale: −4.97 pt CAGR | CAGR netto / anno: +5.60%
+```
+
+**Cosa significa il zainetto in pratica:**
+- Il zainetto fiscale italiano è potente: permette di portare in detrazione le minus per 4 anni.
+- Nelle fasi di mercato ribassista (2018Q4, 2020 Covid, 2022) il sistema accumula crediti
+  che compensano le plusvalenze degli anni successivi → l'aliquota effettiva rimane vicina al 26%
+  (non più alta per effetto delle perdite, non più bassa perché il portafoglio è profittevole).
+- Zainetto residuo a fine periodo (EU 4k€, US 6k€) = perdite degli ultimi mesi 2025-2026
+  che non hanno ancora trovato contropartita (normale a fine backtest).
+
+**Regola.**
+1. **Il CAGR netto realistico è +5.6% circa** per entrambi i mercati: questo è il numero da
+   usare per valutare il conto economico della strategia (non il +8.5% lordo, non il +11.7%
+   a zero costi). Il +5.6% batte l'inflazione EU attesa (2-3%) e il rendimento dei BTP 10y
+   (~3.5%) con un profilo di rischio moderato (MaxDD −12%, Sharpe 0.55).
+2. **Il drag fiscale (−2.8pt CAGR) ≈ drag commissionale EU (−3.2pt)**: le tasse e le commissioni
+   hanno peso simile. Ottimizzare entrambi con la stessa priorità.
+3. **Il zainetto è un'opzione gratuita offerta dal fisco**: usarla attivamente significa
+   evitare di chiudere posizioni in gain negli anni in cui si hanno crediti disponibili
+   (per esempio, aspettare che il regime torni TREND_UP dopo una fase ribassista invece di
+   chiudere le posizioni aperte). In questo backtest la logica automatica già sfrutta il
+   zainetto attraverso il gate (poche posizioni aperte in bear → meno minus negli anni sbagliati).
+4. **La soglia di selettività del gestore**: CAGR netto +5.6% è sopra il costo opportunità
+   (BTP ~3.5%) ma non abbastanza da rendere la strategia dominante vs un ETF S&P 500 (CAGR
+   lordo ~8%/anno da Buy&Hold). La strategia ha valore per il profilo di rischio (MaxDD −12%
+   vs −34% del Buy&Hold S&P 2020) e per l'investitore che non tolera drawdown elevati.
+5. **Fonte di ottimismo residua**: survivorship bias — i titoli delisted tra 2018 e 2026 non
+   sono nel dataset, il che gonfia il CAGR lordo. Questo è il prossimo test critico (Run #39).
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*

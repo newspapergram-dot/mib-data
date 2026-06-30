@@ -1482,12 +1482,54 @@ sopravvive con soglia puramente OOS (expanding window: soglia_t = quantile dei d
 - Lezione #30 aggiunta a `FINANCIAL_SKILLS.md`
 
 ### Watch list (aggiornata dopo Run #37)
-- [ ] Run #38: Tax simulation — imposta plusvalenze 26% (solo sui profitti realizzati, non
-  lineare) + bollo titoli 0.2%/anno sul valore medio portafoglio. Stima dell'alpha netto fiscale.
-- [ ] Run #38 alt: Survivorship bias audit — verificare quanti ticker in mib_data_long.csv sono
-  sopravvissuti fino al 2026 (quelli delisted non sono nel dataset → bias positivo sul CAGR).
-- [ ] Portafoglio combinato EU+US con expanding threshold su entrambi.
-- [ ] Regime-exit: chiusura anticipata al cambio regime durante holding (riduce MaxDD residuo).
+- [x] Run #38: Tax simulation → fatto. CAGR netto +5.64% EU / +5.60% US. Edge confermato.
+- [ ] Run #38 alt: Survivorship bias audit — prossima priorità.
+- [ ] Portafoglio combinato EU+US.
+- [ ] Regime-exit (chiusura anticipata al cambio regime).
+
+---
+
+## Run #38 — 2026-06-30 (Simulazione Fiscale: Regime Amministrato IT)
+
+**Obiettivo:** aggiungere la tassazione italiana reale al loop di backtest per ottenere
+il CAGR netto dopo tutte le frizioni operative: commissioni Fineco + slippage + CGT 26%
++ zainetto fiscale 4 anni + imposta di bollo 0.20%/anno.
+
+**Implementazione tecnica in `portfolio_backtester.py`:**
+- Costanti: `TAX_CAPITAL_GAIN=0.26`, `TAX_BOLLO=0.002`, `TAX_CREDIT_YEARS=4`
+- `_apply_capital_gains_tax(raw_gain, trade_year, zainetto)`: CGT con zainetto FIFO, scadenza 4a
+- Parametro `taxes=False` (backward-compatible) aggiunto a `backtest()`
+- `cost_basis` aggiunto al dict `positions` per tracking preciso del gain per trade
+- Bollo: detratto dalla cassa il primo giorno dell'anno sull'equity di fine anno precedente
+- `res` dict: nuovi campi `total_taxes_paid`, `zainetto_remaining`, `taxes`
+
+**Risultati (2018-2026, assetto OOS definitivo Run #37: EU p85 10gg / US p80 20gg, expanding):**
+
+| Universo | CAGR Lordo | CAGR Netto | Drag fiscale | Tasse€ | Calmar netto |
+|----------|-----------|-----------|--------------|--------|--------------|
+| EU | +8.49% | **+5.64%** | −2.86pt | 23,714 | 0.45 |
+| US | +8.16% | **+5.60%** | −2.56pt | 22,631 | 0.49 |
+
+MaxDD dopo tasse: EU −12.53% (Δ −1.09pt) / US −11.35% (invariato).
+Zainetto residuo: EU 4,097€ / US 6,344€. Aliquota effettiva: EU 26.2% / US 27.4%.
+
+**Cumulo drag totale dall'alpha teorico:**
+- EU: +11.73% (zero costi) → +8.49% (Fineco+slip) → +5.64% (+ tasse) | drag totale −6.09pt
+- US: +10.57% (zero costi) → +8.16% (Fineco+slip 20gg) → +5.60% (+ tasse) | drag totale −4.97pt
+
+**Conclusione:** l'edge sopravvive a TUTTE le frizioni misurate. CAGR netto +5.6%/anno
+batte l'inflazione EU (2-3%) e i BTP 10y (~3.5%) con MaxDD contenuto (−12%).
+Fonte di ottimismo residua: survivorship bias nel dataset (ticker delisted esclusi).
+
+- Report: `data/TAX_SIMULATION_REPORT.txt`
+- Equity: `data/eu_equity_gross.csv`, `data/eu_equity_netto.csv`,
+          `data/sp500_equity_gross.csv`, `data/sp500_equity_netto.csv`
+- Lezione #31 aggiunta a `FINANCIAL_SKILLS.md`
+
+### Watch list (aggiornata dopo Run #38)
+- [ ] Run #39 (priorità): Survivorship bias audit — ticker delisted 2018-2026 non nel dataset.
+- [ ] Regime-exit: chiusura anticipata al cambio di regime durante holding.
+- [ ] Portafoglio combinato EU+US con allocazione proporzionale.
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
