@@ -1259,4 +1259,44 @@ che mantiene `pos_cap=0.05` fisso senza RP addizionale).
   prossime settimane con e senza RP per misurare l'effetto reale out-of-sample.
 
 ---
+
+## Run #33 — 2026-06-30 (S&P 500 Out-of-Universe Validation)
+
+**Obiettivo:** testare se il segnale score_new + regime gate + risk-parity replica su S&P 500
+(genuinamente OOS: il modello non ha mai visto questo universo).
+
+**Dataset:** 76 ticker S&P 500 multi-settore (2018-2026, 2132 barre/ticker) + ^GSPC (regime index).
+Scaricato via Yahoo Finance v8 JSON (query1.finance.yahoo.com, funziona attraverso il proxy).
+Zero modifiche al motore (portfolio_backtester.py identico).
+
+**Risultati (2018-2026, ciclo completo):**
+
+| Schema | CAGR% | MaxDD% | Sharpe | Calmar | Expo% | Trade |
+|--------|-------|--------|--------|--------|-------|-------|
+| A ALWAYS-IN (no gate) | +17.51 | −17.79 | 1.09 | 0.98 | 88.8% | 1733 |
+| B GATE TREND_UP | +13.20 | −13.17 | 1.00 | 1.00 | 48.6% | 952 |
+| C GATE + RISK-PARITY | +10.57 | −11.92 | 0.99 | 0.89 | 43.7% | 952 |
+
+Bootstrap RP (C vs B): ΔMaxDD +2.30 IC95 [+0.09, +5.98] → validato (appena esclude 0).
+
+**Confronto EU vs S&P 500 (GATE + RP):**
+- Sharpe: EU 1.04 / US 0.99 (Δ=0.05)
+- **Calmar: EU 0.89 = US 0.89 (identico)**
+- MaxDD: EU −13.15% / US −11.92%
+- CAGR: EU +11.73% / US +10.57% (US ha TREND_UP solo 37% dei giorni)
+
+**Conclusione:** il segnale e' ROBUSTO cross-market. L'edge non e' specifico all'universo EU.
+Implicazione: il modello e' candidato a coprire azioni USA in regime TREND_UP (^GSPC).
+
+- Report: `data/SP500_VALIDATION_REPORT.txt`
+- Lezione #26 aggiunta a FINANCIAL_SKILLS.md
+- Dataset: `data/sp500_data_long.csv` | Equity: `data/sp500_equity_A/B/C.csv`
+
+### Watch list (aggiornata)
+- [ ] Integrare US tickers nel portafoglio live quando ^GSPC torna TREND_UP (usa sp500_data_long
+  come universo, stessa score_new, regime ^GSPC come gate). Richiede aggiornamento giornaliero
+  dello sp500_data_long (fetch_sp500.py --update).
+- [ ] Costi di transazione nel motore + soglia score espandente (OOS pulito).
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

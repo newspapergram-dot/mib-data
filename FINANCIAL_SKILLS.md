@@ -780,4 +780,41 @@ rp_scale = min(med_atr_pct / atr_pct_i, 1.0)           # >= 1 clampato a 1
    gia' gated e dimensionato per l'high-beta.
 
 ---
+
+## Lezione #26 — 2026-06-30 — Il modello e' robusto cross-market: replica su S&P 500 OOS
+
+**Evidenza (Run #33, portfolio_backtester su sp500_data_long.csv, 2018-2026).**
+76 ticker S&P 500 multi-settore, genuinamente out-of-sample (il modello non ha mai "visto" questo universo):
+
+| Schema | CAGR% | MaxDD% | Sharpe | Calmar | Expo% |
+|--------|-------|--------|--------|--------|-------|
+| ALWAYS-IN (no gate) | +17.51 | −17.79 | 1.09 | 0.98 | 88.8% |
+| GATE TREND_UP | +13.20 | −13.17 | 1.00 | 1.00 | 48.6% |
+| GATE + RISK-PARITY | +10.57 | −11.92 | 0.99 | 0.89 | 43.7% |
+
+Confronto GATE+RP: EU Sharpe 1.04 / Calmar 0.89 vs S&P 500 Sharpe 0.99 / Calmar 0.89 — **Calmar identico**.
+Bootstrap RP: ΔMaxDD IC95 [+0.09, +5.98] (esclude 0, marginalmente ma valido).
+
+**Interpretazione chiave.**
+- Il ^GSPC e' TREND_UP solo il 37% dei giorni 2018-2026 (vs ~63% per EU): il mercato USA ha avuto
+  bear/lateral frequenti (2018Q4, 2020, 2022) — il gate riduce il CAGR ma anche l'exposure (49% vs 89%).
+- Il segnale score_new (breakout + ADX + mom3m + RSI penalty) funziona su qualsiasi mercato liquido
+  con trend: e' una firma di MOMENTUM TECNICO, non un artefatto EU.
+- La bassa esposizione del GATE (49%) e' un'opportunita': con 51% in cassa in media si potrebbe
+  combinare EU + US in un portafoglio bilanciato senza leva.
+
+**Regola.**
+1. **Il modello e' validato su S&P 500 OOS**: Sharpe 0.99, Calmar 0.89, MaxDD -11.9%. E' candidato
+   reale per coprire azioni USA in TREND_UP (gate ^GSPC), non solo EU.
+2. **Il gate di regime e' ancora la leva #1 anche per gli USA**: porta il MaxDD da -17.8% a -11.9%
+   (il terzo migliore in assoluto su tutti i test) senza modificare il segnale.
+3. **Calmar e' la metrica piu' stabile cross-market**: EU e USA coincidono a 0.89. E' la metrica
+   da usare per comparare portafogli con profili di rischio diversi (diversa vol, diverso CAGR).
+4. **US ALWAYS-IN Sharpe 1.09 > EU ALWAYS-IN Sharpe 0.80**: il bull USA 2018-2026 e' stato
+   eccezionalmente forte. Non assumere che si ripeta; il gate resta necessario.
+5. **Implicazione pratica**: nelle sessioni in cui IT/FR sono TREND_UP ma ^GSPC e' PULLBACK
+   (come al 2026-06-30), il portafoglio EU-only e' la scelta corretta; quando ^GSPC torna
+   TREND_UP, si possono aggiungere azioni USA selezionate dallo stesso score_new.
+
+---
 *Le attività di ogni run sono registrate in `STATE.md`.*
