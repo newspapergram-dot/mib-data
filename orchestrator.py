@@ -14,13 +14,18 @@ CONCLUSIONE di monte, non il suo ragionamento) senza contaminazione di bias tra 
 - se uno stadio boccia, gli stadi successivi non vengono nemmeno invocati (short-circuit):
   un agente a valle non puo' mai "convincere" a ribaltare un rigetto di monte.
 
-Pipeline: Researcher -> Company Analyst -> Finance Guy -> Auditor -> CEO.
+Pipeline: Researcher -> Technical Analyst -> Company Analyst -> Finance Guy -> Auditor -> CEO.
 
 Regole immutabili: l'Auditor riceve il codice REALE di `portfolio_backtester.py` letto da
 disco (non riassunto, non trascritto a memoria). Due regole non negoziabili (Run #40 /
 LOOP.md) sono inoltre applicate in CODICE, non affidate al giudizio del modello:
   1) lo stop-loss finale non supera mai STOP_LOSS_FLOOR, qualunque cosa proponga l'LLM;
   2) regime_gate == "TREND_DOWN" forza sempre approved=False.
+
+Il TRADE PLAN operativo (prezzo di ingresso, stop-loss e take-profit T1/T2/T3) NON viene mai
+chiesto all'LLM: e' calcolato in CODICE da `modules/trade_proposal.py` (motore gia'
+validato/backtestato su ATR + risk/reward), stesso principio dei due backstop sopra — i
+livelli di prezzo sono un fatto quantitativo, non un giudizio da delegare al modello.
 
 Uso (fallback CLI, non e' lo slash-command primario — vedi AGENTS.md):
     export ANTHROPIC_API_KEY=...
@@ -36,13 +41,18 @@ from pathlib import Path
 from jsonschema import validate, ValidationError
 
 from agents.output_schemas import (
-    RESEARCHER_SCHEMA, COMPANY_ANALYST_SCHEMA, FINANCE_GUY_SCHEMA,
-    AUDITOR_SCHEMA, CEO_SCHEMA,
+    RESEARCHER_SCHEMA, TECHNICAL_ANALYST_SCHEMA, COMPANY_ANALYST_SCHEMA,
+    FINANCE_GUY_SCHEMA, AUDITOR_SCHEMA, CEO_SCHEMA,
 )
+from modules.trade_proposal import propose as propose_trade_plan
 
 REPO_ROOT = Path(__file__).resolve().parent
 STOP_LOSS_FLOOR = 0.15  # Run #40: qualunque proposta piu' larga viene clampata qui
 MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-sonnet-5")
+# Capitale nozionale per il trade plan (entry/stop/T1-T2-T3): stesso default di
+# portfolio_builder.py::build(). Non e' il capitale reale dell'utente, serve solo a
+# derivare i LIVELLI DI PREZZO (indipendenti dal capitale) e un sizing di riferimento.
+COMMITTEE_CAPITAL = float(os.environ.get("COMMITTEE_CAPITAL", "50000"))
 
 
 def _client():
@@ -150,6 +160,7 @@ class NativeOrchestrator:
         if not ok:
             return {
                 "ticker": candidate.get("ticker", "?"),
+                "candidate": candidate,
                 "stages": {},
                 "final": {"ticker": candidate.get("ticker", "?"), "action": "SKIP",
                           "rationale": f"[schema_validation] dato in ingresso non valido: {err}",
@@ -158,14 +169,31 @@ class NativeOrchestrator:
 
         client = self._get_client()
         ticker = candidate["ticker"]
-        trail = {"ticker": ticker, "stages": {}}
+        # Il candidato completo viene conservato nel trail SOLO per il rendering del
+        # report (fondamentali/tecnici/candlestick oggettivi) — non e' mai ripassato
+        # a un agente oltre a quanto gia' esplicitamente previsto stadio per stadio.
+        trail = {"ticker": ticker, "candidate": candidate, "stages": {}}
 
         # 1) RESEARCHER — vede solo il candidato immutabile. Primo della catena.
         researcher_out = invoke_isolated_agent(
             client, _prompt("researcher"), {"candidate": candidate}, RESEARCHER_SCHEMA)
         trail["stages"]["researcher"] = researcher_out
 
-        # 2) COMPANY ANALYST — vede candidato + SOLO l'output strutturato del Researcher.
+        # 2) TECHNICAL ANALYST — vede SOLO ticker/mercato + i dati tecnici/candlestick
+        #    deterministici (RSI/ADX/ATR/SMA/pattern). Non vede fondamentali, sentiment
+        #    o altri verdetti: il giudizio tecnico resta indipendente dalla narrativa
+        #    societaria (isolamento deliberato, stesso principio del Finance Guy).
+        technical_out = invoke_isolated_agent(
+            client, _prompt("technical_analyst"),
+            {"candidate": {"ticker": ticker, "market": candidate.get("market")},
+             "technical": candidate.get("technical", {}),
+             "candlestick": candidate.get("candlestick", {})},
+            TECHNICAL_ANALYST_SCHEMA)
+        trail["stages"]["technical_analyst"] = technical_out
+        if technical_out["verdict"] == "unfavorable":
+            return self._reject(ticker, "technical_analyst", technical_out["reasons"], trail)
+
+        # 3) COMPANY ANALYST — vede candidato + SOLO l'output strutturato del Researcher.
         analyst_out = invoke_isolated_agent(
             client, _prompt("company_analyst"),
             {"candidate": candidate, "researcher": researcher_out},
@@ -174,7 +202,7 @@ class NativeOrchestrator:
         if analyst_out["verdict"] == "reject":
             return self._reject(ticker, "company_analyst", analyst_out["reasons"], trail)
 
-        # 3) FINANCE GUY — vede SOLO ticker/mercato/regime + le linee guida macro. Non
+        # 4) FINANCE GUY — vede SOLO ticker/mercato/regime + le linee guida macro. Non
         #    vede researcher/company_analyst: il giudizio macro resta indipendente dalla
         #    narrativa sul singolo titolo (isolamento deliberato).
         finance_out = invoke_isolated_agent(
@@ -187,7 +215,7 @@ class NativeOrchestrator:
         if not finance_out["sector_rotation_favorable"]:
             return self._reject(ticker, "finance_guy", [finance_out["notes"]], trail)
 
-        # 4) AUDITOR — vede candidato + i verdetti strutturati + il codice REALE delle
+        # 5) AUDITOR — vede candidato + i verdetti strutturati + il codice REALE delle
         #    regole (letto da disco, non a memoria). Il codice e' identico per ogni
         #    candidato della nottata: e' marcato cache_control cosi' che solo la prima
         #    chiamata Auditor della run lo paghi per intero (le successive leggono dalla
@@ -216,12 +244,13 @@ class NativeOrchestrator:
         if not auditor_out["approved"]:
             return self._reject(ticker, "auditor", auditor_out["risk_notes"], trail)
 
-        # 5) CEO — vede SOLO i verdetti strutturati finali, mai il ragionamento grezzo
+        # 6) CEO — vede SOLO i verdetti strutturati finali, mai il ragionamento grezzo
         #    (che non esiste: ogni stadio a monte ha gia' risposto solo in JSON vincolato).
         ceo_out = invoke_isolated_agent(
             client, _prompt("ceo"),
             {"candidate": candidate, "researcher": researcher_out,
-             "company_analyst": analyst_out, "finance_guy": finance_out, "auditor": auditor_out},
+             "technical_analyst": technical_out, "company_analyst": analyst_out,
+             "finance_guy": finance_out, "auditor": auditor_out},
             CEO_SCHEMA)
         if ceo_out.get("final_stop_loss_pct") is not None:
             # Il CEO puo' solo restringere lo stop, mai allargarlo oltre l'Auditor.
@@ -229,7 +258,30 @@ class NativeOrchestrator:
                                                   auditor_out["stop_loss_pct"])
         trail["stages"]["ceo"] = ceo_out
         trail["final"] = ceo_out
+
+        # TRADE PLAN — entry/stop/T1-T2-T3 SOLO in codice (modules/trade_proposal.py),
+        # mai chiesto all'LLM: sono livelli quantitativi, non un giudizio (vedi docstring
+        # di modulo). Calcolato solo per un BUY finale, sui dati tecnici reali del
+        # candidato (mai fabbricati: se mancano, il Data Parser ha gia' escluso il ticker).
+        if ceo_out["action"] == "BUY":
+            trail["trade_plan"] = self._trade_plan(candidate)
         return trail
+
+    @staticmethod
+    def _trade_plan(candidate):
+        atr_pct = candidate.get("technical", {}).get("atr_pct")
+        entry = candidate["entry_price"]
+        if atr_pct is None:
+            return None
+        atr_abs = entry * atr_pct / 100.0
+        plan = propose_trade_plan(candidate["ticker"], entry=entry, atr14=atr_abs,
+                                   score=candidate["momentum_score"], capital=COMMITTEE_CAPITAL)
+        # BACKSTOP DETERMINISTICO #3: lo stop del trade plan non supera mai STOP_LOSS_FLOOR,
+        # stesso tetto imposto all'Auditor (Run #40) — qui applicato al PREZZO, non al %.
+        floor_price = entry * (1 - STOP_LOSS_FLOOR)
+        plan["stop"] = round(max(plan["stop"], floor_price), 4)
+        plan["stop_pct"] = round((entry - plan["stop"]) / entry, 4)
+        return plan
 
     @staticmethod
     def _reject(ticker, stage, reasons, trail):
@@ -241,16 +293,116 @@ class NativeOrchestrator:
         return trail
 
 
-def render_report(results, asof=None):
+def _fmt(v, nd=2):
+    return "n/d" if v is None else f"{v:.{nd}f}"
+
+
+def render_report(results, asof=None, unicorn_funnel=None):
     asof = asof or datetime.date.today().isoformat()
     lines = [f"COMITATO MULTI-AGENTE — Report operativo {asof}", "=" * 70]
+
     for r in results:
+        candidate = r.get("candidate", {}) or {}
+        stages = r.get("stages", {}) or {}
         final = r["final"]
-        lines.append(f"\n{r['ticker']}: {final['action']}")
-        lines.append(f"  Motivazione: {final['rationale']}")
-        if final["action"] == "BUY" and final.get("final_stop_loss_pct") is not None:
-            lines.append(f"  Stop-Loss: -{final['final_stop_loss_pct']*100:.1f}%")
+        is_unicorn = candidate.get("universe") == "unicorn"
+        tag = " [UNICORNO]" if is_unicorn else ""
+        lines.append(f"\n{r['ticker']}{tag}: {final['action']}")
+
+        entry = candidate.get("entry_price")
+        if entry is not None:
+            lines.append(f"  Trigger d'ingresso: {entry:.2f} {candidate.get('market', '')} "
+                          f"(regime {candidate.get('regime_gate', 'n/d')})")
+
+        fundamentals = candidate.get("fundamentals")
+        analyst = stages.get("company_analyst")
+        if fundamentals or analyst:
+            lines.append("  Analisi fondamentale:")
+            if fundamentals:
+                lines.append(
+                    f"    D/E {_fmt(fundamentals.get('debt_to_equity'))} | "
+                    f"EBITDA margin {_fmt(fundamentals.get('ebitda_margin'), 3)} | "
+                    f"EPS growth QoQ {_fmt(fundamentals.get('eps_growth_q_on_q'), 3)} | "
+                    f"FCF {_fmt(fundamentals.get('free_cash_flow'), 0)}")
+            if analyst:
+                lines.append(f"    Verdetto Company Analyst: {analyst['verdict']} — "
+                              + "; ".join(analyst["reasons"]))
+
+        technical = candidate.get("technical")
+        tech_agent = stages.get("technical_analyst")
+        if technical or tech_agent:
+            lines.append("  Analisi tecnica:")
+            if technical:
+                lines.append(
+                    f"    RSI {_fmt(technical.get('rsi'), 1)} | ADX {_fmt(technical.get('adx'), 1)} | "
+                    f"ATR% {_fmt(technical.get('atr_pct'), 2)} | mom6m {_fmt(technical.get('mom6m'), 3)} | "
+                    f"SMA20/50/200 {_fmt(technical.get('sma20'))}/{_fmt(technical.get('sma50'))}/"
+                    f"{_fmt(technical.get('sma200'))}")
+            if tech_agent:
+                lines.append(f"    Verdetto Technical Analyst: {tech_agent['verdict']} — "
+                              f"{tech_agent['setup_read']}")
+
+        candlestick = candidate.get("candlestick")
+        if candlestick or tech_agent:
+            lines.append("  Analisi candlestick:")
+            if candlestick:
+                lines.append(
+                    f"    trend={candlestick.get('trend')} struttura={candlestick.get('structure')} "
+                    f"breakout={candlestick.get('breakout')} divergenza={candlestick.get('rsi_divergence')} "
+                    f"bollinger={candlestick.get('bollinger')}")
+            if tech_agent:
+                lines.append(f"    {tech_agent['candlestick_read']}")
+
+        lines.append(f"  Motivazione CEO: {final['rationale']}")
+
+        trade_plan = r.get("trade_plan")
+        if final["action"] == "BUY" and trade_plan:
+            lines.append(f"  Stop-Loss: {trade_plan['stop']:.2f} (-{trade_plan['stop_pct']*100:.1f}%)")
+            lines.append(
+                f"  Take Profit: T1 {trade_plan['t1']:.2f} (R/R {trade_plan['rr1']}:1) | "
+                f"T2 {trade_plan['t2']:.2f} (R/R {trade_plan['rr2']}:1) | "
+                f"T3 {trade_plan['t3']:.2f} (R/R {trade_plan['rr3']}:1, runner)")
+        elif final["action"] == "BUY" and final.get("final_stop_loss_pct") is not None:
+            lines.append(f"  Stop-Loss: -{final['final_stop_loss_pct']*100:.1f}% "
+                          f"(trade plan non calcolabile: dati ATR mancanti per questo ticker)")
+
+    lines.append("\n" + "=" * 70)
+    mega = [r for r in results if r.get("candidate", {}).get("universe", "mega_cap") == "mega_cap"]
+    uni = [r for r in results if r.get("candidate", {}).get("universe") == "unicorn"]
+    lines.append(f"Universo mega-cap: {len(mega)} valutati dal Comitato, "
+                 f"{sum(1 for r in mega if r['final']['action'] == 'BUY')} BUY")
+    if unicorn_funnel is not None:
+        lines.append(
+            f"Universo unicorni: {unicorn_funnel.get('screened', 0)} candidati analizzati da "
+            f"unicorn_screener.py, {unicorn_funnel.get('gate_passed', 0)} hanno superato il gate "
+            f"momentum+crescita (unicorn_validate.py), {len(uni)} passati al Comitato "
+            f"({sum(1 for r in uni if r['final']['action'] == 'BUY')} BUY, "
+            f"{sum(1 for r in uni if r['final']['action'] == 'SKIP')} SKIP)")
+    else:
+        lines.append(f"Universo unicorni: {len(uni)} passati al Comitato "
+                     f"({sum(1 for r in uni if r['final']['action'] == 'BUY')} BUY, "
+                     f"{sum(1 for r in uni if r['final']['action'] == 'SKIP')} SKIP) — "
+                     f"conteggio pre-gate non disponibile in questo run")
     return "\n".join(lines)
+
+
+def _unicorn_funnel():
+    """Conta candidati screenati/passati-gate anche per i ticker MAI arrivati al
+    Comitato (es. nessuno ha passato il gate quella notte): risponde onestamente
+    a "sono stati analizzati gli unicorni e sono stati scartati tutti?" invece di
+    mostrare silenzio quando `results` non ne contiene nessuno."""
+    import csv
+    data_dir = REPO_ROOT / "data"
+    screened = gate_passed = 0
+    cand_path = data_dir / "unicorn_candidates.csv"
+    sleeve_path = data_dir / "unicorn_sleeve.csv"
+    if cand_path.exists():
+        with open(cand_path) as f:
+            screened = sum(1 for _ in csv.DictReader(f))
+    if sleeve_path.exists():
+        with open(sleeve_path) as f:
+            gate_passed = sum(1 for row in csv.DictReader(f) if row.get("PASS") == "True")
+    return {"screened": screened, "gate_passed": gate_passed}
 
 
 def main():
@@ -261,7 +413,7 @@ def main():
     orch = NativeOrchestrator()
     results = [orch.run_committee(c) for c in candidates]
     asof = datetime.date.today().isoformat()
-    report = render_report(results, asof)
+    report = render_report(results, asof, unicorn_funnel=_unicorn_funnel())
     data_dir = REPO_ROOT / "data"
     data_dir.mkdir(exist_ok=True)
     (data_dir / f"COMMITTEE_REPORT_{asof}.txt").write_text(report)

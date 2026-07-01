@@ -406,6 +406,18 @@ def _build_history(ticker, entity, data):
     return rows
 
 
+def _unicorn_sleeve_extra_tickers(path="data/unicorn_sleeve.csv"):
+    """Ticker unicorno che hanno GIA' superato il gate momentum+crescita
+    (unicorn_validate.live_sleeve()): vengono aggiunti al fetch SEC EDGAR di questa
+    run cosi' che il Comitato riceva fondamentali REALI anche per loro, non un
+    fallback fabbricato. Non tocca US_TICKERS: e' un'estensione locale a main()."""
+    if not os.path.exists(path):
+        return []
+    import csv
+    with open(path) as f:
+        return [row["ticker"] for row in csv.DictReader(f) if row.get("PASS") == "True"]
+
+
 def main():
     os.makedirs("data", exist_ok=True)
     t2c = ticker_to_cik()
@@ -414,7 +426,12 @@ def main():
     history_rows = []
     errors = []
 
-    for tk in US_TICKERS:
+    extra = [tk for tk in _unicorn_sleeve_extra_tickers() if tk not in US_TICKERS]
+    all_tickers = US_TICKERS + extra
+    if extra:
+        log(f"[PIT] +{len(extra)} ticker unicorno dal gate di unicorn_validate.py: {extra}")
+
+    for tk in all_tickers:
         cik = t2c.get(tk)
         if not cik:
             log(f"[PIT] {tk}: CIK non trovato -> skip")
@@ -451,7 +468,7 @@ def main():
     with open("data/pit_log.txt", "w") as f:
         f.write(datetime.datetime.utcnow().isoformat() + "Z\n" + "\n".join(LOG))
 
-    log(f"[PIT] completato: {len(latest_rows)}/{len(US_TICKERS)} ticker, "
+    log(f"[PIT] completato: {len(latest_rows)}/{len(all_tickers)} ticker, "
         f"{len(history_rows)} osservazioni storiche")
 
 

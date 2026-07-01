@@ -19,6 +19,35 @@
         "eps_growth_q_on_q": { "type": "number" },
         "free_cash_flow": { "type": "number" }
       }
+    },
+    "universe": { "type": "string", "enum": ["mega_cap", "unicorn"] },
+    "technical": {
+      "type": "object",
+      "description": "Indicatori tecnici deterministici da score_generator.py (mai fabbricati: se mancanti, il ticker viene escluso a monte dal Data Parser).",
+      "properties": {
+        "rsi": { "type": "number" },
+        "adx": { "type": "number" },
+        "atr_pct": { "type": "number" },
+        "mom6m": { "type": "number" },
+        "sma20": { "type": "number" },
+        "sma50": { "type": "number" },
+        "sma200": { "type": "number" }
+      }
+    },
+    "candlestick": {
+      "type": "object",
+      "description": "Pattern grafico/candlestick deterministico da patterns.py (mai fabbricato: se mancante, il ticker viene escluso a monte dal Data Parser).",
+      "properties": {
+        "trend": { "type": ["string", "null"] },
+        "trend_strength": { "type": ["string", "null"] },
+        "structure": { "type": ["string", "null"] },
+        "continuation": { "type": ["string", "null"] },
+        "breakout": { "type": ["string", "null"] },
+        "pullback": { "type": ["boolean", "null"] },
+        "rsi_divergence": { "type": ["string", "null"] },
+        "bollinger": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
     }
   },
   "additionalProperties": true

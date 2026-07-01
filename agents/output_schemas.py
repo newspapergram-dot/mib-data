@@ -32,6 +32,19 @@ COMPANY_ANALYST_SCHEMA = {
     "additionalProperties": False,
 }
 
+TECHNICAL_ANALYST_SCHEMA = {
+    "type": "object",
+    "required": ["ticker", "verdict", "reasons", "setup_read", "candlestick_read"],
+    "properties": {
+        "ticker": {"type": "string"},
+        "verdict": {"type": "string", "enum": ["favorable", "unfavorable"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "setup_read": {"type": "string"},
+        "candlestick_read": {"type": "string"},
+    },
+    "additionalProperties": False,
+}
+
 FINANCE_GUY_SCHEMA = {
     "type": "object",
     "required": ["macro_regime", "sector_rotation_favorable", "notes"],

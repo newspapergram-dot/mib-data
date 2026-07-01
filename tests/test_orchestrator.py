@@ -9,7 +9,7 @@ che l'LLM non puo' aggirare.
 import json
 from types import SimpleNamespace
 
-from orchestrator import NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent
+from orchestrator import NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent, render_report
 from tests.fakes import FakeClient
 
 CANDIDATE = {
@@ -25,10 +25,27 @@ CANDIDATE = {
         "eps_growth_q_on_q": 0.05,
         "free_cash_flow": 1_200_000_000,
     },
+    "technical": {
+        "rsi": 58.0, "adx": 27.0, "atr_pct": 2.5, "mom6m": 0.18,
+        "sma20": 29.0, "sma50": 27.5, "sma200": 24.0,
+    },
+    "candlestick": {
+        "trend": "up", "trend_strength": "forte", "structure": "higher-highs",
+        "continuation": None, "breakout": "sopra 31.20", "pullback": False,
+        "rsi_divergence": None, "bollinger": "upper-band", "notes": "",
+    },
 }
 
 RESEARCHER_OK = {"ticker": "STMMI.MI", "news_sentiment": "positive", "sentiment_score": 0.4,
                  "key_events": ["guidance alzata"], "earnings_call_flag": False}
+TECHNICAL_FAVORABLE = {"ticker": "STMMI.MI", "verdict": "favorable",
+                        "reasons": ["RSI neutro, non ipercomprato", "trend rialzista confermato"],
+                        "setup_read": "RSI 58 neutro, ADX 27 trend in atto",
+                        "candlestick_read": "breakout sopra resistenza confermato"}
+TECHNICAL_UNFAVORABLE = {"ticker": "STMMI.MI", "verdict": "unfavorable",
+                          "reasons": ["RSI 84 ipercomprato estremo senza breakout confermato"],
+                          "setup_read": "ipercomprato estremo",
+                          "candlestick_read": "nessun pattern di conferma"}
 ANALYST_PASS = {"ticker": "STMMI.MI", "verdict": "pass", "reasons": ["debito basso"],
                 "debt_flag": False}
 ANALYST_REJECT = {"ticker": "STMMI.MI", "verdict": "reject", "reasons": ["debt_to_equity 3.1 senza FCF positivo"],
@@ -41,6 +58,9 @@ AUDITOR_APPROVE_WIDE_SL = {"approved": True, "stop_loss_pct": 0.30, "risk_notes"
 AUDITOR_REJECT = {"approved": False, "stop_loss_pct": 0.15, "risk_notes": ["volatilita' eccessiva"]}
 CEO_BUY_WIDE_SL = {"ticker": "STMMI.MI", "action": "BUY", "rationale": "Setup solido, procedi.",
                     "final_stop_loss_pct": 0.30}
+
+FULL_APPROVAL_SCRIPT = [RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_FAVORABLE,
+                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL]
 
 
 def _payload(call):
@@ -58,40 +78,50 @@ def test_validate_candidate_rejects_missing_fundamentals():
 
 
 def test_isolated_calls_are_stateless_single_turn():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
-                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL])
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
     orch = NativeOrchestrator(client=client)
     orch.run_committee(CANDIDATE)
-    assert len(client.calls) == 5
+    assert len(client.calls) == 6
     for call in client.calls:
         # Ogni chiamata e' un turno singolo: nessuna cronologia accumulata tra agenti.
         assert len(call["messages"]) == 1
         assert call["messages"][0]["role"] == "user"
 
 
-def test_finance_guy_does_not_see_researcher_or_analyst_output():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
-                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL])
+def test_technical_analyst_does_not_see_fundamentals_researcher_or_other_verdicts():
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
     orch = NativeOrchestrator(client=client)
     orch.run_committee(CANDIDATE)
-    finance_call_payload = _payload(client.calls[2])
+    technical_payload = _payload(client.calls[1])
+    assert "fundamentals" not in technical_payload["candidate"]
+    assert "researcher" not in technical_payload
+    assert "company_analyst" not in technical_payload
+    assert technical_payload["technical"] == CANDIDATE["technical"]
+    assert technical_payload["candlestick"] == CANDIDATE["candlestick"]
+
+
+def test_finance_guy_does_not_see_researcher_or_analyst_output():
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    orch.run_committee(CANDIDATE)
+    finance_call_payload = _payload(client.calls[3])
     assert "researcher" not in finance_call_payload
     assert "company_analyst" not in finance_call_payload
+    assert "technical_analyst" not in finance_call_payload
     assert "macro_guidelines" in finance_call_payload
 
 
 def test_ceo_sees_all_structured_verdicts():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
-                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL])
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
     orch = NativeOrchestrator(client=client)
     orch.run_committee(CANDIDATE)
-    ceo_payload = _payload(client.calls[4])
-    assert set(["researcher", "company_analyst", "finance_guy", "auditor"]).issubset(ceo_payload)
+    ceo_payload = _payload(client.calls[5])
+    assert set(["researcher", "technical_analyst", "company_analyst",
+                "finance_guy", "auditor"]).issubset(ceo_payload)
 
 
 def test_stop_loss_backstop_clamps_llm_overreach():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
-                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL])
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(CANDIDATE)
     assert result["stages"]["auditor"]["stop_loss_pct"] == STOP_LOSS_FLOOR
@@ -100,50 +130,85 @@ def test_stop_loss_backstop_clamps_llm_overreach():
 
 def test_regime_down_forces_veto_regardless_of_llm():
     candidate = dict(CANDIDATE, regime_gate="TREND_DOWN")
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_FAVORABLE,
                          {"approved": True, "stop_loss_pct": 0.10, "risk_notes": ["il modello sbaglia"]}])
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(candidate)
-    assert len(client.calls) == 4  # CEO non viene invocato
+    assert len(client.calls) == 5  # CEO non viene invocato
     assert result["final"]["action"] == "SKIP"
     assert result["stages"]["auditor"]["approved"] is False
     assert any("BACKSTOP" in note for note in result["stages"]["auditor"]["risk_notes"])
 
 
-def test_short_circuit_on_company_analyst_reject():
-    client = FakeClient([RESEARCHER_OK, ANALYST_REJECT])
+def test_short_circuit_on_technical_analyst_unfavorable():
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_UNFAVORABLE])
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(CANDIDATE)
     assert len(client.calls) == 2
+    assert result["final"]["action"] == "SKIP"
+    assert result["final"]["rationale"].startswith("[technical_analyst]")
+
+
+def test_short_circuit_on_company_analyst_reject():
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_REJECT])
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    assert len(client.calls) == 3
     assert result["final"]["action"] == "SKIP"
     assert result["final"]["rationale"].startswith("[company_analyst]")
 
 
 def test_short_circuit_on_finance_guy_unfavorable():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_UNFAVORABLE])
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_UNFAVORABLE])
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(CANDIDATE)
-    assert len(client.calls) == 3
+    assert len(client.calls) == 4
     assert result["final"]["action"] == "SKIP"
     assert result["final"]["rationale"].startswith("[finance_guy]")
 
 
 def test_short_circuit_on_auditor_reject():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE, AUDITOR_REJECT])
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_FAVORABLE, AUDITOR_REJECT])
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(CANDIDATE)
-    assert len(client.calls) == 4  # CEO mai invocato dopo un rigetto a monte
+    assert len(client.calls) == 5  # CEO mai invocato dopo un rigetto a monte
     assert result["final"]["action"] == "SKIP"
     assert result["final"]["rationale"].startswith("[auditor]")
 
 
 def test_full_approval_yields_buy_with_clamped_stop_loss():
-    client = FakeClient([RESEARCHER_OK, ANALYST_PASS, FINANCE_FAVORABLE,
-                         AUDITOR_APPROVE_WIDE_SL, CEO_BUY_WIDE_SL])
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
     orch = NativeOrchestrator(client=client)
     result = orch.run_committee(CANDIDATE)
     assert result["final"]["action"] == "BUY"
     assert result["final"]["final_stop_loss_pct"] == STOP_LOSS_FLOOR
+
+
+def test_trade_plan_computed_deterministically_on_buy():
+    """Entry/stop/take-profit non vengono MAI chiesti all'LLM: sono calcolati da
+    modules/trade_proposal.py sui dati tecnici reali del candidato."""
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    plan = result["trade_plan"]
+    assert plan is not None
+    assert plan["ticker"] == "STMMI.MI"
+    assert plan["entry"] == CANDIDATE["entry_price"]
+    assert plan["stop"] < plan["entry"]
+    assert plan["stop_pct"] <= STOP_LOSS_FLOOR + 1e-9  # BACKSTOP #3: mai oltre il floor
+    assert plan["entry"] < plan["t1"] < plan["t2"] < plan["t3"]
+    assert plan["rr1"] > 0
+
+
+def test_trade_plan_is_none_when_technical_data_missing():
+    """Mai fabbricare un piano operativo senza ATR reale: se manca il dato tecnico
+    il trade_plan resta None invece di inventare un livello di rischio."""
+    candidate = {k: v for k, v in CANDIDATE.items() if k != "technical"}
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(candidate)
+    assert result["final"]["action"] == "BUY"
+    assert result.get("trade_plan") is None
 
 
 class _ThinkingThenTextClient:
@@ -175,3 +240,29 @@ def test_invoke_isolated_agent_strips_markdown_json_fence():
     result = invoke_isolated_agent(client, "system prompt", {"candidate": CANDIDATE},
                                     COMPANY_ANALYST_SCHEMA)
     assert result == ANALYST_PASS
+
+
+def test_render_report_includes_entry_stop_take_profit_and_analysis_sections():
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    report = render_report([result], asof="2026-07-01")
+    assert "Trigger d'ingresso: 30.00" in report
+    assert "Stop-Loss:" in report
+    assert "Take Profit: T1" in report
+    assert "Analisi fondamentale:" in report
+    assert "Analisi tecnica:" in report
+    assert "Analisi candlestick:" in report
+    assert "Universo unicorni" in report
+
+
+def test_render_report_labels_unicorn_universe_and_uses_funnel_counts():
+    candidate = dict(CANDIDATE, universe="unicorn")
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(candidate)
+    report = render_report([result], asof="2026-07-01",
+                            unicorn_funnel={"screened": 64, "gate_passed": 3})
+    assert "[UNICORNO]" in report
+    assert "64 candidati analizzati" in report
+    assert "3 hanno superato il gate" in report

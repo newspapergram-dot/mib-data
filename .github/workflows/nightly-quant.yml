@@ -64,7 +64,13 @@ jobs:
         run: python regime_filter.py
       - name: Genera score tecnico/momentum
         run: python score_generator.py || true
-      - name: Fondamentali USA (SEC EDGAR, point-in-time)
+      - name: Pattern candlestick/struttura (RSI divergence, breakout, Bollinger)
+        run: python patterns.py || true
+      - name: Screener unicorni — scoperta fondamentale (SEC EDGAR)
+        run: python unicorn_screener.py || true
+      - name: Sleeve unicorni — gate momentum top-quintile + crescita ricavi YoY>=25%
+        run: python -c "import unicorn_validate; unicorn_validate.live_sleeve()" || true
+      - name: Fondamentali USA (SEC EDGAR, point-in-time) — include gli unicorni che hanno passato il gate
         run: python fundamentals_pit.py || true
       - name: Fondamentali EU
         run: python fundamentals_eu.py || true

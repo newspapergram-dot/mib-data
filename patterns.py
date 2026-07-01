@@ -130,8 +130,16 @@ def build_patterns(px: pd.DataFrame, tickers=None, out_path="data/patterns.csv")
 
 
 if __name__ == "__main__":
-    import urllib.request, io
-    base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
-    px = pd.read_csv(io.StringIO(urllib.request.urlopen(base+"mib_data.csv", timeout=60).read().decode("utf-8","replace")))
+    import os
+    local_path = "data/mib_data.csv"
+    if os.path.exists(local_path):
+        # Preferisce lo storico appena scaricato in QUESTA run (fetch_data.py) invece
+        # di quello committato su GitHub: evita di leggere prezzi di un giorno prima
+        # quando lo script gira dentro la pipeline notturna (nightly-quant.yml).
+        px = pd.read_csv(local_path)
+    else:
+        import urllib.request, io
+        base = "https://raw.githubusercontent.com/newspapergram-dot/mib-data/refs/heads/main/data/"
+        px = pd.read_csv(io.StringIO(urllib.request.urlopen(base+"mib_data.csv", timeout=60).read().decode("utf-8","replace")))
     px["date"] = pd.to_datetime(px["date"])
     build_patterns(px)
