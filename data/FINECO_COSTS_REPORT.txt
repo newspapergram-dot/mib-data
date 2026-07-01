@@ -1,0 +1,50 @@
+======================================================================================
+ RUN #34 — COMMISSIONI REALI FINECO + SLIPPAGE
+ portfolio_backtester.py — schema GATE TREND_UP + RISK-PARITY (best arm Run #30/#33)
+======================================================================================
+
+ STRUTTURA COSTI FINECO (singola gamba = ingresso O uscita):
+   EU  (.MI/.PA/.AS): 0.19% controvalore | min 2.95€ | max 19.00€
+   US  (altri):       9.95€ flat (USD≈EUR, err<5% al cambio corrente)
+   Slippage:          0.02% su ogni prezzo eseguito (acquisto +slip, vendita -slip)
+   Ogni trade = 2 gambe (ingresso + uscita) -> costo round-trip = 2x il costo singola gamba
+
+ UNIVERSO EU (mib_data_long.csv, 2018-2026):
+ Schema                                CAGR%   MaxDD%   Sharpe   Calmar    Expo%   Trade    Costi€
+ ------------------------------------------------------------------------------------------
+ A  Gate+RP, zero costi               +11.73   -13.15     1.04    +0.89     54.4    1208         -
+ B  Gate+RP, Fineco+slip               +7.49   -14.70     0.70    +0.51     54.4    1208     40169
+
+   Δ CAGR      -4.25 pt | Δ MaxDD    -1.55 pt | Δ Sharpe -0.34
+   Δ Calmar    -0.38    | Drag annuo 5.08% | Costo medio/trade 33.3€ (RT = 2 gambe)
+   Edge con costi: SI (Sharpe>0.5, CAGR>3%, MaxDD>-40%)
+
+ UNIVERSO S&P 500 (sp500_data_long.csv, 2018-2026):
+ Schema                                CAGR%   MaxDD%   Sharpe   Calmar    Expo%   Trade    Costi€
+ ------------------------------------------------------------------------------------------
+ A  Gate+RP, zero costi               +10.57   -11.92     0.99    +0.89     43.7     952         -
+ B  Gate+RP, Fineco+slip               +8.03   -12.19     0.77    +0.66     43.7     952     23458
+
+   Δ CAGR      -2.54 pt | Δ MaxDD    -0.27 pt | Δ Sharpe -0.22
+   Δ Calmar    -0.23    | Drag annuo 3.06% | Costo medio/trade 24.6€ (RT = 2 gambe)
+   Edge con costi: SI (Sharpe>0.5, CAGR>3%, MaxDD>-40%)
+
+ CONCLUSIONE CROSS-MARKET:
+   EU: ROBUSTO dopo costi — drag 4.25 pt CAGR | Sharpe 0.70 | Calmar 0.51
+   US: ROBUSTO dopo costi — drag 2.54 pt CAGR | Sharpe 0.77 | Calmar 0.66
+
+ IMPLICAZIONI OPERATIVE:
+   EU: 1208 trade (153/anno) -> ridurre il turnover abbassa il drag proporzionalmente.
+   US: 952 trade (124/anno) -> 9.95€/gamba flat = drag piu' pesante sui titoli a bassa capitalizzazione.
+   Fineco Max EU 19€ = la gamba EU e' economica per posizioni >10k€ (19€ = 0.19% su 10k€ -> il cap morde a 10k€).
+   Soglia minima EU 2.95€ = conviene evitare posizioni < 1.550€ (1553€) per non pagare la min fee al 100%.
+
+ LIMITI:
+   - Slippage 0.02% e' una stima conservativa (mercati liquidi in condizioni normali).
+     In gap di apertura o bassa liquidita' puo' arrivare a 0.05-0.10%: testare con SLIP=0.0005.
+   - USD/EUR approssimato (US flat in EUR): errore < 5% al cambio corrente.
+   - Non include tasse su plusvalenze (imposta 26% in Italia: impatta il CAGR effettivo,
+     non il gross CAGR — aggiungere in una simulazione fiscale separata).
+   - Non include bollo titoli (0.2%/anno sul valore medio del portafoglio — stimato ~0.1% sul
+     capitale totale al 50% di esposizione media: un ulteriore drag fisso da considerare).
+======================================================================================

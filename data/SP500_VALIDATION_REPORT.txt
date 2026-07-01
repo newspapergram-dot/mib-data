@@ -1,0 +1,51 @@
+==================================================================================
+ RUN #33 — S&P 500 OUT-OF-UNIVERSE VALIDATION
+ portfolio_backtester.py su data/sp500_data_long.csv (ciclo 2018-2026)
+==================================================================================
+
+ UNIVERSO: 76 ticker S&P 500 (multi-settore, liquidi) + ^GSPC (regime)
+ PERIODO : 2018-10-18 00:00:00 -> 2026-06-26 00:00:00  |  soglia score top-quintile p80 = 0.248
+ REGIME ^GSPC: TREND_UP 787/2132 giorni (37%) | medATR% = 2.23%
+
+ ARCHITETTURA: identica a Run #27-31 EU (zero modifiche al motore).
+   Ingresso close t+1 (segnale t, no lookahead), holding 10 gg operativi,
+   max 10 posizioni x 10% capitale, equity MTM giornaliera reale.
+
+ METRICHE CICLO COMPLETO 2018-2026 — S&P 500:
+ Schema                            CAGR%   MaxDD%   Sharpe   Calmar    Expo%   Trade
+ -------------------------------------------------------------------------------
+ A  ALWAYS-IN (no gate, equal)    +17.51   -17.79     1.09    +0.98     88.8    1733
+ B  GATE TREND_UP (equal)         +13.20   -13.17     1.00    +1.00     48.6     952
+ C  GATE + RISK-PARITY            +10.57   -11.92     0.99    +0.89     43.7     952
+
+ Bootstrap PAIRED C vs B (block=10, n=2000):
+   ΔMaxDD  +2.30 pt  IC95 [+0.09, +5.98]
+   ΔSharpe -0.01      IC95 [-0.13, +0.12]
+   -> Risk-parity USA: VALIDATO (IC95 ΔMaxDD esclude 0)
+
+ CONFRONTO EU (Run #30) vs S&P 500 (Run #33) — schema GATE + RISK-PARITY:
+ Metrica                    EU (mib_data_long)   S&P 500 (sp500_data)
+ ------------------------------------------------------------------
+ CAGR %                                  11.73                  10.57
+ MaxDD %                                -13.15                 -11.92
+ Sharpe                                   1.04                   0.99
+ Vol % ann                               11.97                  10.75
+ Calmar                                   0.89                   0.89
+ Exposure %                              54.40                  43.73
+ Trade totali                             1208                    952
+
+ VALUTAZIONE CROSS-MARKET (criteri: Sharpe>0.5, CAGR>3%, MaxDD>-40%, Calmar>0.3):
+   Edge positivo (S&P 500): SI
+   Calmar accettabile:       SI
+   Sharpe comparabile EU (Δ < 0.5): SI
+
+   CONCLUSIONE: il segnale score_new + regime gate e' ROBUSTO cross-market.
+   L'edge non e' specifico all'universo EU: si replica su S&P 500 (genuinamente OOS).
+   Implicazione operativa: il modello e' candidato a coprire anche azioni USA in TREND_UP.
+
+ LIMITI:
+   - Soglia p80 globale (bias in-sample leggero); universo conservativo (76 ticker).
+   - Costi di transazione non nel motore (identico a run EU — confronto coerente).
+   - EU: bias scoperta+validazione; S&P 500: genuinamente OOS (piu' robusto da interpretare).
+   - Equity giornaliere: data/sp500_equity_A/B/C.csv
+==================================================================================

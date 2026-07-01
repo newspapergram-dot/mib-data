@@ -1,0 +1,53 @@
+==========================================================================================
+ RUN #35 — OTTIMIZZAZIONE HOLDING PERIOD: 10 vs 20 GIORNI OPERATIVI
+ portfolio_backtester.py — schema GATE TREND_UP + RISK-PARITY + FINECO COSTS + SLIP
+==========================================================================================
+
+ IPOTESI: raddoppiare l'holding period (~dimezza i trade) riduce il drag commissionale
+ EU proporzionalmente; il decadimento dell'alpha e' atteso contenuto se il gate
+ mantiene le posizioni in regime TREND_UP per l'intera durata estesa.
+
+ STRUTTURA COSTI FINECO (identica per entrambi i test):
+   EU  (.MI/.PA/.AS): 0.19% controvalore | min 2.95€ | max 19.00€ / gamba
+   US  (altri):       9.95€ flat / gamba
+   Slippage:          0.02% su ogni prezzo eseguito
+   Round-trip = 2 gambe (ingresso + uscita)
+
+ UNIVERSO EU (mib_data_long.csv, 2018-2026):
+ Schema                                 CAGR%   MaxDD%   Sharpe   Calmar    Expo%   Trade     Costi€  €/trade(RT)
+ --------------------------------------------------------------------------------------------------
+ A  Hold 10gg, Fineco+slip              +7.49   -14.70     0.70    +0.51     54.4    1208      40169         33.3
+ B  Hold 20gg, Fineco+slip              +4.86   -36.87     0.40    +0.13     60.6     674      21394         31.7
+
+   Δ CAGR      -2.63 pt | Δ MaxDD    -22.17 pt | Δ Sharpe -0.30
+   Δ Calmar    -0.38    | Δ Trade    -534 (153/anno → 85/anno)
+   Drag annuo: 5.08% (10gg) → 2.71% (20gg) | Δ Costi -18775€ (-46.7%)
+   Verdetto: PARZIALE: risparmio commissioni ma alpha decade troppo (>1pt CAGR)
+
+ UNIVERSO S&P 500 (sp500_data_long.csv, 2018-2026):
+ Schema                                 CAGR%   MaxDD%   Sharpe   Calmar    Expo%   Trade     Costi€  €/trade(RT)
+ --------------------------------------------------------------------------------------------------
+ A  Hold 10gg, Fineco+slip              +8.03   -12.19     0.77    +0.66     43.7     952      23458         24.6
+ B  Hold 20gg, Fineco+slip              +8.41   -11.61     0.76    +0.72     49.3     538      13270         24.7
+
+   Δ CAGR      +0.38 pt | Δ MaxDD    +0.58 pt | Δ Sharpe -0.02
+   Δ Calmar    +0.07    | Δ Trade    -414 (124/anno → 70/anno)
+   Drag annuo: 3.06% (10gg) → 1.73% (20gg) | Δ Costi -10188€ (-43.4%)
+   Verdetto: CONVENIENTE: risparmio commissionale supera/compensa il decadimento alpha
+
+ CONCLUSIONE CROSS-MARKET:
+   EU: Δ CAGR -2.63 pt | Δ Costi -18775€ | Sharpe 20gg 0.40 vs 10gg 0.70
+   US: Δ CAGR +0.38 pt | Δ Costi -10188€ | Sharpe 20gg 0.76 vs 10gg 0.77
+
+   Config raccomandata EU: 10gg
+   Config raccomandata US: 10gg
+
+ NOTE METODOLOGICHE:
+   - Il gate TREND_UP puo' interrompere una posizione 20gg se il regime gira durante l'holding;
+     il motore NON chiude anticipatamente per cambio regime (solo per holding completato).
+     -> In mercati laterali/ribassisti la posizione 20gg subisce piu' drawdown intraciclo.
+   - Slippage 0.02% e' stima conservativa; con 20gg piu' tempo per la liquidazione programmata.
+   - Confronto equo: stessa finestra 2018-2026, stessi parametri di gate e risk-parity.
+   - Per ridurre ulteriormente il turnover: considerare filtro score minimo piu' alto (p85 vs p80)
+     oppure momentum confirmation richiedendo N barre consecutive sopra la soglia.
+==========================================================================================

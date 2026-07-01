@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UnicornCandidateSchema",
+  "type": "object",
+  "required": ["ticker", "market", "asof", "regime_gate", "momentum_score", "entry_price", "fundamentals"],
+  "properties": {
+    "ticker": { "type": "string" },
+    "market": { "type": "string", "enum": ["EU", "US"] },
+    "asof": { "type": "string", "format": "date" },
+    "regime_gate": { "type": "string", "enum": ["TREND_UP", "TREND_DOWN"] },
+    "momentum_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "entry_price": { "type": "number", "exclusiveMinimum": 0 },
+    "fundamentals": {
+      "type": "object",
+      "required": ["debt_to_equity", "ebitda_margin", "eps_growth_q_on_q", "free_cash_flow"],
+      "properties": {
+        "debt_to_equity": { "type": "number" },
+        "ebitda_margin": { "type": "number" },
+        "eps_growth_q_on_q": { "type": "number" },
+        "free_cash_flow": { "type": "number" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

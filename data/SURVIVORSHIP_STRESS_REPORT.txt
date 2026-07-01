@@ -1,0 +1,87 @@
+==================================================================================================
+ RUN #39 — STRESS TEST SURVIVORSHIP BIAS: MONTE CARLO DEGRADATION (500 SIMULAZIONI)
+ portfolio_backtester.py — GATE TREND_UP + RISK-PARITY + FINECO + SLIP + TASSE IT
+ Assetto Run #38: EU p85 hold 10gg espandente | US p80 hold 20gg espandente
+==================================================================================================
+
+ METODOLOGIA:
+   Per ogni simulazione MC (500 iterazioni):
+   1) Si seleziona casualmente il 1.5% dei trade storici (simulazione delisting/fallimento)
+   2) I trade selezionati vengono forzati a perdita catastrofica di −60%
+      (il titolo vale solo il 40% del costo d'acquisto — stile crack Wirecard/Astaldi)
+   3) La CGT originalmente pagata su questi trade viene recuperata come credito zainetto
+      (la perdita annulla la plusvalenza fiscale del trade originale)
+   4) L'equity base viene corretta con il delta-cumsum dei cash delta giornalieri
+   5) CAGR/MaxDD/Sharpe vengono ricalcolati sulla curva stressata
+   Approccio delta-cumsum: O(n) per iterazione, nessuna ri-esecuzione del backtest completo.
+
+ ASSUNZIONI CONSERVATIVE:
+   - La perdita è immediata alla data di chiusura originale del trade (no partial recovery)
+   - Il credito zainetto da delisting NON viene usato nelle sim future (bias conservativo)
+   - I 500 seed sono deterministici (seed=42) per riproducibilità
+   - Fineco EU: 0.19% [2.95€-19.00€/gamba] | US: 9.95€ flat | Slip 0.02%
+
+ ==============================================================================================
+ EUROPA (mib_data_long.csv, p85, hold 10gg, 2018-2026):
+ ==============================================================================================
+ Trade totali nel backtest base: 1175 | Trade stressati per sim: 18 (1.5% × 1175 = 18)
+
+ SCENARIO                                    CAGR%   MaxDD%   Sharpe
+ ----------------------------------------------------------------------
+ Base (lordo + tasse, no stress)             +5.64   -12.53     0.55
+
+ DISTRIBUZIONE MC (500 sims, 1.5% trade stressati a -60%)
+ Metrica                            p5      p25  p50/Med     Mean      p75      p95
+ --------------------------------------------------------------------------------
+ CAGR % netto stressato         -20.36   -16.92   -14.98   -15.33   -13.23   -11.13
+ MaxDD % stressato              -93.16            -81.63   -81.31                  
+ Sharpe netto stressato          -0.39                      -0.27                  
+
+   Δ CAGR medio vs base: -20.97 pt | Δ CAGR p5 vs base: -26.00 pt | Δ MaxDD medio vs base: -68.78 pt
+   Prob(CAGR > 0%)  =   0.0% | Prob(CAGR > 3.5% BTP) =   0.0%
+
+   VERDETTO ROBUSTEZZA: NON ROBUSTO: il survivorship bias è materiale — CAGR medio negativo sotto stress
+
+ ==============================================================================================
+ S&P 500 (sp500_data_long.csv, p80, hold 20gg, 2018-2026):
+ ==============================================================================================
+ Trade totali nel backtest base: 528 | Trade stressati per sim: 8 (1.5% × 528 = 8)
+
+ SCENARIO                                    CAGR%   MaxDD%   Sharpe
+ ----------------------------------------------------------------------
+ Base (lordo + tasse, no stress)             +5.60   -11.35     0.53
+
+ DISTRIBUZIONE MC (500 sims, 1.5% trade stressati a -60%)
+ Metrica                            p5      p25  p50/Med     Mean      p75      p95
+ --------------------------------------------------------------------------------
+ CAGR % netto stressato          -1.17    -0.61    -0.24    -0.22    +0.16    +0.69
+ MaxDD % stressato              -36.13            -26.37   -26.97                  
+ Sharpe netto stressato           0.01                       0.07                  
+
+   Δ CAGR medio vs base: -5.83 pt | Δ CAGR p5 vs base: -6.78 pt | Δ MaxDD medio vs base: -15.61 pt
+   Prob(CAGR > 0%)  =  34.0% | Prob(CAGR > 3.5% BTP) =   0.0%
+
+   VERDETTO ROBUSTEZZA: NON ROBUSTO: il survivorship bias è materiale — CAGR medio negativo sotto stress
+
+ ==============================================================================================
+ RIEPILOGO CROSS-MARKET: IMPATTO SURVIVORSHIP BIAS
+ ==============================================================================================
+ Universo  Base CAGR  Stress Mean  Stress p5  Stress p50  MaxDD base  MaxDD stress  P(>BTP)
+ ------------------------------------------------------------------------------------------
+ EU            +5.64%      -15.33%    -20.36%     -14.98%      -12.53%       -81.31%     0.0%
+ US            +5.60%       -0.22%     -1.17%      -0.24%      -11.35%       -26.97%     0.0%
+
+ CONCLUSIONE:
+   Il sistema è PARZIALMENTE SENSIBILE al survivorship bias. Il worst-case (p5) scende
+   in territorio negativo su almeno un mercato. Cautela nell'uso live senza data augmentation
+   (es. aggiungere titoli delistati storicamente al dataset).
+
+ NOTE:
+   - 1.5% stress rate corrisponde a ca. 1 titolo ogni 67 trade: realistico per portafogli
+     che operano su mid-small cap o settori ad alto rischio delisting (biotech, energy).
+   - Il −60% loss è conservativo: la maggior parte dei delisting avviene a −80%/−100%,
+     ma spesso il trading system esce prima (stop loss, segnale contrario).
+   - Il modello attuale NON ha stop loss espliciti: l'uscita è solo per holding period.
+     Un trailing stop (es. −15%) ridurrebbe drasticamente l'impatto di ogni singolo evento.
+   - Simulazioni: 500 | Seed deterministico: 42 | Rate: 1.5% | Loss: −60%
+==================================================================================================

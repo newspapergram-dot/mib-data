@@ -9,3 +9,6 @@ pandas-datareader
 mplfinance
 matplotlib
 openpyxl
+anthropic
+jsonschema
+pytest

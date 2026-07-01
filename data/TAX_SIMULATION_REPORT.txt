@@ -1,0 +1,66 @@
+==============================================================================================
+ RUN #38 — SIMULAZIONE FISCALE: REGIME AMMINISTRATO ITALIANO
+ portfolio_backtester.py — GATE TREND_UP + RISK-PARITY + FINECO COSTS + SLIP + TASSE
+ Assetto OOS definitivo (Run #37): EU p85 hold 10gg / US p80 hold 20gg | soglia espandente
+==============================================================================================
+
+ REGIME FISCALE IMPLEMENTATO (regime amministrato):
+   CGT 26%: imposta sulle plusvalenze, applicata a ogni trade in profitto.
+   Zainetto fiscale: le minusvalenze creano crediti (scadenza 4 anni) che
+     compensano le plusvalenze future — FIFO, dal credito piu' vecchio al piu' recente.
+   Bollo 0.20%/anno: sul valore totale portafoglio (cash + posizioni)
+     applicato il primo giorno lavorativo dell'anno sull'equity di fine anno precedente.
+
+ STRUTTURA COSTI FINECO (invariata):
+   EU: 0.19% [2.95€-19.00€/gamba] | US: 9.95€ flat/gamba | Slip 0.02%
+
+ ==========================================================================================
+ EUROPA (mib_data_long.csv, p85, hold 10gg, 2018-2026):
+ ==========================================================================================
+ Schema                                        CAGR%   MaxDD%   Sharpe   Calmar   Expo%    Costi€    Tasse€   Netto€/a
+ ----------------------------------------------------------------------------------------------------------
+ A  LORDO  (Fineco+Slip, no tasse)             +8.49   -11.44     0.79    +0.74    53.7     39702         0          0
+ B  NETTO  (Fineco+Slip + tasse IT)            +5.64   -12.53     0.55    +0.45    53.6     38746     23714       2964
+
+   Δ CAGR -2.86 pt | Δ MaxDD -1.09 pt | Δ Sharpe -0.24 | Δ Calmar -0.29
+   Tasse totali pagate: 23,714€ | Drag annuo: 2.96% | Aliquota effettiva sui guadagni lordi: 26.2%
+   Zainetto residuo a fine periodo: 4,097€ (crediti non utilizzati — minus non compensate)
+
+   Edge dopo tasse: SI (Sharpe>0.5, CAGR>6%)
+
+ ==========================================================================================
+ S&P 500 (sp500_data_long.csv, p80, hold 20gg, 2018-2026):
+ ==========================================================================================
+ Schema                                        CAGR%   MaxDD%   Sharpe   Calmar   Expo%    Costi€    Tasse€   Netto€/a
+ ----------------------------------------------------------------------------------------------------------
+ A  LORDO  (Fineco+Slip, no tasse)             +8.16   -11.36     0.74    +0.72    49.4     13242         0          0
+ B  NETTO  (Fineco+Slip + tasse IT)            +5.60   -11.35     0.53    +0.49    49.4     12982     22631       2829
+
+   Δ CAGR -2.56 pt | Δ MaxDD +0.00 pt | Δ Sharpe -0.21 | Δ Calmar -0.23
+   Tasse totali pagate: 22,631€ | Drag annuo: 2.83% | Aliquota effettiva sui guadagni lordi: 27.4%
+   Zainetto residuo a fine periodo: 6,344€ (crediti non utilizzati — minus non compensate)
+
+   Edge dopo tasse: SI (Sharpe>0.5, CAGR>6%)
+
+ ==========================================================================================
+ RIEPILOGO CROSS-MARKET: LORDO vs NETTO
+ ==========================================================================================
+ Universo     Lordo CAGR   Netto CAGR   Δ CAGR    Tasse€  Bollo est.  Calmar netto
+ --------------------------------------------------------------------------------
+ EU                +8.49%       +5.64%    -2.86pt     23714   (incluso)          0.45
+ US                +8.16%       +5.60%    -2.56pt     22631   (incluso)          0.49
+
+ CONFIGURAZIONE DEFINITIVA (OOS pulito + costi reali + tasse IT):
+   EU: p85 | hold 10gg | expanding | Fineco+Slip+Tasse | CAGR NETTO +5.64% | Calmar 0.45
+   US: p80 | hold 20gg | expanding | Fineco+Slip+Tasse | CAGR NETTO +5.60% | Calmar 0.49
+
+ NOTE E LIMITI:
+   - Lo zainetto considera la scadenza di 4 anni per ogni credito da minusvalenza.
+     In pratica le perdite 2018-2019 (es. Covid 2020) vengono usate nel 2020-2022.
+   - Il bollo 0.20%/anno e' applicato sull'intera equity (cash + posizioni) a fine anno.
+     Nella realta', alcuni broker applicano il bollo solo sui titoli (non sulla cassa).
+   - L'aliquota effettiva <26% e' normale: lo zainetto riduce la base imponibile.
+   - La simulazione NON include: plusvalenze ETF (aliquota diversa), dividendi 26%,
+     tobin tax (0.1% su azioni IT >500M cap), costi di consulenza.
+   - Fonte di ottimismo residua: survivorship bias nel dataset (titoli delisted esclusi).
+==============================================================================================

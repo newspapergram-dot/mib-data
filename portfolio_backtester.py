@@ -29,8 +29,20 @@ CAPITAL0 = 100_000.0
 MAX_POS = 10
 POS_CAP = 0.10           # 10% del capitale totale per posizione
 HOLD = 10                # giorni operativi
+
+# ---- Struttura costi Fineco (Run #34) ----
+SLIP           = 0.0002   # 0.02% slippage su ogni eseguito (acquisto al rialzo, vendita al ribasso)
+FINECO_EU_PCT  = 0.0019   # 0.19% sul controvalore per titoli EU (.MI/.PA/.AS)
+FINECO_EU_MIN  = 2.95     # minimo EUR per singola gamba EU
+FINECO_EU_MAX  = 19.00    # massimo EUR per singola gamba EU
+FINECO_US_FLAT = 9.95     # tariffa fissa per titoli US, trattata come EUR (USD≈EUR, err<5%)
 TOP_Q = 0.80
 ANN = 252
+
+# ---- Regime fiscale amministrato italiano (Run #38) ----
+TAX_CAPITAL_GAIN = 0.26   # aliquota 26% sulle plusvalenze realizzate
+TAX_BOLLO        = 0.0020 # imposta di bollo 0.20%/anno sul valore totale portafoglio
+TAX_CREDIT_YEARS = 4      # anni di validità dei crediti da minusvalenza (zainetto fiscale)
 FAVORABLE = {"TREND_UP"}     # regimi in cui si aprono NUOVE posizioni (go-flat validato: solo trend)
 RISK_PER_TRADE = 0.0214      # come trade_proposal.propose (per il sizing "live" fedele)
 
@@ -84,6 +96,48 @@ def _max_drawdown(equity):
     return float((equity / peak - 1).min())
 
 
+def _txn_cost(ticker, trade_value):
+    """Costo di transazione per SINGOLA GAMBA (ingresso O uscita) — struttura Fineco.
+    EU (.MI/.PA/.AS): 0.19% del controvalore, min 2.95€, max 19.00€.
+    US (tutto il resto): 9.95 flat (USD ≈ EUR, approssimazione < 5% al cambio corrente)."""
+    if ticker.endswith((".MI", ".PA", ".AS")):
+        return float(np.clip(FINECO_EU_PCT * trade_value, FINECO_EU_MIN, FINECO_EU_MAX))
+    return FINECO_US_FLAT
+
+
+def _apply_capital_gains_tax(raw_gain, trade_year, zainetto):
+    """Regime amministrato italiano: 26% sulla plusvalenza netta con zainetto fiscale.
+
+    raw_gain: plusvalenza (>0) o minusvalenza (<0) del singolo trade, già netta di commissioni.
+    trade_year: anno solare del trade (per gestire scadenza crediti a 4 anni).
+    zainetto: lista di dict {'year': int, 'credit': float} — modificata in-place.
+
+    Ritorna la tassa dovuta (€) da detrarre dalla cassa. Se raw_gain <= 0, la perdita
+    viene aggiunta allo zainetto come credito e la funzione ritorna 0.0.
+    """
+    # Rimuovi crediti scaduti (generati più di TAX_CREDIT_YEARS anni fa)
+    zainetto[:] = [e for e in zainetto if trade_year - e["year"] <= TAX_CREDIT_YEARS]
+
+    if raw_gain <= 0:
+        # Minusvalenza: accumula nel zainetto
+        if raw_gain < 0:
+            zainetto.append({"year": trade_year, "credit": abs(raw_gain)})
+        return 0.0
+
+    # Plusvalenza: consuma crediti zainetto FIFO (dal più vecchio) fino ad esaurimento
+    taxable = raw_gain
+    for entry in zainetto:
+        if taxable <= 1e-6:
+            break
+        consumed = min(entry["credit"], taxable)
+        entry["credit"] -= consumed
+        taxable -= consumed
+    # Rimuovi crediti esauriti
+    zainetto[:] = [e for e in zainetto if e["credit"] > 1e-6]
+
+    return max(0.0, taxable) * TAX_CAPITAL_GAIN
+
+
 def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     """Precompute (costoso) condiviso tra i due rami dell'A/B: prezzi, score, regime per mercato."""
     px = pd.read_csv(px_path, parse_dates=["date"]).dropna(subset=["close"]).sort_values(["ticker", "date"])
@@ -109,32 +163,112 @@ def prepare(px_path="data/mib_data_long.csv", top_q=TOP_Q):
     return close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr
 
 
+def _expanding_thr_array(score_panel, top_q):
+    """Precompute expanding-window quantile threshold for each day in score_panel.
+
+    Returns a numpy array exp_thr where exp_thr[i] = nanquantile of all non-NaN score
+    values across all tickers from day 0 through day i (inclusive). Uses only past data,
+    removing the in-sample lookahead bias of the global nanquantile over the full panel.
+    """
+    n = len(score_panel)
+    exp_thr = np.full(n, np.nan)
+    all_scores = []
+    for i_d in range(n):
+        row_vals = score_panel.iloc[i_d].dropna().values
+        if len(row_vals):
+            all_scores.extend(row_vals.tolist())
+        if all_scores:
+            exp_thr[i_d] = np.nanquantile(all_scores, top_q)
+    return exp_thr
+
+
 def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_POS,
              pos_cap=POS_CAP, hold=HOLD, top_q=TOP_Q, regime_mode="off", sizing="equal",
-             equity_out="data/portfolio_equity.csv", _pre=None):
+             equity_out="data/portfolio_equity.csv", costs=False, expanding_threshold=False,
+             taxes=False, return_trade_log=False, stop_loss_pct=None,
+             min_stock_completeness=None, _pre=None):
     """regime_mode: off (always-in) | gate (TREND_UP only) | tiered (TREND_UP pieno + PULLBACK 1/2 size).
        sizing: equal (10% flat) | riskparity (10% x min(medATR/ATR_i,1)) |
-               live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%)."""
+               live (fedele a propose: shares=risk_eur/(entry-stop), stop~entry-2*ATR, cap 10%).
+       costs: False (default) | True (slippage SLIP + commissioni Fineco reali per singola gamba).
+       expanding_threshold: False (default) | True (soglia OOS pulita, calcolata giorno per giorno).
+       taxes: False (default) | True (regime amministrato IT: CGT 26% + zainetto 4 anni + bollo 0.20%).
+       stop_loss_pct: None (no SL) | float, es. 0.15 → esce se price < entry_px*(1-stop_loss_pct).
+       min_stock_completeness: None (no filtro) | float [0,1], es. 0.75 → proxy large-cap/liquidita'
+         (richiede che il titolo abbia avuto close non-NaN in >= X% dei 252 giorni precedenti)."""
     if _pre is None:
         _pre = prepare(px_path, top_q)
     close_raw, close_mtm, score_panel, regime_by_mkt, thr, cal, atr_panel, med_atr = _pre
     n = len(cal)
 
+    # Expanding-window threshold: precompute per-day thresholds usando solo il passato.
+    # exp_thr[i] = nanquantile(score_panel.iloc[:i+1], top_q) — nessun lookahead.
+    if expanding_threshold:
+        exp_thr = _expanding_thr_array(score_panel, top_q)
+
+    # Large-cap/liquidity proxy: completeness = fraction of non-NaN closes in prior 252 days.
+    # Stocks with high completeness are established and liquid; filters out micro-cap and new IPOs.
+    if min_stock_completeness is not None:
+        completeness_panel = close_raw.notna().rolling(252, min_periods=50).mean()
+    else:
+        completeness_panel = None
+
     cash = capital0
-    positions = {}     # tk -> {shares, entry_i, entry_px}
+    positions = {}     # tk -> {shares, entry_i, entry_px, cost_basis}
     recs = []
     trades = 0
+    sl_exits = 0       # trade usciti per stop-loss (non per holding period)
+    total_costs_paid = 0.0   # commissioni + slippage cumulati (solo se costs=True)
+    total_taxes_paid = 0.0   # CGT + bollo cumulati (solo se taxes=True)
+    zainetto = []            # crediti da minusvalenza: [{"year": int, "credit": float}, ...]
+    trade_log = [] if return_trade_log else None  # log dei trade chiusi per stress test MC
     start = 201        # serve uno storico per gli score e un giorno-segnale precedente
 
     for i in range(start, n):
         day = cal[i]
 
-        # 1) USCITE: posizioni con holding completato (>= hold giorni operativi)
-        for tk in [t for t, p in positions.items() if i - p["entry_i"] >= hold]:
+        # 1) USCITE: holding period completato O stop-loss triggerato
+        tickers_to_exit = []
+        for tk, p in positions.items():
+            if i - p["entry_i"] >= hold:
+                tickers_to_exit.append((tk, "hold"))
+            elif stop_loss_pct is not None:
+                px_sl = close_mtm.at[day, tk]
+                if (pd.notna(px_sl) and
+                        (float(px_sl) - p["entry_px"]) / p["entry_px"] <= -stop_loss_pct):
+                    tickers_to_exit.append((tk, "stop_loss"))
+        for tk, exit_reason in tickers_to_exit:
             px_exit = close_mtm.at[day, tk]
             if pd.notna(px_exit):
-                cash += positions[tk]["shares"] * float(px_exit)
+                eff_exit = float(px_exit) * (1 - SLIP) if costs else float(px_exit)
+                proceeds = positions[tk]["shares"] * eff_exit
+                exit_comm = _txn_cost(tk, proceeds) if costs else 0.0
+                slip_cost = positions[tk]["shares"] * float(px_exit) * SLIP if costs else 0.0
+                net_proceeds = proceeds - exit_comm
+                trade_cost_basis = positions[tk].get("cost_basis", 0.0)
+                cash += net_proceeds
+                total_costs_paid += (exit_comm + slip_cost)
+                cgt = 0.0
+                # CGT 26% sul gain netto (plusvalenza = net_proceeds - cost_basis)
+                if taxes:
+                    raw_gain = net_proceeds - trade_cost_basis
+                    cgt = _apply_capital_gains_tax(raw_gain, day.year, zainetto)
+                    cash -= cgt
+                    total_taxes_paid += cgt
+                if exit_reason == "stop_loss":
+                    sl_exits += 1
                 positions.pop(tk)
+                if trade_log is not None:
+                    trade_log.append({
+                        "ticker": tk,
+                        "market": "EU" if tk.endswith((".MI", ".PA", ".AS")) else "US",
+                        "exit_date": day,
+                        "cost_basis": trade_cost_basis,
+                        "net_proceeds": net_proceeds,
+                        "cgt_paid": cgt,
+                        "net_proceeds_post_tax": net_proceeds - cgt,
+                        "exit_reason": exit_reason,
+                    })
 
         # 2) MARK-TO-MARKET (valore di portafoglio a inizio giornata, post-uscite)
         holdings_val = sum(p["shares"] * float(close_mtm.at[day, tk])
@@ -142,12 +276,23 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                            if pd.notna(close_mtm.at[day, tk]))
         total_value = cash + holdings_val
 
+        # Imposta di Bollo 0.20%/anno: applicata il primo giorno dell'anno sul valore
+        # di chiusura dell'ultimo giorno dell'anno precedente (recs[-1]["equity"]).
+        if taxes and recs and day.year > recs[-1]["date"].year:
+            bollo_base = recs[-1]["equity"]
+            bollo = bollo_base * TAX_BOLLO
+            cash -= bollo
+            total_taxes_paid += bollo
+            total_value = cash + holdings_val   # aggiorna total_value post-bollo
+
         # 3) INGRESSI: segnali validi del giorno PRECEDENTE (no lookahead), nomi non gia' detenuti,
         #    con barra REALE oggi per il fill. Riempi gli slot liberi, size 10% del totale per nome.
         if len(positions) < max_pos:
             prev = cal[i - 1]
             srow = score_panel.loc[prev]
-            elig = srow[(srow >= thr) & srow.notna()]
+            # expanding_threshold: usa la soglia calcolata sui dati fino a prev (i-1)
+            thr_now = float(exp_thr[i - 1]) if expanding_threshold else thr
+            elig = srow[(srow >= thr_now) & srow.notna()]
 
             def _regime_mult(tk):
                 # moltiplicatore di size dal regime del mercato al giorno-segnale (prev, no lookahead)
@@ -170,13 +315,23 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                     return 1.0
                 return float(min(med_atr / a, 1.0))
 
+            def _completeness_ok(tk):
+                if completeness_panel is None:
+                    return True
+                if tk not in completeness_panel.columns or prev not in completeness_panel.index:
+                    return False
+                v = completeness_panel.at[prev, tk]
+                return pd.notna(v) and float(v) >= min_stock_completeness
+
             elig = elig[[tk for tk in elig.index
-                         if tk not in positions and pd.notna(close_raw.at[day, tk]) and _regime_mult(tk) > 0]]
+                         if tk not in positions and pd.notna(close_raw.at[day, tk])
+                         and _regime_mult(tk) > 0 and _completeness_ok(tk)]]
             elig = elig.sort_values(ascending=False)
             for tk in elig.index:
                 if len(positions) >= max_pos:
                     break
                 price = float(close_raw.at[day, tk])
+                eff_entry = price * (1 + SLIP) if costs else price   # slippage: compra più caro
                 regmult = _regime_mult(tk)
                 if sizing == "live":
                     # fedele a propose(): risk budget su stop ATR, poi cap al 10% (che di norma vince)
@@ -187,12 +342,26 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
                 else:
                     budget = pos_cap * regmult * _vol_mult(tk) * total_value
                 budget = min(budget, cash)                   # size = 10% x regime x (vol|live), mai > 10%
-                shares = int(budget / price) if price > 0 else 0
+                shares = int(budget / eff_entry) if eff_entry > 0 else 0
                 if shares <= 0:
                     continue
-                cost = shares * price
-                cash -= cost
-                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": price}
+                trade_val = shares * eff_entry
+                entry_comm = _txn_cost(tk, trade_val) if costs else 0.0
+                slip_cost  = shares * price * SLIP if costs else 0.0
+                # Verifica cassa: trade + commissione devono stare nella liquidita' disponibile
+                if trade_val + entry_comm > cash:
+                    max_sh = int((cash - entry_comm) / eff_entry) if (cash - entry_comm) > 0 else 0
+                    if max_sh <= 0:
+                        continue
+                    shares = max_sh
+                    trade_val  = shares * eff_entry
+                    slip_cost  = shares * price * SLIP if costs else 0.0
+                    entry_comm = _txn_cost(tk, trade_val) if costs else 0.0
+                cash -= (trade_val + entry_comm)
+                total_costs_paid += (entry_comm + slip_cost)
+                # cost_basis: costo totale d'acquisto (valore + commissione) per il calcolo CGT
+                positions[tk] = {"shares": shares, "entry_i": i, "entry_px": eff_entry,
+                                 "cost_basis": trade_val + entry_comm}
                 trades += 1
 
         # 4) MTM di chiusura giornata (dopo gli ingressi) per l'equity
@@ -218,12 +387,23 @@ def backtest(px_path="data/mib_data_long.csv", capital0=CAPITAL0, max_pos=MAX_PO
     avg_npos = float(eq["n_pos"].mean())
     calmar = cagr / abs(maxdd) if maxdd < 0 else np.nan
 
+    # score_thr: con expanding usa la soglia finale (ultima del periodo); con statico usa thr globale.
+    final_thr = float(exp_thr[-1]) if expanding_threshold else float(thr)
+    zainetto_rem = round(sum(e["credit"] for e in zainetto), 2)
     res = {"start": str(cal[start].date()), "end": str(cal[-1].date()), "days": len(eq),
            "capital0": capital0, "equity_final": float(eq["equity"].iloc[-1]),
            "CAGR_pct": cagr * 100, "MaxDD_pct": maxdd * 100, "Sharpe_daily": sharpe,
            "Vol_ann_pct": vol, "Calmar": calmar, "avg_exposure_pct": avg_expo * 100,
-           "avg_n_pos": avg_npos, "trades": trades, "score_thr": float(thr),
-           "regime_mode": regime_mode, "sizing": sizing}
+           "avg_n_pos": avg_npos, "trades": trades, "score_thr": final_thr,
+           "expanding_threshold": expanding_threshold, "top_q_used": top_q,
+           "regime_mode": regime_mode, "sizing": sizing,
+           "costs": costs, "total_costs_paid": round(total_costs_paid, 2),
+           "taxes": taxes, "total_taxes_paid": round(total_taxes_paid, 2),
+           "zainetto_remaining": zainetto_rem,
+           "stop_loss_pct": stop_loss_pct, "sl_exits": sl_exits,
+           "min_stock_completeness": min_stock_completeness}
+    if return_trade_log:
+        res["_trade_log"] = trade_log
     return eq, res
 
 
