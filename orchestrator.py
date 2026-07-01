@@ -77,6 +77,9 @@ def validate_candidate(candidate, schema=None):
         return False, e.message
 
 
+JSON_ONLY_INSTRUCTION = "Rispondi SOLO con un oggetto JSON valido, senza testo fuori dal JSON."
+
+
 def invoke_isolated_agent(client, system_prompt, payload, output_schema,
                            max_tokens=1500, model=None):
     """Chiamata STATELESS a un singolo agente.
@@ -86,11 +89,20 @@ def invoke_isolated_agent(client, system_prompt, payload, output_schema,
     L'output DEVE essere un JSON che rispetta `output_schema` — se il modello
     risponde con testo libero o campi extra, la chiamata fallisce esplicitamente
     invece di lasciar passare un ragionamento non strutturato allo stadio successivo.
+
+    `system_prompt` puo' essere una stringa (caso comune) oppure una lista di blocchi
+    di contenuto gia' pronti per l'API (usata dall'Auditor per marcare con
+    `cache_control` il codice immutabile di `portfolio_backtester.py`, cosi' che le
+    chiamate ripetute nella stessa nottata lo paghino una sola volta).
     """
+    if isinstance(system_prompt, list):
+        system = system_prompt + [{"type": "text", "text": JSON_ONLY_INSTRUCTION}]
+    else:
+        system = system_prompt + "\n\n" + JSON_ONLY_INSTRUCTION
     resp = client.messages.create(
         model=model or MODEL,
         max_tokens=max_tokens,
-        system=system_prompt + "\n\nRispondi SOLO con un oggetto JSON valido, senza testo fuori dal JSON.",
+        system=system,
         messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
     )
     raw = resp.content[0].text
@@ -158,10 +170,18 @@ class NativeOrchestrator:
             return self._reject(ticker, "finance_guy", [finance_out["notes"]], trail)
 
         # 4) AUDITOR — vede candidato + i verdetti strutturati + il codice REALE delle
-        #    regole (letto da disco, non a memoria).
+        #    regole (letto da disco, non a memoria). Il codice e' identico per ogni
+        #    candidato della nottata: e' marcato cache_control cosi' che solo la prima
+        #    chiamata Auditor della run lo paghi per intero (le successive leggono dalla
+        #    cache a frazione del prezzo, finche' resta entro la finestra TTL).
+        auditor_system = [
+            {"type": "text", "text": _prompt("auditor")},
+            {"type": "text",
+             "text": f"--- portfolio_backtester.py (codice reale) ---\n{_read('portfolio_backtester.py')}",
+             "cache_control": {"type": "ephemeral"}},
+        ]
         auditor_out = invoke_isolated_agent(
-            client,
-            _prompt("auditor") + f"\n\n--- portfolio_backtester.py (codice reale) ---\n{_read('portfolio_backtester.py')}",
+            client, auditor_system,
             {"candidate": candidate, "researcher": researcher_out,
              "company_analyst": analyst_out, "finance_guy": finance_out},
             AUDITOR_SCHEMA)
