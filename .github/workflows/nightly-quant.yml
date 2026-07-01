@@ -28,7 +28,11 @@ jobs:
           fi
           rome_hm=$(TZ=Europe/Rome date +%H%M)
           echo "Ora locale Roma: $rome_hm"
-          if [ "$rome_hm" -ge 2240 ] && [ "$rome_hm" -le 2250 ]; then
+          # Finestra allargata a 50' (22:30-23:20): GitHub Actions puo' ritardare
+          # l'esecuzione di uno scheduled workflow di diversi minuti sotto carico.
+          # Zero rischio di doppio trigger: il cron dell'altra stagione (CET/CEST)
+          # cade sempre a un'ora esatta di distanza (21:45 o 23:45 Roma).
+          if [ "$rome_hm" -ge 2230 ] && [ "$rome_hm" -le 2320 ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
