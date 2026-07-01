@@ -105,7 +105,13 @@ def invoke_isolated_agent(client, system_prompt, payload, output_schema,
         system=system,
         messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
     )
-    raw = resp.content[0].text
+    # Alcune risposte includono blocchi di thinking prima del testo: si cerca il
+    # primo blocco testuale invece di assumere che sia content[0] (Run reale del
+    # 1/7/2026: 'ThinkingBlock' object has no attribute 'text').
+    text_blocks = [b.text for b in resp.content if getattr(b, "type", "text") == "text"]
+    if not text_blocks:
+        raise ValueError(f"Risposta agente priva di blocchi testuali: {resp.content!r}")
+    raw = text_blocks[0]
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as e:

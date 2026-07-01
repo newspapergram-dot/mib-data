@@ -7,8 +7,9 @@ scoping informativo per-stadio, short-circuit sui rigetti, backstop deterministi
 che l'LLM non puo' aggirare.
 """
 import json
+from types import SimpleNamespace
 
-from orchestrator import NativeOrchestrator, STOP_LOSS_FLOOR
+from orchestrator import NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent
 from tests.fakes import FakeClient
 
 CANDIDATE = {
@@ -143,3 +144,23 @@ def test_full_approval_yields_buy_with_clamped_stop_loss():
     result = orch.run_committee(CANDIDATE)
     assert result["final"]["action"] == "BUY"
     assert result["final"]["final_stop_loss_pct"] == STOP_LOSS_FLOOR
+
+
+class _ThinkingThenTextClient:
+    """Simula una risposta reale con un ThinkingBlock (senza attributo .text) prima
+    del blocco di testo — riproduce il crash osservato in produzione il 1/7/2026
+    ('ThinkingBlock' object has no attribute 'text')."""
+
+    def __init__(self, text):
+        thinking_block = SimpleNamespace(type="thinking", thinking="ragionamento interno")
+        text_block = SimpleNamespace(type="text", text=text)
+        self.messages = SimpleNamespace(
+            create=lambda **kw: SimpleNamespace(content=[thinking_block, text_block]))
+
+
+def test_invoke_isolated_agent_skips_leading_thinking_block():
+    client = _ThinkingThenTextClient(json.dumps(RESEARCHER_OK))
+    from agents.output_schemas import RESEARCHER_SCHEMA
+    result = invoke_isolated_agent(client, "system prompt", {"candidate": CANDIDATE},
+                                    RESEARCHER_SCHEMA)
+    assert result == RESEARCHER_OK
