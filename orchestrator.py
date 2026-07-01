@@ -174,6 +174,15 @@ class NativeOrchestrator:
         # a un agente oltre a quanto gia' esplicitamente previsto stadio per stadio.
         trail = {"ticker": ticker, "candidate": candidate, "stages": {}}
 
+        # TRADE PLAN — calcolato SUBITO, prima di qualunque agente: dipende solo dai
+        # dati oggettivi del candidato (entry_price/atr_pct/momentum_score), mai da un
+        # output LLM. Spostato qui (invece che dopo il CEO) per un motivo preciso: senza
+        # questo, il CEO poteva approvare un BUY che il piano poi rivelava ineseguibile
+        # (0 azioni, sotto la soglia di efficienza costi) — un output finale che si
+        # contraddice da solo. L'Auditor ne riceve un riepilogo (vedi sotto) per poter
+        # bocciare un trade economicamente non eseguibile PRIMA che il CEO lo firmi.
+        trail["trade_plan"] = self._trade_plan(candidate)
+
         # 1) RESEARCHER — vede solo il candidato immutabile. Primo della catena.
         researcher_out = invoke_isolated_agent(
             client, _prompt("researcher"), {"candidate": candidate}, RESEARCHER_SCHEMA)
@@ -229,7 +238,8 @@ class NativeOrchestrator:
         auditor_out = invoke_isolated_agent(
             client, auditor_system,
             {"candidate": candidate, "researcher": researcher_out,
-             "company_analyst": analyst_out, "finance_guy": finance_out},
+             "company_analyst": analyst_out, "finance_guy": finance_out,
+             "trade_plan_preview": self._trade_plan_preview(trail["trade_plan"])},
             AUDITOR_SCHEMA)
         # BACKSTOP DETERMINISTICO #1: lo SL non scende mai sotto il floor di Run #40,
         # qualunque cosa proponga il modello.
@@ -240,6 +250,14 @@ class NativeOrchestrator:
             auditor_out["approved"] = False
             auditor_out["risk_notes"].append(
                 "[BACKSTOP] regime_gate=TREND_DOWN -> veto automatico (LOOP.md)")
+        # BACKSTOP DETERMINISTICO #4: un piano che sizerebbe a 0 azioni e' ineseguibile
+        # — mai lasciare che il CEO firmi un BUY che il codice sa gia' essere un
+        # non-trade, qualunque cosa dica il modello.
+        if trail["trade_plan"] and trail["trade_plan"]["shares"] == 0 and auditor_out["approved"]:
+            auditor_out["approved"] = False
+            auditor_out["risk_notes"].append(
+                "[BACKSTOP] trade plan sizerebbe a 0 azioni sul capitale nozionale "
+                f"({COMMITTEE_CAPITAL:,.0f}): operazione ineseguibile, veto automatico")
         trail["stages"]["auditor"] = auditor_out
         if not auditor_out["approved"]:
             return self._reject(ticker, "auditor", auditor_out["risk_notes"], trail)
@@ -258,17 +276,17 @@ class NativeOrchestrator:
                                                   auditor_out["stop_loss_pct"])
         trail["stages"]["ceo"] = ceo_out
         trail["final"] = ceo_out
-
-        # TRADE PLAN — entry/stop/T1-T2-T3 SOLO in codice (modules/trade_proposal.py),
-        # mai chiesto all'LLM: sono livelli quantitativi, non un giudizio (vedi docstring
-        # di modulo). Calcolato solo per un BUY finale, sui dati tecnici reali del
-        # candidato (mai fabbricati: se mancano, il Data Parser ha gia' escluso il ticker).
-        if ceo_out["action"] == "BUY":
-            trail["trade_plan"] = self._trade_plan(candidate)
         return trail
 
     @staticmethod
     def _trade_plan(candidate):
+        """Entry/stop/T1-T2-T3 SOLO in codice (modules/trade_proposal.py), mai chiesto
+        all'LLM: sono livelli quantitativi, non un giudizio (vedi docstring di modulo).
+        Calcolato per OGNI candidato valido a schema, indipendentemente dall'esito —
+        serve all'Auditor come anteprima PRIMA della decisione (vedi trade_plan_preview
+        e BACKSTOP #4), non solo come output finale per un BUY gia' deciso. Sui dati
+        tecnici reali del candidato: se mancano, il Data Parser ha gia' escluso il
+        ticker, quindi None qui e' un caso limite (fixture di test), non produzione."""
         atr_pct = candidate.get("technical", {}).get("atr_pct")
         entry = candidate["entry_price"]
         if atr_pct is None:
@@ -282,6 +300,21 @@ class NativeOrchestrator:
         plan["stop"] = round(max(plan["stop"], floor_price), 4)
         plan["stop_pct"] = round((entry - plan["stop"]) / entry, 4)
         return plan
+
+    @staticmethod
+    def _trade_plan_preview(plan):
+        """Riepilogo compatto del trade plan per il payload dell'Auditor: solo i campi
+        rilevanti per giudicare l'eseguibilita' economica, non l'intero oggetto (l'Auditor
+        non deve rivedere/ridiscutere i livelli di prezzo, solo sapere se il piano regge)."""
+        if plan is None:
+            return {"available": False}
+        return {
+            "available": True,
+            "shares": plan["shares"],
+            "position_pct": plan["pos_pct"],
+            "max_risk": plan["risk_eur"],
+            "cost_efficient": plan["cost_efficient"],
+        }
 
     @staticmethod
     def _reject(ticker, stage, reasons, trail):
@@ -352,6 +385,12 @@ def render_report(results, asof=None, unicorn_funnel=None):
                     f"bollinger={candlestick.get('bollinger')}")
             if tech_agent:
                 lines.append(f"    {tech_agent['candlestick_read']}")
+
+        finance = stages.get("finance_guy")
+        if finance:
+            rotation = "favorevole" if finance["sector_rotation_favorable"] else "sfavorevole"
+            lines.append(f"  Analisi macro: regime {finance['macro_regime']}, rotazione settoriale {rotation}")
+            lines.append(f"    {finance['notes']}")
 
         lines.append(f"  Motivazione CEO: {final['rationale']}")
 
@@ -456,7 +495,11 @@ def _signal_json(r):
     candidate = r.get("candidate", {}) or {}
     stages = r.get("stages", {}) or {}
     final = r["final"]
-    plan = r.get("trade_plan")
+    # Il trade plan e' ora calcolato per OGNI candidato valido a schema (serve
+    # all'Auditor come anteprima, vedi _trade_plan_preview), ma va mostrato in
+    # report/dashboard SOLO per un BUY effettivo — altrimenti una riga SKIP
+    # mostrerebbe uno stop/target "ipotetico" per un titolo scartato.
+    plan = r.get("trade_plan") if final["action"] == "BUY" else None
     return {
         "ticker": r["ticker"],
         "universe": candidate.get("universe", "mega_cap"),

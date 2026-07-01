@@ -185,6 +185,32 @@ def test_short_circuit_on_finance_guy_unfavorable():
     assert result["final"]["rationale"].startswith("[finance_guy]")
 
 
+def test_report_shows_upstream_favorable_verdicts_even_when_finance_guy_vetoes():
+    """Il veto macro non deve far sparire dal report cio' che tecnica e fondamentali
+    avevano gia' concluso: l'operatore deve poter vedere che il rigetto e' arrivato
+    dal macro nonostante un quadro tecnico/fondamentale favorevole, non un buco nero."""
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_UNFAVORABLE])
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    report = render_report([result], asof="2026-07-01")
+
+    assert "Verdetto Company Analyst: pass" in report
+    assert "Verdetto Technical Analyst: favorable" in report
+    assert "Analisi macro: regime tightening, rotazione settoriale sfavorevole" in report
+    assert "FOMC tra 3 giorni: kill switch attivo" in report
+
+
+def test_report_shows_macro_section_on_approved_buy_too():
+    """Il giudizio macro non deve essere visibile SOLO sui rigetti: oggi spariva anche
+    sui BUY approvati, l'unica traccia era annegata nel testo libero del CEO."""
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    report = render_report([result], asof="2026-07-01")
+    assert "Analisi macro: regime easing, rotazione settoriale favorevole" in report
+    assert "nessun FOMC/BCE entro 10gg" in report
+
+
 def test_short_circuit_on_auditor_reject():
     client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_PASS, FINANCE_FAVORABLE, AUDITOR_REJECT])
     orch = NativeOrchestrator(client=client)
@@ -413,3 +439,51 @@ def test_export_chart_data_uses_unicorn_price_file_for_unicorn_universe(tmp_path
 
     chart_path = frontend_dir / "public" / "data" / "charts" / "SNOW.json"
     assert chart_path.exists()
+
+
+def test_auditor_receives_trade_plan_preview_before_deciding():
+    """Il trade plan (sizing/rischio/efficienza costi) e' calcolato PRIMA dell'Auditor
+    e gli viene passato in anteprima — non e' piu' un fatto scoperto dopo il BUY del CEO."""
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    orch.run_committee(CANDIDATE)
+    auditor_payload = _payload(client.calls[4])
+    preview = auditor_payload["trade_plan_preview"]
+    assert preview["available"] is True
+    assert preview["shares"] > 0
+    assert "cost_efficient" in preview
+
+
+def test_backstop_vetoes_trade_that_sizes_to_zero_shares_regardless_of_llm():
+    """Un piano che sizerebbe a 0 azioni sul capitale nozionale e' ineseguibile: deve
+    essere bocciato in codice anche se l'Auditor (LLM) lo approva per errore."""
+    unexecutable = dict(CANDIDATE, entry_price=25000.0,
+                         technical=dict(CANDIDATE["technical"], atr_pct=5.0))
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(unexecutable)
+
+    assert result["trade_plan"]["shares"] == 0
+    assert result["final"]["action"] == "SKIP"
+    assert result["final"]["rationale"].startswith("[auditor]")
+    assert any("0 azioni" in note for note in result["stages"]["auditor"]["risk_notes"])
+
+
+def test_skip_result_does_not_expose_hypothetical_trade_plan_in_json():
+    """Un ticker scartato non deve mostrare uno stop/target 'ipotetico' in report/JSON,
+    anche se il trade plan e' ora calcolato internamente per ogni candidato valido."""
+    client = FakeClient([RESEARCHER_OK, TECHNICAL_FAVORABLE, ANALYST_REJECT])
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    assert result["trade_plan"] is not None  # calcolato comunque, per l'Auditor
+    assert result["final"]["action"] == "SKIP"
+
+    from orchestrator import _signal_json
+    signal = _signal_json(result)
+    assert signal["stop"] is None
+    assert signal["t1"] is None
+    assert signal["operational_plan"] is None
+
+    report = render_report([result], asof="2026-07-01")
+    assert "Stop-Loss:" not in report
+    assert "Take Profit:" not in report

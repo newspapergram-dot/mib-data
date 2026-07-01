@@ -31,7 +31,7 @@ const fmtNum = (v: number | null | undefined, digits = 1) =>
         <TickerChart ticker={s.ticker} />
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
         <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
           <h4 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Analisi fondamentale</h4>
           {s.fundamentals ? (
@@ -76,6 +76,23 @@ const fmtNum = (v: number | null | undefined, digits = 1) =>
           ) : <p class="text-gray-500 m-0">dati non disponibili</p>}
           {s.technical_analyst && (
             <p class="mt-3 pt-3 border-t border-[#1e293b] text-gray-400">{s.technical_analyst.candlestick_read}</p>
+          )}
+        </div>
+
+        <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+          <h4 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Analisi macro</h4>
+          {s.finance_guy ? (
+            <ul class="space-y-1 text-gray-300 list-none p-0 m-0">
+              <li>Regime: <span class="font-mono">{s.finance_guy.macro_regime}</span></li>
+              <li>Rotazione settoriale:{" "}
+                <span class={`font-mono ${s.finance_guy.sector_rotation_favorable ? "text-emerald-400" : "text-rose-400"}`}>
+                  {s.finance_guy.sector_rotation_favorable ? "favorevole" : "sfavorevole"}
+                </span>
+              </li>
+            </ul>
+          ) : <p class="text-gray-500 m-0">non valutato (rigetto a monte)</p>}
+          {s.finance_guy && (
+            <p class="mt-3 pt-3 border-t border-[#1e293b] text-gray-400">{s.finance_guy.notes}</p>
           )}
         </div>
       </div>
