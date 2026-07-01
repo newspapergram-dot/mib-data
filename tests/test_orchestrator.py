@@ -7,11 +7,28 @@ scoping informativo per-stadio, short-circuit sui rigetti, backstop deterministi
 che l'LLM non puo' aggirare.
 """
 import json
+import math
 from types import SimpleNamespace
 
+import pandas as pd
+
 from orchestrator import (NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent,
-                           render_report, export_frontend_json, _operational_plan_json)
+                           render_report, export_frontend_json, export_chart_data,
+                           _operational_plan_json)
 from tests.fakes import FakeClient
+
+
+def _synthetic_price_history(ticker, n=260, start=100.0):
+    """Storico prezzi sintetico con trend + oscillazione (evita degenerazioni
+    matematiche in una serie perfettamente piatta o monotona)."""
+    rows = []
+    price = start
+    for i in range(n):
+        price += 0.15 + 0.8 * math.sin(i / 7.0)
+        rows.append({"ticker": ticker, "date": f"2025-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+                     "open": price - 0.1, "high": price + 0.6, "low": price - 0.6,
+                     "close": price, "volume": 1_000_000 + i * 137})
+    return pd.DataFrame(rows)
 
 CANDIDATE = {
     "ticker": "STMMI.MI",
@@ -351,3 +368,48 @@ def test_report_and_json_include_full_operational_strategy_not_just_price_levels
     assert op["position_pct"] > 0
     assert op["max_risk"] > 0
     assert op["notional_capital"] > 0
+
+
+def test_export_chart_data_writes_ohlcv_and_moving_averages(tmp_path):
+    prices = _synthetic_price_history("STMMI.MI", n=260)
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    prices.to_csv(data_dir / "mib_data.csv", index=False)
+
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+
+    frontend_dir = tmp_path / "frontend"
+    export_chart_data([result], frontend_dir=frontend_dir, data_dir=data_dir)
+
+    chart_path = frontend_dir / "public" / "data" / "charts" / "STMMI.MI.json"
+    assert chart_path.exists()
+    chart = json.loads(chart_path.read_text())
+    assert chart["ticker"] == "STMMI.MI"
+    assert len(chart["candles"]) == 260
+    assert len(chart["volume"]) == 260
+    assert all(c["high"] >= c["low"] for c in chart["candles"])
+    assert all(v["color"] in ("#10b98180", "#f4384580") for v in chart["volume"])
+    # SMA200 valida solo dopo le prime 199 barre (rolling su tutta la serie)
+    assert 0 < len(chart["sma200"]) <= 61
+    assert len(chart["sma20"]) == 241  # 260 - 19 (prime barre insufficienti per SMA20)
+    assert "NaN" not in chart_path.read_text()
+
+
+def test_export_chart_data_uses_unicorn_price_file_for_unicorn_universe(tmp_path):
+    prices = _synthetic_price_history("SNOW", n=260)
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    prices.to_csv(data_dir / "mib_data_unicorns.csv", index=False)
+
+    candidate = dict(CANDIDATE, ticker="SNOW", universe="unicorn")
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(candidate)
+
+    frontend_dir = tmp_path / "frontend"
+    export_chart_data([result], frontend_dir=frontend_dir, data_dir=data_dir)
+
+    chart_path = frontend_dir / "public" / "data" / "charts" / "SNOW.json"
+    assert chart_path.exists()

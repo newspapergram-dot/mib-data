@@ -1,4 +1,6 @@
 ---
+import TickerChart from './TickerChart.astro';
+
 interface Props {
   signals: any[];
 }
@@ -24,6 +26,10 @@ const fmtNum = (v: number | null | undefined, digits = 1) =>
       </div>
 
       <p class="text-sm text-gray-300 mb-5 leading-relaxed">{s.rationale}</p>
+
+      <div class="mb-4">
+        <TickerChart ticker={s.ticker} />
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
         <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">

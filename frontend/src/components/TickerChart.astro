@@ -1,0 +1,88 @@
+---
+interface Props {
+  ticker: string;
+}
+const { ticker } = Astro.props;
+---
+<div class="bg-[#111827] rounded-lg border border-[#1e293b] p-3">
+  <div class="flex items-center justify-between mb-2 text-xs text-gray-400">
+    <span>Grafico candlestick + volume — {ticker}</span>
+    <span class="flex gap-3">
+      <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#facc15] inline-block"></span>SMA20</span>
+      <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#60a5fa] inline-block"></span>SMA50</span>
+      <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#c084fc] inline-block"></span>SMA200</span>
+    </span>
+  </div>
+  <div class="ticker-chart-container" data-ticker={ticker} style="height: 320px;"></div>
+</div>
+
+<script>
+  import { createChart, ColorType } from 'lightweight-charts';
+
+  // Un solo script condiviso da TUTTE le istanze del componente (Astro deduplica
+  // gli script identici): itera su ogni container invece di chiudere `ticker` in
+  // uno scope per-istanza, cosi' funziona per un numero qualunque di titoli in pagina.
+  async function initChart(container: HTMLElement) {
+    const ticker = container.dataset.ticker;
+    if (!ticker) return;
+
+    let data: any;
+    try {
+      const res = await fetch(`/data/charts/${ticker}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (e) {
+      container.innerHTML =
+        `<div class="text-xs text-gray-500 flex items-center justify-center h-full">` +
+        `Grafico non disponibile per ${ticker}</div>`;
+      return;
+    }
+    if (!data.candles || data.candles.length === 0) {
+      container.innerHTML =
+        `<div class="text-xs text-gray-500 flex items-center justify-center h-full">` +
+        `Storico prezzi insufficiente per ${ticker}</div>`;
+      return;
+    }
+
+    const chart = createChart(container, {
+      layout: { background: { type: ColorType.Solid, color: '#111827' }, textColor: '#9ca3af' },
+      grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+      width: container.clientWidth,
+      height: container.clientHeight,
+      timeScale: { borderColor: '#1e293b' },
+      rightPriceScale: { borderColor: '#1e293b' },
+    });
+
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: '#10b981', downColor: '#f43545', borderVisible: false,
+      wickUpColor: '#10b981', wickDownColor: '#f43545',
+    });
+    candleSeries.setData(data.candles);
+
+    const volumeSeries = chart.addHistogramSeries({
+      priceFormat: { type: 'volume' },
+      priceScaleId: 'volume',
+    });
+    chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+    volumeSeries.setData(data.volume);
+
+    const smaSeries = [
+      { key: 'sma20', color: '#facc15' },
+      { key: 'sma50', color: '#60a5fa' },
+      { key: 'sma200', color: '#c084fc' },
+    ];
+    for (const { key, color } of smaSeries) {
+      if (!data[key] || data[key].length === 0) continue;
+      const line = chart.addLineSeries({ color, lineWidth: 1, priceLineVisible: false, crosshairMarkerVisible: false });
+      line.setData(data[key]);
+    }
+
+    chart.timeScale().fitContent();
+
+    new ResizeObserver(() => {
+      chart.applyOptions({ width: container.clientWidth });
+    }).observe(container);
+  }
+
+  document.querySelectorAll<HTMLElement>('.ticker-chart-container').forEach(initChart);
+</script>

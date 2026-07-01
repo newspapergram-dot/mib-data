@@ -551,6 +551,75 @@ def export_frontend_json(results, asof, unicorn_funnel=None, frontend_dir=None):
     return payload
 
 
+CHART_WINDOW_DAYS = 260  # ~1 anno di sedute: abbastanza per un contesto grafico utile
+
+
+def export_chart_data(results, frontend_dir=None, data_dir=None):
+    """Esporta OHLCV + SMA20/50/200 per ogni ticker valutato stanotte, per il grafico
+    candlestick/volume della dashboard: frontend/public/data/charts/<ticker>.json.
+
+    Un file PER TICKER, non per notte: sovrascritto ad ogni run. La crescita del
+    repo e' quindi limitata alla dimensione dell'universo mai valutato (decine di
+    file), non al prodotto notti x ticker che avrebbe un file storico per notte.
+    Le medie mobili sono calcolate sull'intera serie storica disponibile (mai solo
+    sulla finestra esportata), altrimenti l'inizio della finestra avrebbe SMA200
+    fabbricate su meno di 200 barre reali.
+    """
+    import pandas as pd
+
+    frontend_dir = frontend_dir or (REPO_ROOT / "frontend")
+    data_dir = data_dir or (REPO_ROOT / "data")
+    charts_dir = frontend_dir / "public" / "data" / "charts"
+    charts_dir.mkdir(parents=True, exist_ok=True)
+
+    price_cache = {}
+    for r in results:
+        candidate = r.get("candidate", {}) or {}
+        ticker = r["ticker"]
+        universe = candidate.get("universe", "mega_cap")
+        price_path = data_dir / ("mib_data_unicorns.csv" if universe == "unicorn"
+                                  else "mib_data.csv")
+        if not price_path.exists():
+            continue
+        if price_path not in price_cache:
+            price_cache[price_path] = pd.read_csv(price_path)
+        px = price_cache[price_path]
+
+        g = px[px["ticker"] == ticker].dropna(subset=["open", "high", "low", "close"])
+        g = g.sort_values("date").reset_index(drop=True)
+        if g.empty:
+            continue
+
+        sma = {n: g["close"].rolling(n).mean() for n in (20, 50, 200)}
+        tail_idx = g.tail(CHART_WINDOW_DAYS).index
+
+        def _line(series):
+            return [{"time": str(g["date"].iloc[i])[:10], "value": round(float(series.iloc[i]), 4)}
+                    for i in tail_idx if not pd.isna(series.iloc[i])]
+
+        candles, volume = [], []
+        for i in tail_idx:
+            row = g.iloc[i]
+            t = str(row["date"])[:10]
+            candles.append({"time": t, "open": round(float(row["open"]), 4),
+                             "high": round(float(row["high"]), 4), "low": round(float(row["low"]), 4),
+                             "close": round(float(row["close"]), 4)})
+            vol = row.get("volume")
+            up = row["close"] >= row["open"]
+            volume.append({"time": t, "value": 0 if pd.isna(vol) else float(vol),
+                            "color": "#10b98180" if up else "#f4384580"})
+
+        payload = _json_safe({
+            "ticker": ticker,
+            "candles": candles,
+            "volume": volume,
+            "sma20": _line(sma[20]),
+            "sma50": _line(sma[50]),
+            "sma200": _line(sma[200]),
+        })
+        (charts_dir / f"{ticker}.json").write_text(json.dumps(payload, ensure_ascii=False))
+
+
 def main():
     if len(sys.argv) < 2:
         print("uso: python3 orchestrator.py <candidates.json>")
@@ -567,6 +636,7 @@ def main():
     (data_dir / f"committee_output_{asof}.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False))
     export_frontend_json(results, asof, unicorn_funnel=unicorn_funnel)
+    export_chart_data(results)
     print(report)
 
 
