@@ -19,23 +19,37 @@ jobs:
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
     steps:
-      - name: Verifica che siano davvero le 22:45 a Roma
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verifica se il Comitato ha gia' prodotto un report oggi
         id: check
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          rome_hm=$(TZ=Europe/Rome date +%H%M)
-          echo "Ora locale Roma: $rome_hm"
-          # Finestra allargata a 50' (22:30-23:20): GitHub Actions puo' ritardare
-          # l'esecuzione di uno scheduled workflow di diversi minuti sotto carico.
-          # Zero rischio di doppio trigger: il cron dell'altra stagione (CET/CEST)
-          # cade sempre a un'ora esatta di distanza (21:45 o 23:45 Roma).
-          if [ "$rome_hm" -ge 2230 ] && [ "$rome_hm" -le 2320 ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
+          # PRECEDENTE APPROCCIO (controllo sull'ORA di Roma, finestra 22:30-23:20)
+          # ABBANDONATO il 1/7/2026: i trigger schedulati su questo account/repo
+          # hanno un ritardo sistemico documentato di 4-5 ORE (verificato su
+          # fetch.yml: cron nominale 17:18 UTC, esecuzione reale sempre tra le
+          # 21:47 e le 23:03 UTC, ogni giorno feriale per due settimane). Un
+          # controllo sull'orario di esecuzione e' quindi inaffidabile per capire
+          # se "e' davvero il momento giusto": il trigger delle 22:45 puo'
+          # arrivare a notte fonda o il giorno dopo.
+          #
+          # Si controlla invece se il report di OGGI (data di Roma al momento
+          # dell'esecuzione, qualunque essa sia) esiste gia': funziona a
+          # prescindere da quanto sia in ritardo il trigger, e previene comunque
+          # la doppia esecuzione dei due cron stagionali (CET/CEST) — quale dei
+          # due arriva per secondo trova il report gia' scritto e si ferma.
+          today=$(TZ=Europe/Rome date +%Y-%m-%d)
+          if [ -f "data/COMMITTEE_REPORT_${today}.txt" ]; then
+            echo "Report di oggi ($today) gia' presente: skip."
             echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nessun report per oggi ($today): procedo."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           fi
 
   run-pipeline:
