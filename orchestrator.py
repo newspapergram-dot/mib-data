@@ -27,6 +27,7 @@ Uso (fallback CLI, non e' lo slash-command primario — vedi AGENTS.md):
     python3 orchestrator.py data/committee_input.json
 """
 import os
+import re
 import sys
 import json
 import datetime
@@ -80,6 +81,17 @@ def validate_candidate(candidate, schema=None):
 JSON_ONLY_INSTRUCTION = "Rispondi SOLO con un oggetto JSON valido, senza testo fuori dal JSON."
 
 
+def _strip_markdown_fence(raw):
+    """Rimuove un eventuale fence markdown (```json ... ``` oppure ``` ... ```)
+    attorno alla risposta. Run reale del 1/7/2026: il Company Analyst ha risposto
+    con '```json\\n{...}\\n```' nonostante l'istruzione di rispondere solo JSON."""
+    stripped = raw.strip()
+    if stripped.startswith("```"):
+        stripped = re.sub(r"^```[a-zA-Z]*\n?", "", stripped)
+        stripped = re.sub(r"\n?```$", "", stripped)
+    return stripped.strip()
+
+
 def invoke_isolated_agent(client, system_prompt, payload, output_schema,
                            max_tokens=1500, model=None):
     """Chiamata STATELESS a un singolo agente.
@@ -111,7 +123,7 @@ def invoke_isolated_agent(client, system_prompt, payload, output_schema,
     text_blocks = [b.text for b in resp.content if getattr(b, "type", "text") == "text"]
     if not text_blocks:
         raise ValueError(f"Risposta agente priva di blocchi testuali: {resp.content!r}")
-    raw = text_blocks[0]
+    raw = _strip_markdown_fence(text_blocks[0])
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as e:

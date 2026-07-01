@@ -164,3 +164,14 @@ def test_invoke_isolated_agent_skips_leading_thinking_block():
     result = invoke_isolated_agent(client, "system prompt", {"candidate": CANDIDATE},
                                     RESEARCHER_SCHEMA)
     assert result == RESEARCHER_OK
+
+
+def test_invoke_isolated_agent_strips_markdown_json_fence():
+    """Run reale del 1/7/2026: il Company Analyst ha risposto con un blocco
+    ```json ... ``` nonostante l'istruzione di rispondere solo JSON puro."""
+    fenced = "```json\n" + json.dumps(ANALYST_PASS) + "\n```"
+    client = _ThinkingThenTextClient(fenced)
+    from agents.output_schemas import COMPANY_ANALYST_SCHEMA
+    result = invoke_isolated_agent(client, "system prompt", {"candidate": CANDIDATE},
+                                    COMPANY_ANALYST_SCHEMA)
+    assert result == ANALYST_PASS
