@@ -2,6 +2,7 @@
   {
     "ticker": "AMAT",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.793,
@@ -11,11 +12,32 @@
       "ebitda_margin": 0.28593577728776187,
       "eps_growth_q_on_q": 0.0058,
       "free_cash_flow": 7993000000.0
+    },
+    "technical": {
+      "rsi": 74.6,
+      "adx": 35.0,
+      "atr_pct": 4.49,
+      "mom6m": 176.1,
+      "sma20": 572.27,
+      "sma50": 480.83,
+      "sma200": 334.77
+    },
+    "candlestick": {
+      "trend": "rialzista",
+      "trend_strength": "moderato",
+      "structure": "HH-HL (rialzista)",
+      "continuation": null,
+      "breakout": "breakout rialzista sopra 708.99 (vol 1.3x)",
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "walk upper band (forza)",
+      "notes": ""
     }
   },
   {
     "ticker": "GOOGL",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.547,
@@ -25,11 +47,32 @@
       "ebitda_margin": 0.38399779824471175,
       "eps_growth_q_on_q": 0.3445,
       "free_cash_flow": 174353000000.0
+    },
+    "technical": {
+      "rsi": 46.1,
+      "adx": 19.2,
+      "atr_pct": 1.78,
+      "mom6m": 14.0,
+      "sma20": 358.53,
+      "sma50": 369.94,
+      "sma200": 315.01
+    },
+    "candlestick": {
+      "trend": "laterale",
+      "trend_strength": "debole",
+      "structure": "LH-LL (ribassista)",
+      "continuation": null,
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": "bullish (prezzo nuovo min, RSI no)",
+      "bollinger": "squeeze (compressione volatilita')",
+      "notes": ""
     }
   },
   {
     "ticker": "LIN",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.344,
@@ -39,11 +82,32 @@
       "ebitda_margin": 0.2648391285528784,
       "eps_growth_q_on_q": 0.0727,
       "free_cash_flow": 10429000000.0
+    },
+    "technical": {
+      "rsi": 52.4,
+      "adx": 12.1,
+      "atr_pct": 0.97,
+      "mom6m": 22.2,
+      "sma20": 513.44,
+      "sma50": 508.14,
+      "sma200": 468.98
+    },
+    "candlestick": {
+      "trend": "laterale",
+      "trend_strength": "debole",
+      "structure": "mista",
+      "continuation": " | ascending triangle",
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "dentro le bande",
+      "notes": ""
     }
   },
   {
     "ticker": "UNH",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.272,
@@ -53,11 +117,32 @@
       "ebitda_margin": 0.041882267134817096,
       "eps_growth_q_on_q": -0.147,
       "free_cash_flow": 23153000000.0
+    },
+    "technical": {
+      "rsi": 51.8,
+      "adx": 36.8,
+      "atr_pct": 1.24,
+      "mom6m": 25.3,
+      "sma20": 405.59,
+      "sma50": 386.81,
+      "sma200": 336.55
+    },
+    "candlestick": {
+      "trend": "rialzista",
+      "trend_strength": "moderato",
+      "structure": "LH-LL (ribassista)",
+      "continuation": null,
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": "bullish (prezzo nuovo min, RSI no)",
+      "bollinger": "squeeze (compressione volatilita')",
+      "notes": ""
     }
   },
   {
     "ticker": "GE",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.198,
@@ -67,11 +152,32 @@
       "ebitda_margin": 1.1216722340317846,
       "eps_growth_q_on_q": 0.3589,
       "free_cash_flow": 8851000000.0
+    },
+    "technical": {
+      "rsi": 78.3,
+      "adx": 38.1,
+      "atr_pct": 1.46,
+      "mom6m": 18.6,
+      "sma20": 345.06,
+      "sma50": 315.69,
+      "sma200": 308.49
+    },
+    "candlestick": {
+      "trend": "rialzista",
+      "trend_strength": "moderato",
+      "structure": null,
+      "continuation": "flag/pennant rialzista (consolidamento dopo impulso)",
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "dentro le bande",
+      "notes": ""
     }
   },
   {
     "ticker": "AAPL",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.197,
@@ -81,11 +187,32 @@
       "ebitda_margin": 0.32643396050876966,
       "eps_growth_q_on_q": 0.227,
       "free_cash_flow": 140222000000.0
+    },
+    "technical": {
+      "rsi": 49.1,
+      "adx": 25.6,
+      "atr_pct": 1.58,
+      "mom6m": 5.8,
+      "sma20": 295.93,
+      "sma50": 292.25,
+      "sma200": 270.03
+    },
+    "candlestick": {
+      "trend": "ribassista",
+      "trend_strength": "moderato",
+      "structure": "LH-LL (ribassista)",
+      "continuation": null,
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "dentro le bande",
+      "notes": ""
     }
   },
   {
     "ticker": "JPM",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.19,
@@ -95,11 +222,32 @@
       "ebitda_margin": NaN,
       "eps_growth_q_on_q": 0.0137,
       "free_cash_flow": -107704000000.0
+    },
+    "technical": {
+      "rsi": 62.5,
+      "adx": 28.0,
+      "atr_pct": 1.28,
+      "mom6m": -0.2,
+      "sma20": 321.07,
+      "sma50": 311.84,
+      "sma200": 308.23
+    },
+    "candlestick": {
+      "trend": "rialzista",
+      "trend_strength": "moderato",
+      "structure": "HH-HL (rialzista)",
+      "continuation": " | ascending triangle",
+      "breakout": null,
+      "pullback": true,
+      "rsi_divergence": "bearish (prezzo nuovo max, RSI no)",
+      "bollinger": "dentro le bande",
+      "notes": ""
     }
   },
   {
     "ticker": "TXN",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.132,
@@ -109,11 +257,32 @@
       "ebitda_margin": 0.35291246339082327,
       "eps_growth_q_on_q": 0.0481,
       "free_cash_flow": 7824000000.0
+    },
+    "technical": {
+      "rsi": 53.0,
+      "adx": 20.5,
+      "atr_pct": 3.76,
+      "mom6m": 68.5,
+      "sma20": 301.56,
+      "sma50": 293.33,
+      "sma200": 214.35
+    },
+    "candlestick": {
+      "trend": "laterale",
+      "trend_strength": "debole",
+      "structure": "mista",
+      "continuation": null,
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": "bearish (prezzo nuovo max, RSI no)",
+      "bollinger": "squeeze (compressione volatilita')",
+      "notes": ""
     }
   },
   {
     "ticker": "CSCO",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.131,
@@ -123,11 +292,32 @@
       "ebitda_margin": 0.23361208968491753,
       "eps_growth_q_on_q": 0.0039,
       "free_cash_flow": 13025000000.0
+    },
+    "technical": {
+      "rsi": 44.3,
+      "adx": 25.5,
+      "atr_pct": 1.53,
+      "mom6m": 50.3,
+      "sma20": 120.97,
+      "sma50": 109.97,
+      "sma200": 84.43
+    },
+    "candlestick": {
+      "trend": "ribassista",
+      "trend_strength": "moderato",
+      "structure": "LH-LL (ribassista)",
+      "continuation": " | descending triangle",
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "squeeze (compressione volatilita')",
+      "notes": ""
     }
   },
   {
     "ticker": "QCOM",
     "market": "US",
+    "universe": "mega_cap",
     "asof": "2026-07-01",
     "regime_gate": "TREND_UP",
     "momentum_score": 0.125,
@@ -137,6 +327,26 @@
       "ebitda_margin": 0.25527132131457086,
       "eps_growth_q_on_q": -0.4415,
       "free_cash_flow": 14285000000.0
+    },
+    "technical": {
+      "rsi": 41.5,
+      "adx": 16.6,
+      "atr_pct": 4.68,
+      "mom6m": 5.7,
+      "sma20": 212.18,
+      "sma50": 200.78,
+      "sma200": 168.19
+    },
+    "candlestick": {
+      "trend": "laterale",
+      "trend_strength": "debole",
+      "structure": "LH-LL (ribassista)",
+      "continuation": "flag/pennant rialzista (consolidamento dopo impulso)",
+      "breakout": null,
+      "pullback": false,
+      "rsi_divergence": null,
+      "bollinger": "dentro le bande",
+      "notes": ""
     }
   }
 ]
