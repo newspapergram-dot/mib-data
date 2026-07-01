@@ -1715,11 +1715,63 @@ tests/test_orchestrator.py::test_stop_loss_backstop_clamps_llm_overreach PASSED
   automatizzata (cron/VPS) prevista dal flusso live del Livello 1.
 
 ### Watch list (aggiornata dopo il Sistema Comitato)
-- [ ] Collegare `orchestrator.py` a `daily_loop.py` come Fase 2b (dopo verify, prima di generate).
+- [x] Collegare `orchestrator.py` alla pipeline dati automatica → fatto: `build_committee_input.py`
+      + `.github/workflows/nightly-quant.yml`.
 - [ ] Popolare `post_mortem_registry.md` con la prima voce reale al primo stop-loss triggerato.
 - [ ] Run #41: Filtro FTSE MIB 40 (lista esplicita) — alternativa corretta al filtro LC.
 - [ ] Regime-exit: chiusura anticipata al cambio di regime durante il holding period.
 - [ ] Portafoglio combinato EU+US con allocazione proporzionale.
+- [ ] Estendere `fundamentals_eu.py` con `debt_to_equity` e crescita EPS: oggi l'intero
+      universo EU viene escluso dal Comitato per assenza di questi due campi (vedi Sistema
+      2026-07-01 sotto — nessun dato inventato, ma copertura EU a zero finche' non si risolve).
+
+---
+
+## Sistema — 2026-07-01 (Automazione notturna: Data Parser + GitHub Actions)
+
+**Obiettivo:** far sì che il Comitato si attivi da solo ogni sera alle 22:45 (ora italiana),
+esegua l'intera pipeline (dati → score → fondamentali → Comitato) e prepari il report, senza
+alcun input manuale (Livello 1 + trigger del flusso live).
+
+**Componenti nuovi:**
+1. **`build_committee_input.py`** (Data Parser): assembla `data/committee_input.json` dagli
+   output GIA' esistenti (`score_output.csv`, `regime_filter.csv`, `fundamentals_pit.csv`,
+   `fundamentals_eu.csv`). Mai fabbrica un fondamentale mancante: se `debt_to_equity` o la
+   crescita EPS non sono disponibili per un ticker, il ticker viene ESCLUSO con motivo
+   esplicito nel log, non riceve un valore inventato (principio LOOP.md).
+   `regime_gate` è un gate binario più severo del freno a 3 stati di `regime_filter.py`:
+   qualunque stato diverso da `TREND_UP` (`PULLBACK`, `LATERALE`, `TREND_DOWN`) viene mappato
+   a `TREND_DOWN` per il Comitato — errare per prudenza.
+2. **`.github/workflows/nightly-quant.yml`**: due cron (`45 21 * * *` / `45 20 * * *`, uno per
+   CET e uno per CEST) più un job "gate" che verifica l'ora locale REALE a Roma
+   (`TZ=Europe/Rome date`) prima di eseguire la pipeline — gestisce il cambio ora
+   legale/solare automaticamente, senza bisogno di aggiornare il cron a marzo/ottobre.
+   Pipeline: safety tests → fetch dati → regime → score → fondamentali US/EU → Data Parser →
+   Comitato → upload artifact del report → commit/push dei dati aggiornati.
+
+**Finding concreto (dataset reale, non ipotetico):** eseguendo `build_committee_input.py` sui
+dati attuali, **10/10 candidati USA passano lo schema**, **tutti i candidati EU vengono
+esclusi** perché `fundamentals_eu.csv` non contiene `debt_to_equity` né crescita EPS. È un
+limite del dato a monte, non un bug del parser — in watch-list per l'estensione di
+`fundamentals_eu.py`.
+
+**Proxy dichiarati nel Data Parser (dataset PIT USA, nessuna EBITDA/FCF pura disponibile):**
+- `ebitda_margin` ≈ `operating_income / revenue` (nessun D&A separato nel dataset PIT)
+- `eps_growth_q_on_q` ≈ `eps_growth_yoy` (il dataset PIT non ha granularità trimestre-su-trimestre)
+- `free_cash_flow` ≈ `ocf` (operating cash flow; il dataset PIT non isola il capex)
+
+**Requisito operativo non delegabile:** il workflow richiede il secret di repository
+`ANTHROPIC_API_KEY` (Settings → Secrets → Actions) per eseguire il Comitato; `FMP_API_KEY` è
+opzionale. Inoltre **i cron di GitHub Actions si attivano solo dalla versione del workflow
+presente sul branch di default** — finché `nightly-quant.yml` resta solo su
+`claude/sec-data-sources-3so72k`, va lanciato manualmente da tab Actions
+(`workflow_dispatch`, sempre disponibile) finché non viene mergiato.
+
+**Test aggiunti:** `tests/test_build_committee_input.py` (4 test: EU escluso senza fabbricare
+dati, US completo incluso e schema-valido, US incompleto escluso, mapping regime non-TREND_UP
+→ TREND_DOWN). Suite completa: **17/17 verdi**.
+
+- Report/artefatti: `data/committee_input.json` (rigenerato ogni notte)
 
 ---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*

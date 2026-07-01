@@ -1180,5 +1180,30 @@ stessa cronologia letta da tutti quelli successivi.
    rigetti, clamp dei backstop. Un'architettura "isolata sulla carta" non verificata è
    indistinguibile da una che non lo è.
 
+## Lezione #35 — 2026-07-01 — Automatizzare una pipeline dati non significa fabbricare i buchi che scopre
+
+**Contesto.** Costruito il Data Parser (`build_committee_input.py`) per alimentare
+automaticamente il Comitato ogni notte. Il modo più semplice per "farlo funzionare sempre"
+sarebbe stato riempire i campi mancanti con un default plausibile (es. `debt_to_equity: 1.0`
+quando assente). Non l'ho fatto: il risultato reale è che oggi **tutto l'universo EU viene
+escluso dal Comitato** perché `fundamentals_eu.csv` non ha `debt_to_equity` né crescita EPS.
+
+**Regola.**
+1. **Un parser automatico deve fallire visibilmente su un ticker, mai silenziosamente
+   inventare il dato mancante.** Un `debt_to_equity` di default userebbe una bugia numerica
+   per far quadrare uno schema — esattamente il tipo di errore che la validazione a monte
+   (`data_schema.json`) dovrebbe impedire, non nascondere a valle.
+2. **"Zero copertura EU" è un finding, non un fallimento da correggere in fretta con una
+   scorciatoia.** Va in watch-list come lavoro concreto (estendere `fundamentals_eu.py`),
+   non coperto con un proxy inventato pur di avere numeri anche per l'EU stanotte.
+3. **I proxy sono accettabili SOLO quando dichiarati e ancorati a un dato reale.** `ebitda_margin
+   ≈ operating_income/revenue` e `free_cash_flow ≈ ocf` sono approssimazioni ONESTE (derivate
+   da dati reali, limite noto e scritto nel codice) — diverse da un default inventato quando
+   il dato reale manca del tutto.
+4. **Il gate di regime per un pipeline automatica deve arrotondare per prudenza.** Mappare
+   PULLBACK/LATERALE a TREND_DOWN (anziché a TREND_UP) nel Comitato rispecchia lo stesso
+   principio già validato nel motore deterministico (LOOP.md): il gate è la fonte dell'edge,
+   mai un ostacolo da aggirare per avere più nomi da mostrare la mattina dopo.
+
 ---
 *Le attività di ogni run sono registrate in `STATE.md`.*
