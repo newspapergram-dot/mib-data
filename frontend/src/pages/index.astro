@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import TradingTable from '../components/TradingTable.astro';
+import AnalystCards from '../components/AnalystCards.astro';
+import latestData from '../../public/data/latest.json';
+---
+<Layout title="MIB-DATA // Terminale di Controllo Quantitativo">
+  <Header
+    lastUpdated={latestData.last_updated}
+    marketRegime={latestData.market_regime}
+    unicornCount={latestData.unicorns.gate_passed}
+  />
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <div class="mb-8">
+      <TradingTable signals={latestData.signals} />
+    </div>
+
+    <div class="mb-6 bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 text-xs text-gray-400 flex flex-wrap gap-x-6 gap-y-1">
+      <span>Universo unicorni analizzati: <span class="font-mono text-gray-200">{latestData.unicorns.screened}</span></span>
+      <span>Passati il gate momentum+crescita: <span class="font-mono text-gray-200">{latestData.unicorns.gate_passed}</span></span>
+      <span>Valutati dal Comitato: <span class="font-mono text-gray-200">{latestData.unicorns.evaluated}</span></span>
+      <span>BUY: <span class="font-mono text-emerald-400">{latestData.unicorns.buy}</span></span>
+      <span>SKIP: <span class="font-mono text-rose-400">{latestData.unicorns.skip}</span></span>
+    </div>
+
+    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Dettaglio per titolo</h2>
+    <AnalystCards signals={latestData.signals} />
+  </main>
+</Layout>

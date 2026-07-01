@@ -1,0 +1,78 @@
+---
+interface Props {
+  signals: any[];
+}
+const { signals } = Astro.props;
+const fmtPct = (v: number | null | undefined, digits = 1) =>
+  v === null || v === undefined || Number.isNaN(v) ? "n/d" : `${(v * 100).toFixed(digits)}%`;
+const fmtNum = (v: number | null | undefined, digits = 1) =>
+  v === null || v === undefined || Number.isNaN(v) ? "n/d" : v.toFixed(digits);
+---
+<div class="space-y-6">
+  {signals.map((s) => (
+    <div id={s.ticker} class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-6 scroll-mt-24">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold font-mono m-0 p-0 bg-transparent border-0">
+          {s.ticker}
+          <span class="text-xs font-normal text-gray-500 ml-2">
+            {s.universe === "unicorn" ? "unicorno · satellite high-beta" : "mega-cap"} · {s.market}
+          </span>
+        </h3>
+        <span class={`px-3 py-1 rounded text-xs font-bold ${s.action === "BUY" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+          {s.action}
+        </span>
+      </div>
+
+      <p class="text-sm text-gray-300 mb-5 leading-relaxed">{s.rationale}</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+          <h4 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Analisi fondamentale</h4>
+          {s.fundamentals ? (
+            <ul class="space-y-1 text-gray-300 list-none p-0 m-0">
+              <li>D/E: <span class="font-mono">{fmtNum(s.fundamentals.debt_to_equity, 2)}</span></li>
+              <li>EBITDA margin: <span class="font-mono">{fmtPct(s.fundamentals.ebitda_margin)}</span></li>
+              <li>EPS growth QoQ: <span class="font-mono">{fmtPct(s.fundamentals.eps_growth_q_on_q)}</span></li>
+              <li>FCF: <span class="font-mono">{s.fundamentals.free_cash_flow?.toLocaleString("it-IT")}</span></li>
+            </ul>
+          ) : <p class="text-gray-500 m-0">dati non disponibili</p>}
+          {s.company_analyst && (
+            <p class="mt-3 pt-3 border-t border-[#1e293b] text-gray-400">{s.company_analyst.reasons?.join("; ")}</p>
+          )}
+        </div>
+
+        <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+          <h4 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Analisi tecnica</h4>
+          {s.technical ? (
+            <ul class="space-y-1 text-gray-300 list-none p-0 m-0">
+              <li>RSI: <span class="font-mono">{fmtNum(s.technical.rsi)}</span></li>
+              <li>ADX: <span class="font-mono">{fmtNum(s.technical.adx)}</span></li>
+              <li>ATR%: <span class="font-mono">{fmtNum(s.technical.atr_pct, 2)}</span></li>
+              <li>Mom 6m: <span class="font-mono">{fmtNum(s.technical.mom6m)}%</span></li>
+              <li>SMA 20/50/200: <span class="font-mono">{fmtNum(s.technical.sma20)}/{fmtNum(s.technical.sma50)}/{fmtNum(s.technical.sma200)}</span></li>
+            </ul>
+          ) : <p class="text-gray-500 m-0">dati non disponibili</p>}
+          {s.technical_analyst && (
+            <p class="mt-3 pt-3 border-t border-[#1e293b] text-gray-400">{s.technical_analyst.setup_read}</p>
+          )}
+        </div>
+
+        <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+          <h4 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Analisi candlestick</h4>
+          {s.candlestick ? (
+            <ul class="space-y-1 text-gray-300 list-none p-0 m-0">
+              <li>Trend: <span class="font-mono">{s.candlestick.trend ?? "n/d"}</span></li>
+              <li>Struttura: <span class="font-mono">{s.candlestick.structure ?? "n/d"}</span></li>
+              <li>Breakout: <span class="font-mono">{s.candlestick.breakout ?? "nessuno"}</span></li>
+              <li>Divergenza RSI: <span class="font-mono">{s.candlestick.rsi_divergence ?? "nessuna"}</span></li>
+              <li>Bollinger: <span class="font-mono">{s.candlestick.bollinger ?? "n/d"}</span></li>
+            </ul>
+          ) : <p class="text-gray-500 m-0">dati non disponibili</p>}
+          {s.technical_analyst && (
+            <p class="mt-3 pt-3 border-t border-[#1e293b] text-gray-400">{s.technical_analyst.candlestick_read}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>

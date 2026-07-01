@@ -1,0 +1,52 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import TradingTable from '../../components/TradingTable.astro';
+import AnalystCards from '../../components/AnalystCards.astro';
+
+// Lo storico vive in public/data/runs/*.json (scritto ogni notte da
+// orchestrator.py::export_frontend_json). public/ non passa da Vite/Astro.glob,
+// quindi si legge direttamente da disco in getStaticPaths — e' l'unico punto in
+// cui l'elenco delle notti passate viene enumerato per generare le pagine statiche.
+export async function getStaticPaths() {
+  const dataDir = path.join(process.cwd(), 'public', 'data', 'runs');
+  const files = fs.existsSync(dataDir)
+    ? fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'))
+    : [];
+  return files.map((file) => {
+    const date = file.replace(/\.json$/, '');
+    const payload = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
+    return { params: { date }, props: { payload } };
+  });
+}
+
+const { payload } = Astro.props;
+---
+<Layout title={`MIB-DATA // Report ${payload.date}`}>
+  <Header
+    lastUpdated={payload.last_updated}
+    marketRegime={payload.market_regime}
+    unicornCount={payload.unicorns.gate_passed}
+    showArchiveLink={false}
+  />
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <a href="/archive/" class="text-xs text-blue-300 hover:text-blue-200">← Torna all'archivio</a>
+
+    <div class="my-6">
+      <TradingTable signals={payload.signals} />
+    </div>
+
+    <div class="mb-6 bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 text-xs text-gray-400 flex flex-wrap gap-x-6 gap-y-1">
+      <span>Universo unicorni analizzati: <span class="font-mono text-gray-200">{payload.unicorns.screened}</span></span>
+      <span>Passati il gate momentum+crescita: <span class="font-mono text-gray-200">{payload.unicorns.gate_passed}</span></span>
+      <span>Valutati dal Comitato: <span class="font-mono text-gray-200">{payload.unicorns.evaluated}</span></span>
+      <span>BUY: <span class="font-mono text-emerald-400">{payload.unicorns.buy}</span></span>
+      <span>SKIP: <span class="font-mono text-rose-400">{payload.unicorns.skip}</span></span>
+    </div>
+
+    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Dettaglio per titolo</h2>
+    <AnalystCards signals={payload.signals} />
+  </main>
+</Layout>

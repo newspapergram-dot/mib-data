@@ -405,6 +405,108 @@ def _unicorn_funnel():
     return {"screened": screened, "gate_passed": gate_passed}
 
 
+def _signal_json(r):
+    """Normalizza un risultato del Comitato nella forma consumata dalla dashboard
+    Astro (frontend/). Un solo posto dove lo shape esportato e' definito, cosi'
+    render_report() (testo) e la dashboard (JSON) leggono sempre dagli stessi dati
+    grezzi senza poter divergere."""
+    candidate = r.get("candidate", {}) or {}
+    stages = r.get("stages", {}) or {}
+    final = r["final"]
+    plan = r.get("trade_plan")
+    return {
+        "ticker": r["ticker"],
+        "universe": candidate.get("universe", "mega_cap"),
+        "market": candidate.get("market"),
+        "regime_gate": candidate.get("regime_gate"),
+        "action": final["action"],
+        "rationale": final["rationale"],
+        "entry": candidate.get("entry_price"),
+        "stop": plan["stop"] if plan else None,
+        "stop_pct": plan["stop_pct"] if plan else final.get("final_stop_loss_pct"),
+        "t1": plan["t1"] if plan else None,
+        "t2": plan["t2"] if plan else None,
+        "t3": plan["t3"] if plan else None,
+        "rr1": plan["rr1"] if plan else None,
+        "rr2": plan["rr2"] if plan else None,
+        "rr3": plan["rr3"] if plan else None,
+        "fundamentals": candidate.get("fundamentals"),
+        "technical": candidate.get("technical"),
+        "candlestick": candidate.get("candlestick"),
+        "technical_analyst": stages.get("technical_analyst"),
+        "company_analyst": stages.get("company_analyst"),
+        "finance_guy": stages.get("finance_guy"),
+    }
+
+
+def _json_safe(obj):
+    """Sostituisce NaN/Infinity con None ovunque nell'albero. Python's json.dumps
+    scrive il letterale bareword `NaN` (es. da ebitda_margin = operating_income/0
+    per un ticker senza EBITDA valido), che NON e' JSON valido in senso stretto e
+    manda in crash il parser JSON di Vite/Astro in fase di build."""
+    if isinstance(obj, float) and (obj != obj or obj in (float("inf"), float("-inf"))):
+        return None
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
+def export_frontend_json(results, asof, unicorn_funnel=None, frontend_dir=None):
+    """Scrive il payload JSON per la dashboard Astro (frontend/):
+      - frontend/public/data/runs/<asof>.json  (snapshot immutabile della nottata)
+      - frontend/public/data/manifest.json     (indice di TUTTE le notti, per l'archivio storico)
+      - frontend/public/data/latest.json       (copia dell'ultima notte, per la home)
+    Idempotente: se lanciato piu' volte per lo stesso `asof`, sovrascrive la stessa
+    entry nel manifest invece di duplicarla.
+    """
+    frontend_dir = frontend_dir or (REPO_ROOT / "frontend")
+    data_dir = frontend_dir / "public" / "data"
+    runs_dir = data_dir / "runs"
+    runs_dir.mkdir(parents=True, exist_ok=True)
+
+    signals = [_signal_json(r) for r in results]
+    market_regime = {}
+    for r in results:
+        candidate = r.get("candidate", {}) or {}
+        market = candidate.get("market")
+        if market and market not in market_regime:
+            market_regime[market] = candidate.get("regime_gate")
+
+    payload = {
+        "date": asof,
+        "last_updated": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "market_regime": market_regime,
+        "signals": signals,
+        "unicorns": {
+            "screened": (unicorn_funnel or {}).get("screened", 0),
+            "gate_passed": (unicorn_funnel or {}).get("gate_passed", 0),
+            "evaluated": sum(1 for s in signals if s["universe"] == "unicorn"),
+            "buy": sum(1 for s in signals if s["universe"] == "unicorn" and s["action"] == "BUY"),
+            "skip": sum(1 for s in signals if s["universe"] == "unicorn" and s["action"] == "SKIP"),
+        },
+    }
+    payload = _json_safe(payload)
+
+    run_path = runs_dir / f"{asof}.json"
+    run_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+    (data_dir / "latest.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+
+    manifest_path = data_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+    manifest = [m for m in manifest if m["date"] != asof]
+    manifest.append({
+        "date": asof,
+        "buy": sum(1 for s in signals if s["action"] == "BUY"),
+        "skip": sum(1 for s in signals if s["action"] == "SKIP"),
+        "total": len(signals),
+    })
+    manifest.sort(key=lambda m: m["date"], reverse=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
+    return payload
+
+
 def main():
     if len(sys.argv) < 2:
         print("uso: python3 orchestrator.py <candidates.json>")
@@ -413,12 +515,14 @@ def main():
     orch = NativeOrchestrator()
     results = [orch.run_committee(c) for c in candidates]
     asof = datetime.date.today().isoformat()
-    report = render_report(results, asof, unicorn_funnel=_unicorn_funnel())
+    unicorn_funnel = _unicorn_funnel()
+    report = render_report(results, asof, unicorn_funnel=unicorn_funnel)
     data_dir = REPO_ROOT / "data"
     data_dir.mkdir(exist_ok=True)
     (data_dir / f"COMMITTEE_REPORT_{asof}.txt").write_text(report)
     (data_dir / f"committee_output_{asof}.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False))
+    export_frontend_json(results, asof, unicorn_funnel=unicorn_funnel)
     print(report)
 
 

@@ -88,6 +88,22 @@ jobs:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
         run: python orchestrator.py data/committee_input.json
 
+      - name: Set up Node.js (dashboard Astro)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Installa dipendenze frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build dashboard Astro — controllo di non-regressione (il deploy lo fa
+          Cloudflare Pages via la sua integrazione nativa con GitHub, non questo step)
+        working-directory: frontend
+        run: npm run build
+
       - name: Archivia il report della notte
         uses: actions/upload-artifact@v4
         with:

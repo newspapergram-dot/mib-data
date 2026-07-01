@@ -1,0 +1,39 @@
+---
+interface Props {
+  lastUpdated: string;
+  marketRegime: Record<string, string>;
+  unicornCount: number;
+  showArchiveLink?: boolean;
+}
+const { lastUpdated, marketRegime, unicornCount, showArchiveLink = true } = Astro.props;
+const regimeEntries = Object.entries(marketRegime || {});
+---
+<header class="border-b border-[#1e293b] bg-[#0f172a]/80 backdrop-blur px-6 py-4 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h1 class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+        MIB-DATA // COMITATO OPERATIVO
+      </h1>
+      <p class="text-xs text-gray-400 mt-0.5">Ultimo aggiornamento automatico: {lastUpdated}</p>
+    </div>
+    <div class="flex items-center gap-3 flex-wrap">
+      {regimeEntries.map(([market, regime]) => (
+        <div class="bg-[#1e293b] px-3 py-1.5 rounded-lg border border-gray-800 flex items-center gap-2">
+          <span class="text-xs text-gray-400">Regime {market}:</span>
+          <span class={`text-xs font-bold px-2 py-0.5 rounded ${regime === "TREND_UP" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+            {regime}
+          </span>
+        </div>
+      ))}
+      <div class="bg-[#1e293b] px-3 py-1.5 rounded-lg border border-gray-800 text-xs">
+        <span class="text-gray-400">Gate Unicorni:</span>
+        <span class="font-mono font-bold ml-1 text-amber-400">{unicornCount} promossi</span>
+      </div>
+      {showArchiveLink && (
+        <a href="/archive/" class="bg-[#1e293b] hover:bg-[#293548] transition px-3 py-1.5 rounded-lg border border-gray-800 text-xs text-blue-300">
+          Archivio storico
+        </a>
+      )}
+    </div>
+  </div>
+</header>

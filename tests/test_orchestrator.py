@@ -9,7 +9,8 @@ che l'LLM non puo' aggirare.
 import json
 from types import SimpleNamespace
 
-from orchestrator import NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent, render_report
+from orchestrator import (NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent,
+                           render_report, export_frontend_json)
 from tests.fakes import FakeClient
 
 CANDIDATE = {
@@ -266,3 +267,64 @@ def test_render_report_labels_unicorn_universe_and_uses_funnel_counts():
     assert "[UNICORNO]" in report
     assert "64 candidati analizzati" in report
     assert "3 hanno superato il gate" in report
+
+
+def test_export_frontend_json_writes_run_manifest_and_latest(tmp_path):
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    payload = export_frontend_json([result], asof="2026-07-01",
+                                    unicorn_funnel={"screened": 10, "gate_passed": 2},
+                                    frontend_dir=tmp_path)
+
+    data_dir = tmp_path / "public" / "data"
+    run_file = json.loads((data_dir / "runs" / "2026-07-01.json").read_text())
+    latest = json.loads((data_dir / "latest.json").read_text())
+    manifest = json.loads((data_dir / "manifest.json").read_text())
+
+    assert run_file == payload == latest
+    assert payload["signals"][0]["ticker"] == "STMMI.MI"
+    assert payload["signals"][0]["action"] == "BUY"
+    assert payload["signals"][0]["stop"] == payload["signals"][0]["entry"] - \
+        (payload["signals"][0]["entry"] * payload["signals"][0]["stop_pct"])
+    assert payload["unicorns"]["screened"] == 10
+    assert manifest == [{"date": "2026-07-01", "buy": 1, "skip": 0, "total": 1}]
+
+
+def test_export_frontend_json_is_idempotent_per_date(tmp_path):
+    client = FakeClient(FULL_APPROVAL_SCRIPT * 2)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    export_frontend_json([result], asof="2026-07-01", frontend_dir=tmp_path)
+    export_frontend_json([result], asof="2026-07-01", frontend_dir=tmp_path)
+
+    manifest = json.loads((tmp_path / "public" / "data" / "manifest.json").read_text())
+    assert len(manifest) == 1  # non duplica l'entry della stessa notte
+
+
+def test_export_frontend_json_manifest_accumulates_multiple_nights(tmp_path):
+    client = FakeClient(FULL_APPROVAL_SCRIPT * 2)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    export_frontend_json([result], asof="2026-06-30", frontend_dir=tmp_path)
+    export_frontend_json([result], asof="2026-07-01", frontend_dir=tmp_path)
+
+    manifest = json.loads((tmp_path / "public" / "data" / "manifest.json").read_text())
+    assert [m["date"] for m in manifest] == ["2026-07-01", "2026-06-30"]  # piu' recenti prima
+
+
+def test_export_frontend_json_sanitizes_nan_for_strict_json_parsers(tmp_path):
+    """Run reale: ebitda_margin puo' essere NaN (operating_income/revenue con revenue
+    non valida per un ticker come JPM). json.dumps scrive il bareword NaN, che NON e'
+    JSON valido in senso stretto e manda in crash il parser di Vite/Astro in build."""
+    candidate = dict(CANDIDATE, fundamentals=dict(CANDIDATE["fundamentals"],
+                                                   ebitda_margin=float("nan")))
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(candidate)
+    export_frontend_json([result], asof="2026-07-01", frontend_dir=tmp_path)
+
+    raw = (tmp_path / "public" / "data" / "latest.json").read_text()
+    assert "NaN" not in raw
+    payload = json.loads(raw)
+    assert payload["signals"][0]["fundamentals"]["ebitda_margin"] is None
