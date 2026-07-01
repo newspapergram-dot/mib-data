@@ -1144,5 +1144,41 @@ Un filtro di completeness su dati di questo tipo non discrimina nulla.
    - US: p80 | hold 20gg | espandente | SL −15% | Fineco+slip+tasse | CAGR base +4.85%
    - Stress robustezza: EU p5 +1.71% / US p5 +2.99% (vs delisting 1.5%@−60%)
 
+## Lezione #34 — 2026-07-01 — L'isolamento tra agenti si progetta con contratti, non con istruzioni
+
+**Contesto.** Costruito il Comitato Multi-Agente (`orchestrator.py`): Researcher, Company
+Analyst, Finance Guy, Auditor, CEO. Requisito esplicito: gli agenti devono "parlare
+unilateralmente senza influenzarsi". Una prima bozza (scartata) metteva tutti gli agenti
+come "persone" dentro un'unica conversazione Claude Project: architetturalmente debole,
+perché è un solo contesto continuo che simula ruoli — il bias di un agente resta nella
+stessa cronologia letta da tutti quelli successivi.
+
+**Regola.**
+1. **L'isolamento è una proprietà della chiamata, non del prompt.** Dire a un agente "non
+   farti influenzare" nel prompt non impedisce nulla se la sua chiamata API condivide la
+   cronologia con gli altri. Il vero isolamento è strutturale: ogni agente = una chiamata
+   `messages.create()` con un solo turno utente, mai un accumulo di turni precedenti.
+2. **La comunicazione tra agenti deve passare per un contratto (JSON Schema), non per
+   testo libero.** Un output vincolato a enum/bool/numeri (`"pass"|"reject"`,
+   `sector_rotation_favorable: bool`) non può "convincere retoricamente" l'agente a valle
+   come farebbe un paragrafo di prosa persuasiva. `additionalProperties:false` impedisce
+   anche la fuga di campi extra non previsti dal contratto.
+3. **Lo scoping informativo è una scelta di design, non un dettaglio implementativo.**
+   Il Finance Guy non riceve l'output di Researcher/Company Analyst: il giudizio macro deve
+   restare indipendente dalla narrativa sul singolo titolo. Decidere ESPLICITAMENTE chi vede
+   cosa (non "tutti vedono tutto per sicurezza") è ciò che rende l'indipendenza verificabile.
+4. **Il rigetto di uno stadio deve fermare la pipeline (short-circuit), non essere solo un
+   flag ignorabile a valle.** Se Company Analyst boccia, Finance Guy/Auditor/CEO non vengono
+   nemmeno invocati: un agente a valle non ha MAI l'occasione di ribaltare un rigetto di monte.
+5. **Le regole non negoziabili (stop-loss ≤15% da Run #40, veto su regime TREND_DOWN da
+   LOOP.md) vanno applicate in CODICE come backstop, non affidate al giudizio del modello.**
+   L'LLM propone il valore, il codice lo clampa/veta comunque. Una regola "importante" detta
+   solo nel prompt è una promessa, non una garanzia.
+6. **L'isolamento si verifica con test, non si dichiara.** 13 test con un client Anthropic
+   finto (`FakeClient`, nessuna rete/credito) verificano concretamente: singolo turno per
+   chiamata, assenza di chiavi non pertinenti nel payload di ogni stadio, short-circuit sui
+   rigetti, clamp dei backstop. Un'architettura "isolata sulla carta" non verificata è
+   indistinguibile da una che non lo è.
+
 ---
 *Le attività di ogni run sono registrate in `STATE.md`.*

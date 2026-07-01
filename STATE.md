@@ -1649,4 +1649,77 @@ su dati di questo tipo. Alternativa corretta: market cap storico (FMP/Compustat)
 - [ ] Parametrizzare il SL: testare 10%, 15%, 20% per trovare il punto ottimale cost/benefit.
 
 ---
+
+## Sistema — 2026-07-01 (Comitato Multi-Agente Nativo: Livello 3 del flusso live)
+
+**Obiettivo:** costruire il "Comitato" di sub-agenti (Researcher, Company Analyst, Finance
+Guy, Auditor, Main Agent/CEO) descritto nello schema architetturale del flusso live, con
+un vincolo esplicito: gli agenti devono comunicare **unilateralmente, senza influenzarsi**
+l'uno con l'altro. Non una simulazione di persone dentro un'unica chat (debole: contesto
+condiviso, bias che si propaga), ma isolamento reale via chiamate API separate.
+
+**Architettura implementata (`orchestrator.py` + `agents/` + `post_mortem.py`):**
+- `invoke_isolated_agent()`: ogni agente è una chiamata `messages.create()` STATELESS —
+  `messages` ha sempre un solo turno utente, nessuna cronologia condivisa tra agenti.
+- Comunicazione tra agenti SOLO via JSON strutturato validato contro schema per-stadio
+  (`agents/output_schemas.py`, tutti con `additionalProperties:false`): mai testo libero
+  persuasivo che possa far ereditare bias/framing.
+- **Scoping informativo deliberato**: il Finance Guy non vede l'output di Researcher/Company
+  Analyst (il giudizio macro resta indipendente dalla narrativa sul singolo titolo); il CEO
+  vede solo i verdetti strutturati finali, mai un "ragionamento grezzo" (che non esiste: ogni
+  stadio a monte ha già risposto solo in JSON vincolato).
+- **Short-circuit sui rigetti**: se Company Analyst, Finance Guy o Auditor bocciano, gli
+  stadi successivi non vengono nemmeno invocati — un agente a valle non può mai "convincere"
+  a ribaltare un rigetto di monte.
+- **Due backstop deterministici** (in CODICE, non affidati al giudizio del modello):
+  1) `stop_loss_pct` finale mai sopra `STOP_LOSS_FLOOR=0.15` (Run #40), qualunque cosa
+     proponga l'LLM;
+  2) `regime_gate=="TREND_DOWN"` forza sempre `approved=False` (LOOP.md: il gate di regime
+     è la fonte dell'edge, mai un ostacolo da aggirare).
+- L'Auditor riceve il codice REALE di `portfolio_backtester.py` letto da disco a ogni
+  invocazione (non riassunto, non a memoria).
+- **Agente Post-Mortem** (`post_mortem.py`, Livello 4/auto-miglioramento): analizza UN trade
+  fallito alla volta in isolamento, propone UNA riga di linea guida strutturata
+  (`POST_MORTEM_SCHEMA`), applicata in **APPEND** (mai overwrite) a `macro_guidelines.md` o
+  `post_mortem_registry.md` da codice deterministico — l'LLM propone, il codice scrive.
+
+**File nuovi:**
+- `data_schema.json` — schema di input (candidato: ticker/market/regime_gate/momentum/
+  fondamentali), scudo deterministico prima di spendere token su dati malformati.
+- `agents/output_schemas.py` + `agents/prompts/*.md` — contratto e prompt per ciascun agente.
+- `orchestrator.py`, `post_mortem.py` — motore ed entry-point CLI (fallback, non slash-command).
+- `macro_guidelines.md`, `post_mortem_registry.md` — memoria vivente, aggiornata in append
+  dall'Agente Post-Mortem.
+- `tests/test_orchestrator.py`, `tests/test_post_mortem.py` (13 test, `FakeClient` senza rete
+  né crediti API): verificano stateless single-turn, scoping informativo, short-circuit,
+  backstop deterministici, append-only. **Tutti verdi.**
+
+**Verifica isolamento (evidenza, non promessa):**
+```
+tests/test_orchestrator.py::test_isolated_calls_are_stateless_single_turn PASSED
+tests/test_orchestrator.py::test_finance_guy_does_not_see_researcher_or_analyst_output PASSED
+tests/test_orchestrator.py::test_short_circuit_on_company_analyst_reject PASSED
+tests/test_orchestrator.py::test_regime_down_forces_veto_regardless_of_llm PASSED
+tests/test_orchestrator.py::test_stop_loss_backstop_clamps_llm_overreach PASSED
+13 passed in 0.16s
+```
+
+**Note operative:**
+- Richiede `ANTHROPIC_API_KEY` nell'ambiente per l'esecuzione reale (non nei test, che usano
+  `FakeClient`); fallisce con errore esplicito e leggibile se assente — mai un fallback silente.
+- L'Auditor inietta l'intero `portfolio_backtester.py` (~32KB) nel system prompt a ogni
+  chiamata: costo token non trascurabile ma necessario per leggere le regole vere, non una
+  loro sintesi che potrebbe invecchiare.
+- Esecuzione via Claude Code (questo ambiente) resta la via primaria per l'uso interattivo
+  (`Agent` tool, vedi `LOOP.md` Fase 2); `orchestrator.py` serve per l'esecuzione headless/
+  automatizzata (cron/VPS) prevista dal flusso live del Livello 1.
+
+### Watch list (aggiornata dopo il Sistema Comitato)
+- [ ] Collegare `orchestrator.py` a `daily_loop.py` come Fase 2b (dopo verify, prima di generate).
+- [ ] Popolare `post_mortem_registry.md` con la prima voce reale al primo stop-loss triggerato.
+- [ ] Run #41: Filtro FTSE MIB 40 (lista esplicita) — alternativa corretta al filtro LC.
+- [ ] Regime-exit: chiusura anticipata al cambio di regime durante il holding period.
+- [ ] Portafoglio combinato EU+US con allocazione proporzionale.
+
+---
 *Aggiornato dal loop di analisi finanziaria. Le regole apprese vivono in `FINANCIAL_SKILLS.md`.*
