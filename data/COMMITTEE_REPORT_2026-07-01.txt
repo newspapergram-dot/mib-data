@@ -1,148 +1,188 @@
 COMITATO MULTI-AGENTE — Report operativo 2026-07-01
 ======================================================================
 
-AMAT: BUY
-  Trigger d'ingresso: 723.00 US (regime TREND_UP)
-  Analisi fondamentale:
-    D/E 0.68 | EBITDA margin 0.286 | EPS growth QoQ 0.006 | FCF 7993000000
-    Verdetto Company Analyst: pass — Debt_to_equity 0.68 ben sotto soglia 2.5, leva contenuta; EBITDA margin positivo (28.6%), redditività solida; Free cash flow ampiamente positivo (~8.0B), buona generazione di cassa; EPS growth q/q modesto (0.58%) ma non negativo, non compromette il quadro complessivo
-  Analisi tecnica:
-    RSI 74.6 | ADX 35.0 | ATR% 4.49 | mom6m 176.100 | SMA20/50/200 572.27/480.83/334.77
-    Verdetto Technical Analyst: favorable — Trend rialzista forte (ADX 35) con prezzo allineato sopra SMA20/50/200 e momentum 6m molto elevato; RSI ipercomprato ma supportato da breakout volumetrico, non da esaurimento.
-  Analisi candlestick:
-    trend=rialzista struttura=HH-HL (rialzista) breakout=breakout rialzista sopra 708.99 (vol 1.3x) divergenza=None bollinger=walk upper band (forza)
-    Breakout rialzista sopra 708.99 con volume 1.3x e prezzo che cammina lungo la banda superiore di Bollinger, senza segnali di pullback o divergenza.
-  Motivazione CEO: Trend rialzista forte con ADX 35 e prezzo sopra tutte le medie mobili in struttura HH-HL, confermato da breakout su volume 1.3x; RSI a 74.6 elevato ma sostenuto da momentum, non da esaurimento. Fondamentali solidi (leva contenuta, FCF ~8B, margini 28.6%) e contesto macro TREND_UP favorevole ai ciclici tech senza segnali restrittivi Fed. Vista l'estensione tecnica (RSI/ATR elevati), si applica uno stop più stringente rispetto al tetto massimo indicato dall'auditor.
-  Stop-Loss: 686.85 (-5.0%)
-  Take Profit: T1 787.93 (R/R 1.8:1) | T2 917.78 (R/R 5.39:1) | T3 1047.63 (R/R 8.98:1, runner)
-
-GOOGL: BUY
-  Trigger d'ingresso: 357.37 US (regime TREND_UP)
-  Analisi fondamentale:
-    D/E 0.47 | EBITDA margin 0.384 | EPS growth QoQ 0.344 | FCF 174353000000
-    Verdetto Company Analyst: pass — Debt-to-equity basso (0.47), ben lontano dalla soglia di rigetto; EBITDA margin solido e positivo (38.4%); EPS growth q/q eccezionale (34.45%), sopra la soglia del 30%; Free cash flow molto elevato e positivo (~174B); Nessun segnale di leva eccessiva o marginalità negativa
-  Analisi tecnica:
-    RSI 46.1 | ADX 19.2 | ATR% 1.78 | mom6m 14.000 | SMA20/50/200 358.53/369.94/315.01
-    Verdetto Technical Analyst: favorable — Quadro tecnico laterale con trend debole (ADX 19.2), RSI neutro a 46.1 e prezzo compresso tra le medie mobili (sopra SMA200, sotto SMA20/50); ATR% contenuto (1.78%) e Bollinger in squeeze suggeriscono bassa volatilità in attesa di un movimento direzionale.
-  Analisi candlestick:
-    trend=laterale struttura=LH-LL (ribassista) breakout=None divergenza=bullish (prezzo nuovo min, RSI no) bollinger=squeeze (compressione volatilita')
-    Struttura di prezzo mostra pattern LH-LL potenzialmente ribassista ma con divergenza RSI bullish e compressione Bollinger, configurazione che segnala incertezza in attesa di breakout piuttosto che un chiaro segnale di deterioramento.
-  Motivazione CEO: Fondamentali solidi (D/E 0.47, EBITDA margin 38.4%, EPS growth q/q 34.45%, FCF ~174B) e regime macro TREND_UP favorevole alla rotazione tech. Quadro tecnico laterale con ADX debole (19.2) e RSI neutro (46.1), prezzo compresso tra SMA20/50 e SMA200 con Bollinger in squeeze: setup di attesa breakout più che deterioramento, coerente con ingresso prudente. Stop impostato al tetto regolamentare del 15% data la bassa volatilità attuale (ATR% 1.78).
-  Stop-Loss: 344.65 (-3.6%)
-  Take Profit: T1 372.64 (R/R 1.2:1) | T2 395.54 (R/R 3.0:1) | T3 420.98 (R/R 5.0:1, runner)
-
 LIN: BUY
-  Trigger d'ingresso: 518.94 US (regime TREND_UP)
+  Trigger d'ingresso: 533.55 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 1.20 | EBITDA margin 0.265 | EPS growth QoQ 0.073 | FCF 10429000000
-    Verdetto Company Analyst: pass — debt_to_equity a 1.2, ben sotto la soglia di rigetto di 2.5; ebitda_margin solido al 26.5%, ampiamente positivo; free_cash_flow molto robusto (~10.4B), a supporto della struttura di debito moderata; eps_growth_q_on_q modesta (7.3%) ma positiva, coerente con azienda mega cap matura
+    Verdetto Company Analyst: pass — debt_to_equity 1.2 ben sotto soglia 2.5; ebitda_margin solido al 26.5%; free_cash_flow ampiamente positivo (10.4B); eps_growth_q_on_q modesta (7.3%) ma non negativa, coerente con profilo mega cap stabile
   Analisi tecnica:
-    RSI 52.4 | ADX 12.1 | ATR% 0.97 | mom6m 22.200 | SMA20/50/200 513.44/508.14/468.98
-    Verdetto Technical Analyst: favorable — Prezzo sopra tutte le medie mobili (20/50/200) con RSI neutro e ATR% contenuto (0.97%), ma ADX basso segnala fase di consolidamento laterale più che trend forte in atto.
+    RSI 65.5 | ADX 13.1 | ATR% 1.05 | mom6m 25.100 | SMA20/50/200 515.32/508.85/469.24
+    Verdetto Technical Analyst: favorable — Prezzo in walk sulla banda superiore di Bollinger con RSI a 65.5 e momentum 6 mesi forte (+25%), ma ADX a 13 tradisce un trend laterale/debole nonostante l'allineamento rialzista delle medie mobili (SMA20>SMA50>SMA200); ATR% contenuto (1.05%) indica volatilità bassa.
   Analisi candlestick:
-    trend=laterale struttura=mista breakout=None divergenza=None bollinger=dentro le bande
-    Struttura mista con pattern di continuazione tipo ascending triangle dentro le bande di Bollinger, senza breakout confermato né pullback in corso.
-  Motivazione CEO: LIN mostra un quadro tecnico costruttivo: prezzo sopra SMA20/50/200 con mom6m +22.2% e RSI neutro (52.4), anche se ADX basso (12.1) segnala trend ancora poco direzionale, in fase di consolidamento tipo ascending triangle senza breakout confermato. I fondamentali sono solidi (D/E 1.2, margine EBITDA 26.5%, FCF ~10.4B) e il contesto macro (TREND_UP, rotazione settoriale favorevole verso industriali/materiali difensivi) supporta l'ingresso. Si procede con BUY mantenendo lo stop-loss al 15% come validato dall'auditor, senza ulteriori restrizioni data la bassa volatilità recente (ATR% 0.97%).
-  Stop-Loss: 508.87 (-1.9%)
-  Take Profit: T1 531.02 (R/R 1.2:1) | T2 549.14 (R/R 3.0:1) | T3 569.28 (R/R 5.0:1, runner)
+    trend=laterale struttura=mista breakout=breakout rialzista sopra 527.94 (vol debole 1.1x) divergenza=None bollinger=walk upper band (forza)
+    Breakout rialzista sopra 527.94 confermato ma con volume debole (1.1x) e struttura mista, quindi da monitorare per conferma di forza reale piuttosto che falso breakout.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Regime gate US = TREND_UP, condizione necessaria per un giudizio favorevole rispettata. Nessuna indicazione di riunione Fed entro 10 giorni fornita nel contesto, quindi il kill switch FOMC non risulta attivato allo stato attuale delle informazioni disponibili. LIN opera nel comparto industrial gases, tipicamente ibrido difensivo-ciclico: in fase di trend rialzista con politica monetaria non in stretta imminente, la rotazione verso ciclici/industriali risulta plausibile. Non è possibile valutare l'eventuale divergenza Fed/BCE poiché non sono stati forniti dati sul ciclo tassi delle due banche centrali; si raccomanda verifica esplicita del calendario FOMC/BCE prima di finalizzare l'operazione, in quanto l'assenza di informazione non equivale a conferma di assenza di riunione imminente.
+  Motivazione CEO: LIN mostra trend di fondo rialzista con prezzo sopra tutte le medie mobili e breakout sopra 527.94, ma ADX basso (13.1) e volume debole (1.1x) suggeriscono cautela sulla forza reale del movimento. Fondamentali solidi (FCF 10.4B, EBITDA margin 26.5%, debito contenuto) e regime macro TREND_UP favorevole supportano l'ingresso, con stop stretto per gestire il rischio di falso breakout.
+  Stop-Loss: 522.35 (-2.1%)
+  Take Profit: T1 547.00 (R/R 1.2:1) | T2 567.16 (R/R 3.0:1) | T3 589.57 (R/R 5.0:1, runner)
+  Strategia operativa: confidenza ALTA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 9 azioni = 4,802 (9.6% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 101 | Costo round-trip stimato: 0.40% [!] poco efficiente per conti piccoli
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +65
 
-UNH: SKIP
-  Trigger d'ingresso: 415.63 US (regime TREND_UP)
+GOOGL: BUY
+  Trigger d'ingresso: 361.21 US (regime TREND_UP)
+  Analisi fondamentale:
+    D/E 0.47 | EBITDA margin 0.384 | EPS growth QoQ 0.344 | FCF 174353000000
+    Verdetto Company Analyst: pass — Debt-to-equity basso (0.47), leva contenuta; EBITDA margin solido (38.4%); Crescita EPS Q/Q eccezionale (34.45%); Free cash flow molto elevato e positivo (174.4B)
+  Analisi tecnica:
+    RSI 52.8 | ADX 18.1 | ATR% 1.68 | mom6m 15.200 | SMA20/50/200 358.50/370.42/315.61
+    Verdetto Technical Analyst: favorable — Quadro tecnico neutro-laterale: RSI centrale, ADX basso segnala assenza di trend direzionale forte, prezzo sotto SMA20/50 ma ancora sopra SMA200; ATR% contenuto (1.68%) indica bassa volatilità attuale.
+  Analisi candlestick:
+    trend=laterale struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=squeeze (compressione volatilita')
+    Struttura LH-LL di breve termine in un contesto laterale debole, con Bollinger in squeeze che suggerisce compressione della volatilità in attesa di un movimento direzionale, senza breakout o pullback confermati.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Nessuna decisione Fed/BCE segnalata entro 10 giorni, quindi il kill switch non si applica. Regime_gate US = TREND_UP supporta una rotazione verso settori ciclici (tech incluso) in un contesto di easing/pausa prolungata. Non sono disponibili dati specifici sulla divergenza Fed/BCE per questo mercato, quindi non è possibile confermare un impatto valutario aggiuntivo.
+  Motivazione CEO: Fondamentali eccellenti (D/E 0.47, EBITDA margin 38.4%, EPS q/q +34.5%, FCF 174B) e regime macro TREND_UP favorevole alla rotazione tech supportano l'ingresso. Quadro tecnico neutro-laterale (RSI 52.8, ADX 18.1, prezzo sopra SMA200 ma sotto SMA20/50, Bollinger in squeeze) non mostra deterioramento né eccessi, ma suggerisce cautela su size ed esecuzione in attesa di un breakout direzionale. Stop loss impostato al 10% come da audit, coerente con bassa volatilità (ATR% 1.68%).
+  Stop-Loss: 349.07 (-3.4%)
+  Take Profit: T1 375.77 (R/R 1.2:1) | T2 397.62 (R/R 3.0:1) | T3 421.89 (R/R 5.0:1, runner)
+  Strategia operativa: confidenza ALTA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 13 azioni = 4,696 (9.4% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 158 | Costo round-trip stimato: 0.40%
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +64
+
+AMAT: BUY
+  Trigger d'ingresso: 650.91 US (regime TREND_UP)
+  Analisi fondamentale:
+    D/E 0.68 | EBITDA margin 0.286 | EPS growth QoQ 0.006 | FCF 7993000000
+    Verdetto Company Analyst: pass — debt_to_equity 0.68 ben sotto soglia 2.5, leva contenuta; ebitda_margin positivo al 28.6%, marginalità solida; free_cash_flow ampiamente positivo (~8.0B); eps_growth_q_on_q modesta (0.58%) ma non compromette il quadro complessivo dato FCF e margini solidi
+  Analisi tecnica:
+    RSI 64.7 | ADX 34.6 | ATR% 5.75 | mom6m 147.400 | SMA20/50/200 580.31/486.01/337.19
+    Verdetto Technical Analyst: favorable — Trend rialzista strutturato con ADX solido (34.6) e RSI a 64.7 ancora con margine prima dell'ipercomprato estremo; prezzo sopra tutte le medie mobili (SMA20>SMA50>SMA200) conferma trend di fondo intatto, ma ATR% al 5.75% richiede attenzione alla volatilità.
+  Analisi candlestick:
+    trend=rialzista struttura=HH-HL (rialzista) breakout=None divergenza=None bollinger=dentro le bande
+    Struttura HH-HL rialzista con prezzo dentro le bande di Bollinger, nessun breakout o pullback segnalato al momento, pattern di continuazione del trend in atto.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Regime gate US = TREND_UP, non TREND_DOWN, quindi la rotazione settoriale può essere dichiarata favorevole per settori ciclici come i semiconduttori (AMAT). Nessuna indicazione di decisione Fed/BCE entro 10 giorni nei dati ricevuti, quindi il kill switch FOMC/BCE non si applica in base alle informazioni disponibili. Valutazione strettamente macro/regime, indipendente da sentiment o analisi aziendale specifica sul ticker.
+  Motivazione CEO: Trend rialzista solido e strutturato (HH-HL) con prezzo sopra tutte le medie mobili, ADX 34.6 a conferma della forza direzionale e RSI 64.7 non ancora ipercomprato; fondamentali robusti (FCF ~8B, margine EBITDA 28.6%, leva contenuta) e regime macro TREND_UP favoriscono i ciclici come i semiconduttori. Volatilità elevata (ATR% 5.75) gestita con stop all'11.5%, in linea col rischio approvato.
+  Stop-Loss: 618.36 (-5.0%)
+  Take Profit: T1 725.76 (R/R 2.3:1) | T2 875.47 (R/R 6.9:1) | T3 1025.18 (R/R 11.5:1, runner)
+  Strategia operativa: confidenza ALTA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 7 azioni = 4,556 (9.1% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 228 | Costo round-trip stimato: 0.40%
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +62
+
+UNH: BUY
+  Trigger d'ingresso: 426.54 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 6.28 | EBITDA margin 0.042 | EPS growth QoQ -0.147 | FCF 23153000000
-    Verdetto Company Analyst: reject — debt_to_equity a 6.28 è estremamente elevato, ben oltre la soglia di rischio (2.5), anche se il FCF positivo (23.15B) evita il rigetto automatico; ebitda_margin di appena 4.19% indica marginalità operativa molto debole per un mega cap; eps_growth_q_on_q negativo (-14.7%) segnala deterioramento della redditività, aggravando il quadro di leva elevata e margini sottili; la combinazione di leva finanziaria estrema, margini risicati e crescita EPS negativa rappresenta un profilo fondamentale fragile nonostante il FCF positivo
+    Verdetto Company Analyst: pass — Debt_to_equity elevato (6.28) ma mitigato da free_cash_flow fortemente positivo (23.15B), quindi non rientra nella regola di rigetto automatico che richiede FCF negativo; EBITDA margin positivo (4.19%) sebbene modesto, non negativo, quindi non attiva il criterio di rigetto per marginalità; EPS growth q/q negativo (-14.7%) è un segnale di debolezza ma non sufficiente da solo per il rigetto in presenza di FCF robusto; Il forte free cash flow generato suggerisce capacità di servizio del debito nonostante il leverage elevato
   Analisi tecnica:
-    RSI 51.8 | ADX 36.8 | ATR% 1.24 | mom6m 25.300 | SMA20/50/200 405.59/386.81/336.55
-    Verdetto Technical Analyst: favorable — Trend primario rialzista e ben strutturato (medie allineate, ADX forte), volatilità compressa (ATR% 1.24, Bollinger in squeeze) e RSI neutro lasciano spazio per un movimento direzionale imminente, mentre la debolezza di brevissimo termine (LH-LL) appare più correttiva che di inversione.
+    RSI 62.3 | ADX 37.4 | ATR% 1.30 | mom6m 29.700 | SMA20/50/200 408.02/388.87/336.92
+    Verdetto Technical Analyst: favorable — Trend rialzista moderato con ADX solido (37.4) e RSI a 62.3 ancora lontano da zone di esaurimento; prezzo ben sostenuto sopra tutte le medie mobili (20/50/200) con ATR% contenuto all'1.3%, segno di movimento ordinato.
   Analisi candlestick:
-    trend=rialzista struttura=LH-LL (ribassista) breakout=None divergenza=bullish (prezzo nuovo min, RSI no) bollinger=squeeze (compressione volatilita')
-    Pattern misto: struttura di breve LH-LL ribassista ma accompagnata da divergenza RSI rialzista e Bollinger squeeze, segnale di possibile ripresa del trend principale piuttosto che breakdown confermato.
-  Motivazione CEO: [company_analyst] debt_to_equity a 6.28 è estremamente elevato, ben oltre la soglia di rischio (2.5), anche se il FCF positivo (23.15B) evita il rigetto automatico; ebitda_margin di appena 4.19% indica marginalità operativa molto debole per un mega cap; eps_growth_q_on_q negativo (-14.7%) segnala deterioramento della redditività, aggravando il quadro di leva elevata e margini sottili; la combinazione di leva finanziaria estrema, margini risicati e crescita EPS negativa rappresenta un profilo fondamentale fragile nonostante il FCF positivo
+    trend=rialzista struttura=mista breakout=None divergenza=bullish (prezzo nuovo min, RSI no) bollinger=squeeze (compressione volatilita')
+    Struttura mista ma con divergenza RSI bullish e compressione delle Bollinger Bands, che indica accumulo di energia per un possibile movimento direzionale, senza breakout ancora confermato.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Regime tecnico USA in TREND_UP, non TREND_DOWN, quindi non si applica il divieto da regime gate. Nessuna indicazione di decisione Fed entro 10 giorni fornita nel contesto: kill switch FOMC non attivabile con le informazioni disponibili. UNH opera nel settore farmaceutico/healthcare, tradizionalmente difensivo, coerente con una fase di mercato favorevole a rotazione verso titoli di qualità in trend positivo. Nessun dato su BCE fornito, quindi nessuna divergenza Fed/BCE segnalabile in questo caso.
+  Motivazione CEO: Setup tecnico favorevole: trend rialzista con ADX 37.4, prezzo sopra tutte le medie mobili e RSI a 62.3 con divergenza bullish, Bollinger in squeeze indica possibile espansione di volatilità. Fondamentali con leverage elevato ed EPS q/q negativo ma mitigati da FCF robusto (23.15B); macro in TREND_UP con rotazione settoriale favorevole verso qualità/difensivi. Approvato dall'auditor con posizione entro i cap di rischio; si applica stop stretto coerente con ATR% contenuto.
+  Stop-Loss: 415.45 (-2.6%)
+  Take Profit: T1 439.85 (R/R 1.2:1) | T2 459.81 (R/R 3.0:1) | T3 481.99 (R/R 5.0:1, runner)
+  Strategia operativa: confidenza ALTA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 11 azioni = 4,692 (9.4% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 122 | Costo round-trip stimato: 0.40% [!] poco efficiente per conti piccoli
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +63
+
+JPM: SKIP
+  Trigger d'ingresso: 334.07 US (regime TREND_UP)
+  Analisi fondamentale:
+    D/E 12.46 | EBITDA margin nan | EPS growth QoQ 0.014 | FCF -107704000000
+  Analisi tecnica:
+    RSI 70.2 | ADX 28.3 | ATR% 1.32 | mom6m 3.200 | SMA20/50/200 322.73/312.18/308.36
+    Verdetto Technical Analyst: unfavorable — Trend rialzista moderato con prezzo sopra tutte le medie mobili e volatilità contenuta (ATR% 1.32), ma RSI a 70.2 segnala ipercomprato in un momentum a 6 mesi già modesto (+3.2%).
+  Analisi candlestick:
+    trend=rialzista struttura=HH-HL (rialzista) breakout=None divergenza=bearish (prezzo nuovo max, RSI no) bollinger=dentro le bande
+    Struttura HH-HL con pattern di consolidamento (flag/ascending triangle) ancora senza breakout, indebolita da una divergenza RSI ribassista che suggerisce esaurimento del trend.
+  Motivazione CEO: [technical_analyst] RSI a 70.2, in area di ipercomprato con divergenza ribassista confermata (nuovo massimo di prezzo non confermato da RSI); Trend rialzista strutturato (HH-HL, ADX 28.3) ma già esteso: prezzo sopra SMA20/50/200, tipico contesto di trend maturo dove la divergenza pesa di più; Continuation pattern (flag/ascending triangle) ancora privo di breakout confermato, quindi il rischio di ritracciamento supera il potenziale di allungo immediato
+
+AAPL: BUY
+  Trigger d'ingresso: 294.38 US (regime TREND_UP)
+  Analisi fondamentale:
+    D/E 2.48 | EBITDA margin 0.326 | EPS growth QoQ 0.227 | FCF 140222000000
+    Verdetto Company Analyst: pass — debt_to_equity 2.48 sotto soglia 2.5, comunque elevato ma free_cash_flow fortemente positivo (140.2B) mitiga il rischio leva; ebitda_margin solido al 32.6%, ben sopra soglia di rigetto; eps_growth_q_on_q positivo (22.7%), buona crescita utili; free cash flow molto robusto, indica solidità operativa nonostante leva elevata
+  Analisi tecnica:
+    RSI 52.1 | ADX 24.4 | ATR% 1.65 | mom6m 7.500 | SMA20/50/200 294.88/292.67/270.33
+    Verdetto Technical Analyst: favorable — Quadro tecnico neutro-costruttivo: RSI a metà range e ADX sotto 25 segnalano fase laterale a bassa direzionalità, mentre il prezzo resta sopra tutte le medie mobili (SMA20/50/200), a supporto del trend di fondo; ATR% 1.65 indica volatilità contenuta.
+  Analisi candlestick:
+    trend=laterale struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=dentro le bande
+    Struttura di breve termine mostra pattern LH-LL (ribassista) all'interno di un trend laterale debole, con prezzo dentro le bande di Bollinger e nessun breakout o divergenza RSI confermati.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Nessuna indicazione di riunione Fed/BCE entro 10 giorni fornita nell'input, quindi il kill switch FOMC/BCE non risulta attivo. Il regime_gate US è TREND_UP, coerente con fase di easing/pausa prolungata dei tassi, favorevole ai settori ciclici (tech incluso). Valutazione basata esclusivamente sul contesto macro, indipendente da sentiment o analisi aziendale specifica.
+  Motivazione CEO: Quadro tecnico neutro-costruttivo: prezzo sopra SMA20/50/200 con ADX in fase laterale debole e RSI neutrale, nonostante il pattern di breve LH-LL non confermato da breakout ribassisti. Fondamentali solidi (EBITDA margin 32.6%, EPS growth 22.7%, FCF 140.2B) compensano la leva elevata, in un contesto macro TREND_UP favorevole al comparto tech senza rischi FOMC/BCE imminenti. Si procede con ingresso long, stop-loss al 15% come da validazione auditor.
+  Stop-Loss: 284.67 (-3.3%)
+  Take Profit: T1 306.04 (R/R 1.2:1) | T2 323.52 (R/R 3.0:1) | T3 342.95 (R/R 5.0:1, runner)
+  Strategia operativa: confidenza ALTA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 16 azioni = 4,710 (9.4% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 155 | Costo round-trip stimato: 0.40%
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +64
 
 GE: SKIP
-  Trigger d'ingresso: 373.73 US (regime TREND_UP)
+  Trigger d'ingresso: 374.94 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 6.10 | EBITDA margin 1.122 | EPS growth QoQ 0.359 | FCF 8851000000
   Analisi tecnica:
-    RSI 78.3 | ADX 38.1 | ATR% 1.46 | mom6m 18.600 | SMA20/50/200 345.06/315.69/308.49
-    Verdetto Technical Analyst: unfavorable — Trend rialzista strutturale confermato da ADX elevato e allineamento delle medie mobili (SMA20>SMA50>SMA200), ma RSI a 78.3 segnala ipercomprato estremo con rischio di pullback nel breve; ATR% contenuto (1.46%) indica volatilità gestibile ma non compensa l'eccesso di momentum.
+    RSI 92.6 | ADX 38.9 | ATR% 1.26 | mom6m 20.300 | SMA20/50/200 347.92/317.11/308.95
+    Verdetto Technical Analyst: unfavorable — Trend rialzista con ADX 38.9 che ne conferma la forza direzionale, ma RSI a 92.6 segnala un eccesso di ipercomprato estremo non supportato da un breakout, con ATR% contenuto (1.26) che indica bassa volatilità recente nonostante l'estensione del prezzo sopra tutte le medie mobili (SMA20/50/200 in allineamento rialzista).
   Analisi candlestick:
     trend=rialzista struttura=None breakout=None divergenza=None bollinger=dentro le bande
-    Pattern di continuazione flag/pennant rialzista dopo impulso, con prezzo dentro le bande di Bollinger: consolidamento tecnico che non conferma nuova forza, in un contesto già ipercomprato.
-  Motivazione CEO: [technical_analyst] RSI a 78.3, ipercomprato estremo, senza breakout confermato che ne giustifichi la persistenza; ADX 38.1 conferma trend forte ma in fase già matura, aumentando il rischio di correzione/consolidamento; Prezzo ben sopra SMA20/50/200: estensione elevata rispetto alle medie, tipica di condizioni di eccesso
-
-AAPL: BUY
-  Trigger d'ingresso: 289.36 US (regime TREND_UP)
-  Analisi fondamentale:
-    D/E 2.48 | EBITDA margin 0.326 | EPS growth QoQ 0.227 | FCF 140222000000
-    Verdetto Company Analyst: pass — debt_to_equity 2.48 sotto soglia 2.5, e comunque free_cash_flow fortemente positivo (140.2B) mitiga il rischio leva; ebitda_margin solido al 32.6%, ben lontano da territorio negativo; eps_growth_q_on_q 22.7% robusta, coerente con crescita sostenibile; free cash flow molto elevato conferma solidità dei fondamentali
-  Analisi tecnica:
-    RSI 49.1 | ADX 25.6 | ATR% 1.58 | mom6m 5.800 | SMA20/50/200 295.93/292.25/270.03
-    Verdetto Technical Analyst: favorable — Il titolo mostra un momentum neutro (RSI 49, ADX 25.6) con prezzo sopra la SMA200 ma vicino alle medie brevi, in un contesto di volatilità moderata (ATR 1.58%); il trend di breve è ribassista ma non ancora in chiara rottura strutturale.
-  Analisi candlestick:
-    trend=ribassista struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=dentro le bande
-    Struttura LH-LL con trend ribassista moderato, prezzo dentro le Bollinger senza breakout né pullback confermato, quindi il quadro grafico resta di transizione più che di svolta netta.
-  Motivazione CEO: Quadro tecnico neutro-costruttivo: RSI 49 e ADX 25.6 indicano trend di moderata forza con prezzo sopra SMA200 (270.03) pur restando vicino alle medie brevi in struttura LH-LL non ancora confermata come breakdown. Fondamentali solidi (EBITDA margin 32.6%, EPS growth 22.7%, FCF 140.2B) compensano un debt/equity elevato, mentre il regime macro TREND_UP e la rotazione settoriale favorevole al tech supportano l'ingresso. Si adotta uno stop più stretto rispetto al tetto per gestire il rischio di falso segnale legato alla debolezza di breve termine.
-  Stop-Loss: 280.22 (-3.2%)
-  Take Profit: T1 300.33 (R/R 1.2:1) | T2 316.79 (R/R 3.0:1) | T3 335.08 (R/R 5.0:1, runner)
-
-JPM: SKIP
-  Trigger d'ingresso: 327.33 US (regime TREND_UP)
-  Analisi fondamentale:
-    D/E 12.46 | EBITDA margin nan | EPS growth QoQ 0.014 | FCF -107704000000
-    Verdetto Company Analyst: reject — debt_to_equity di 12.46 supera la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole; ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa; eps_growth_q_on_q di 1.37% è marginale e non compensa il rischio di leva/FCF negativo
-  Analisi tecnica:
-    RSI 62.5 | ADX 28.0 | ATR% 1.28 | mom6m -0.200 | SMA20/50/200 321.07/311.84/308.23
-    Verdetto Technical Analyst: favorable — Trend rialzista strutturale con prezzo sopra tutte le medie mobili e ADX 28 a supporto della direzionalità; RSI 62.5 e ATR% 1.28% suggeriscono spazio residuo senza eccessi di ipercomprato o volatilità.
-  Analisi candlestick:
-    trend=rialzista struttura=HH-HL (rialzista) breakout=None divergenza=bearish (prezzo nuovo max, RSI no) bollinger=dentro le bande
-    Struttura HH-HL con ascending triangle in continuazione e pullback in corso dentro le bande di Bollinger, ma attenzione alla divergenza RSI ribassista sui nuovi massimi che va monitorata nelle prossime sedute.
-  Motivazione CEO: [company_analyst] debt_to_equity di 12.46 supera la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole; ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa; eps_growth_q_on_q di 1.37% è marginale e non compensa il rischio di leva/FCF negativo
+    Pattern di continuazione flag/pennant rialzista in consolidamento dentro le bande di Bollinger, senza breakout né pullback confermati, ma il contesto di ipercomprato estremo rende il quadro tecnico rischioso per un nuovo ingresso.
+  Motivazione CEO: [technical_analyst] RSI a 92.6, ipercomprato estremo, senza un breakout confermato che lo giustifichi; Prezzo ben sopra SMA20/50/200 con trend rialzista maturo: rischio elevato di pullback/mean reversion; ADX 38.9 conferma trend forte ma in fase di ipercomprato estremo il rischio/rendimento per un nuovo ingresso è sfavorevole
 
 TXN: BUY
-  Trigger d'ingresso: 298.07 US (regime TREND_UP)
+  Trigger d'ingresso: 298.41 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 1.05 | EBITDA margin 0.353 | EPS growth QoQ 0.048 | FCF 7824000000
-    Verdetto Company Analyst: pass — Debt_to_equity 1.05, ben sotto soglia di rigetto 2.5; Ebitda margin solido al 35.3%; Free cash flow positivo e robusto (~7.8B); Eps growth q/q modesta (4.8%) ma positiva, coerente con qualità dei fondamentali
+    Verdetto Company Analyst: pass — debt_to_equity 1.05 entro soglia accettabile (<2.5); ebitda_margin positivo e solido al 35.3%; free_cash_flow ampiamente positivo (~7.82B); eps_growth_q_on_q modesta (4.81%) ma coerente con azienda matura, non compromette la solidità
   Analisi tecnica:
-    RSI 53.0 | ADX 20.5 | ATR% 3.76 | mom6m 68.500 | SMA20/50/200 301.56/293.33/214.35
-    Verdetto Technical Analyst: favorable — Prezzo saldamente sopra tutte le medie mobili con forte momentum a 6 mesi (+68.5%), ma ADX debole (20.5) e RSI neutro (53) indicano un mercato in fase laterale/di consolidamento più che un trend direzionale forte; ATR% al 3.76% suggerisce volatilità moderata.
+    RSI 55.5 | ADX 19.3 | ATR% 3.60 | mom6m 69.900 | SMA20/50/200 301.08/294.63/214.93
+    Verdetto Technical Analyst: favorable — Prezzo sopra tutte le medie mobili con momentum di fondo molto forte, ma ADX debole e Bollinger in squeeze segnalano fase di consolidamento laterale in attesa di breakout direzionale.
   Analisi candlestick:
-    trend=laterale struttura=mista breakout=None divergenza=bearish (prezzo nuovo max, RSI no) bollinger=squeeze (compressione volatilita')
-    Struttura mista con squeeze delle Bollinger che segnala compressione della volatilità in vista di un possibile breakout, accompagnata da una divergenza ribassista dell'RSI da monitorare per un eventuale cambio di momentum.
-  Motivazione CEO: TXN mostra fondamentali solidi (D/E 1.05, margine EBITDA 35.3%, FCF ~7.8B) e regime macro TREND_UP favorevole ai semiconduttori senza eventi Fed/BCE imminenti. Il quadro tecnico è positivo ma con cautela: prezzo sopra tutte le medie mobili e momentum a 6 mesi forte, tuttavia ADX debole (20.5) e RSI neutro segnalano un mercato laterale, mentre lo squeeze Bollinger e la divergenza ribassista RSI richiedono uno stop più stretto per contenere il rischio di inversione. Si procede con BUY e stop-loss al 10%, come da indicazione dell'Auditor.
-  Stop-Loss: 283.17 (-5.0%)
-  Take Profit: T1 320.48 (R/R 1.5:1) | T2 365.31 (R/R 4.51:1) | T3 410.14 (R/R 7.52:1, runner)
+    trend=laterale struttura=HH-HL (rialzista) breakout=None divergenza=bearish (prezzo nuovo max, RSI no) bollinger=squeeze (compressione volatilita')
+    Struttura rialzista HH-HL intatta ma con divergenza RSI ribassista (nuovo massimo di prezzo non confermato dall'RSI), da monitorare come segnale di possibile esaurimento del momentum.
+  Analisi macro: regime TREND_UP - US in fase di pausa monetaria, ciclici favoriti, rotazione settoriale favorevole
+    Nessuna decisione Fed entro 10 giorni risulta comunicata nei dati ricevuti, quindi il kill switch FOMC non si attiva. Regime gate US = TREND_UP, coerente con fase di pausa/allentamento in cui i settori ciclici (tech incluso) sono storicamente favoriti dalla rotazione settoriale. Nota: non ho visibilità sul sentiment o narrativa specifica del titolo, il giudizio riguarda solo il contesto macro-settoriale US.
+  Motivazione CEO: TXN mostra un trend di fondo rialzista (prezzo sopra SMA20/50/200, HH-HL) con momentum 6 mesi molto forte, ma ADX debole e Bollinger squeeze segnalano fase di consolidamento laterale con divergenza RSI ribassista da monitorare come rischio di esaurimento. Fondamentali solidi (EBITDA margin 35.3%, FCF ~7.8B, debito gestibile) e contesto macro US in TREND_UP favorevole ai ciclici/tech supportano l'ingresso, mantenendo uno stop stretto per gestire i segnali tecnici misti. Eseguire long con size conservativa e stop non oltre il 10%, monitorando l'evoluzione del breakout post-squeeze.
+  Stop-Loss: 283.49 (-5.0%)
+  Take Profit: T1 319.90 (R/R 1.44:1) | T2 362.87 (R/R 4.32:1) | T3 405.84 (R/R 7.2:1, runner)
+  Strategia operativa: confidenza MEDIA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 16 azioni = 4,775 (9.5% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 239 | Costo round-trip stimato: 0.40%
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +65
 
 CSCO: BUY
-  Trigger d'ingresso: 117.46 US (regime TREND_UP)
+  Trigger d'ingresso: 117.01 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 1.57 | EBITDA margin 0.234 | EPS growth QoQ 0.004 | FCF 13025000000
-    Verdetto Company Analyst: pass — Debt_to_equity 1.57 sotto la soglia critica di 2.5; EBITDA margin positivo (23.4%), nessun segnale di distress operativo; Free cash flow robusto (13.0B USD), a supporto della sostenibilità del debito; Crescita EPS q/q marginale (0.39%) ma non negativa, non compromette il quadro
+    Verdetto Company Analyst: pass — debt_to_equity 1.57 sotto soglia critica 2.5; free_cash_flow ampiamente positivo (13.0B); ebitda_margin positivo (23.4%), marginalità solida; eps_growth_q_on_q marginale (0.39%) ma non negativo, non pregiudica il quadro
   Analisi tecnica:
-    RSI 44.3 | ADX 25.5 | ATR% 1.53 | mom6m 50.300 | SMA20/50/200 120.97/109.97/84.43
-    Verdetto Technical Analyst: favorable — RSI neutro e ADX moderato suggeriscono un trend non direzionale forte; le medie mobili (SMA20>SMA50>SMA200) restano in configurazione rialzista di fondo, con ATR% contenuto (1.53%) che indica bassa volatilità operativa.
+    RSI 46.3 | ADX 24.9 | ATR% 1.47 | mom6m 50.400 | SMA20/50/200 120.42/110.56/84.69
+    Verdetto Technical Analyst: favorable — Prezzo ancora sopra tutte le medie mobili con RSI neutro e trend direzionale debole (ADX<25); volatilità compressa (ATR% 1.47%) suggerisce attesa di un movimento direzionale imminente.
   Analisi candlestick:
-    trend=ribassista struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=squeeze (compressione volatilita')
-    Struttura di breve mostra LH-LL con descending triangle e Bollinger in squeeze, segnale di possibile compressione pre-breakout ma senza breakout confermato né divergenza RSI.
-  Motivazione CEO: CSCO mantiene un allineamento rialzista di medio termine (prezzo sopra SMA20/50/200, ADX 25.5) pur mostrando nel breve una struttura LH-LL con descending triangle e squeeze bollinger, quindi ingresso da gestire con cautela in attesa di conferma breakout. Fondamentali solidi (FCF 13B, debt/equity 1.57, EBITDA margin 23.4%) e contesto macro TREND_UP favorevole al settore tech supportano l'operazione. Stop loss stretto al 10% per contenere il rischio legato alla configurazione tecnica mista di breve periodo.
-  Stop-Loss: 113.87 (-3.1%)
-  Take Profit: T1 121.77 (R/R 1.2:1) | T2 128.24 (R/R 3.0:1) | T3 135.43 (R/R 5.0:1, runner)
+    trend=laterale struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=squeeze (compressione volatilita')
+    Bollinger in squeeze con struttura di massimi/minimi decrescenti e pattern di descending triangle, ma senza breakout né divergenza RSI confermati: il segnale ribassista non è ancora validato.
+  Analisi macro: regime TREND_UP, rotazione settoriale favorevole
+    Regime gate US = TREND_UP, condizione necessaria soddisfatta. Nessuna evidenza di riunione Fed/BCE entro 10 giorni fornita nell'input, quindi il kill switch non risulta attivabile con i dati disponibili. CSCO è tech/ciclico: favorevole in fase di easing o pausa prolungata dei tassi; sfavorevole in fase di restringimento monetario attivo — verificare calendario Fed aggiornato prima di operare, poiché l'assenza di dati sulla prossima decisione non equivale a conferma di assenza di rischio evento.
+  Motivazione CEO: CSCO mantiene struttura rialzista di lungo periodo (SMA20>SMA50>SMA200) con fondamentali solidi (D/E 1.57, FCF 13B, margine EBITDA 23.4%), ma il quadro tecnico di breve è ambiguo: ADX 24.9 debole, Bollinger in squeeze e pattern LH-LL/descending triangle senza breakout confermato, quindi volatilità compressa in attesa di direzionalità. Regime macro TREND_UP soddisfa la condizione necessaria e l'auditor approva con stop al 15%; si opera con size contenuta (9.8%) e monitoraggio del rischio evento Fed segnalato dal Finance Guy.
+  Stop-Loss: 113.57 (-2.9%)
+  Take Profit: T1 121.14 (R/R 1.2:1) | T2 127.33 (R/R 3.0:1) | T3 134.21 (R/R 5.0:1, runner)
+  Strategia operativa: confidenza MEDIA | regime x1.0, convinzione x1.0
+    Sizing (su capitale nozionale 50,000, NON il tuo capitale reale — usa la % di portafoglio su qualunque capitale): 42 azioni = 4,914 (9.8% portafoglio)  (capped a 10% x conv)
+    Rischio massimo posizione: 144 | Costo round-trip stimato: 0.40%
+    Guadagno atteso (riferimento storico, ai vecchi target validati): +1.35% = +66
 
-QCOM: BUY
-  Trigger d'ingresso: 184.79 US (regime TREND_UP)
+QCOM: SKIP
+  Trigger d'ingresso: 181.92 US (regime TREND_UP)
   Analisi fondamentale:
     D/E 6.08 | EBITDA margin 0.255 | EPS growth QoQ -0.442 | FCF 14285000000
-    Verdetto Company Analyst: pass — Debt/equity elevato (6.08) ma compensato da free cash flow ampiamente positivo (14.29B), quindi non scatta il rigetto automatico; Ebitda margin solido al 25.5%, nessun segnale di marginalità negativa; EPS growth q/q negativo (-44.15%) è un segnale di debolezza ma non sufficiente da solo per il rigetto vista la generazione di cassa robusta; Il sentiment neutro del researcher non altera la valutazione fondamentale
   Analisi tecnica:
-    RSI 41.5 | ADX 16.6 | ATR% 4.68 | mom6m 5.700 | SMA20/50/200 212.18/200.78/168.19
-    Verdetto Technical Analyst: favorable — Quadro laterale con momentum neutro (RSI 41.5) e trend debole (ADX 16.6); ATR% 4.68 segnala volatilità moderata-alta, prezzo comunque sopra le medie a 50 e 200 giorni.
+    RSI 45.8 | ADX 15.7 | ATR% 4.31 | mom6m 4.900 | SMA20/50/200 209.24/201.67/168.29
+    Verdetto Technical Analyst: unfavorable — RSI neutro (45.8) e ADX basso (15.7) indicano trend laterale/debole, ma il breakdown sotto 183.50 e la struttura LH-LL segnalano pressione ribassista in atto; ATR% 4.31 suggerisce volatilità moderata-alta.
   Analisi candlestick:
-    trend=laterale struttura=LH-LL (ribassista) breakout=None divergenza=None bollinger=dentro le bande
-    Struttura di breve LH-LL con bias ribassista di corto periodo, ma in un contesto di consolidamento flag/pennant rialzista dentro le bande di Bollinger, quindi non un breakdown confermato.
-  Motivazione CEO: QCOM mostra un quadro tecnico laterale con RSI neutro (41.5) e ADX debole (16.6), ma il prezzo resta sopra le medie a 50 e 200 giorni con struttura di consolidamento tipo flag/pennant, non un breakdown confermato. I fondamentali reggono grazie a un FCF robusto (14.3B) e margini EBITDA solidi (25.5%) che compensano il debt/equity elevato e il calo EPS q/q, mentre il contesto macro US resta in TREND_UP senza eventi Fed/BCE imminenti che possano invalidare il setup. Si procede con size prudente e stop stretto per gestire l'ATR% relativamente elevato.
-  Stop-Loss: 175.55 (-5.0%)
-  Take Profit: T1 202.09 (R/R 1.87:1) | T2 236.68 (R/R 5.62:1) | T3 271.27 (R/R 9.36:1, runner)
+    trend=laterale struttura=LH-LL (ribassista) breakout=breakdown sotto 183.50 divergenza=None bollinger=dentro le bande
+    Breakdown sotto supporto chiave con struttura ribassista (Lower High-Lower Low), pattern tecnicamente negativo nonostante il prezzo resti dentro le Bollinger.
+  Motivazione CEO: [technical_analyst] Breakdown sotto supporto 183.50 con struttura LH-LL ribassista; ADX 15.7 conferma assenza di trend direzionale forte, ma il deterioramento strutturale prevale; Prezzo sopra SMA200 (168.29) ma sotto SMA20/50 recenti, segnale di indebolimento del momentum di breve
 
 ======================================================================
 Universo mega-cap: 10 valutati dal Comitato, 7 BUY

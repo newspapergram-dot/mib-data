@@ -1,4 +1,4 @@
-2026-07-01T15:42:54.335204Z
+2026-07-01T21:35:36.565174Z
 [EU] A2A.MI     nm=5% cr=1.05 roe=13% end=2025-12-31 (4 anni)
 [EU] AMP.MI     nm=4% cr=0.61 roe=9% end=2025-12-31 (4 anni)
 [EU] AZM.MI     nm=37% cr=0.53 roe=26% end=2025-12-31 (4 anni)
