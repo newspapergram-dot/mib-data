@@ -45,6 +45,7 @@ from agents.output_schemas import (
     FINANCE_GUY_SCHEMA, AUDITOR_SCHEMA, CEO_SCHEMA,
 )
 from modules.trade_proposal import propose as propose_trade_plan
+import company_names
 
 REPO_ROOT = Path(__file__).resolve().parent
 STOP_LOSS_FLOOR = 0.15  # Run #40: qualunque proposta piu' larga viene clampata qui
@@ -330,9 +331,96 @@ def _fmt(v, nd=2):
     return "n/d" if v is None else f"{v:.{nd}f}"
 
 
-def render_report(results, asof=None, unicorn_funnel=None):
+def _company_name(ticker):
+    """Nome azienda per il ticker via company_names.py (cache locale + SEC entity
+    gia' presenti su disco). refresh_missing=False DELIBERATO: il report/dashboard
+    non deve mai fare una chiamata di rete a runtime — la cache viene rinfrescata
+    da un passo dedicato della pipeline (company_names.py, con accesso a Yahoo),
+    mai come effetto collaterale del rendering. Se non risolvibile, ritorna il
+    ticker stesso, mai un nome inventato."""
+    try:
+        return company_names.resolve([ticker], refresh_missing=False).get(ticker, ticker)
+    except Exception:
+        return ticker
+
+
+def compare_with_previous(results, previous_results):
+    """Confronta i segnali di oggi con l'ULTIMO run precedente disponibile. Risponde
+    alle domande operative reali (cosa ho smesso di consigliare, cosa continuo a
+    consigliare, sono cambiati i livelli per chi resta un BUY) — il confronto e'
+    per TICKER, non per data esatta: robusto a notti saltate (weekend, run mancato).
+    """
+    today = {r["ticker"]: r for r in results}
+    prev = {r["ticker"]: r for r in (previous_results or [])}
+
+    today_buys = {t for t, r in today.items() if r["final"]["action"] == "BUY"}
+    prev_buys = {t for t, r in prev.items() if r["final"]["action"] == "BUY"}
+
+    new_buys = sorted(today_buys - prev_buys)
+    dropped_buys = sorted(prev_buys - today_buys)
+    confirmed_buys = sorted(today_buys & prev_buys)
+
+    level_changes = []
+    for ticker in confirmed_buys:
+        t_plan = today[ticker].get("trade_plan")
+        p_plan = prev[ticker].get("trade_plan")
+        if not t_plan or not p_plan:
+            continue
+        changed = {}
+        for field, label in (("stop", "stop"), ("t1", "T1"), ("t2", "T2"), ("t3", "T3")):
+            was, now = p_plan.get(field), t_plan.get(field)
+            if was is None or now is None or round(was, 2) == round(now, 2):
+                continue
+            changed[label] = {"was": was, "now": now}
+        if changed:
+            level_changes.append({"ticker": ticker, "changes": changed})
+
+    return {
+        "new_buys": new_buys,
+        "dropped_buys": dropped_buys,
+        "confirmed_buys": confirmed_buys,
+        "level_changes": level_changes,
+    }
+
+
+def _load_previous_results(asof, data_dir=None):
+    """Trova l'ULTIMO run precedente disponibile prima di `asof` (non necessariamente
+    ieri: robusto a notti saltate). Cerca data/committee_output_<data>.json."""
+    data_dir = data_dir or (REPO_ROOT / "data")
+    if not data_dir.exists():
+        return None, None
+    candidates = sorted(data_dir.glob("committee_output_*.json"))
+    prior = [p for p in candidates if p.stem.replace("committee_output_", "") < asof]
+    if not prior:
+        return None, None
+    prev_path = prior[-1]
+    prev_date = prev_path.stem.replace("committee_output_", "")
+    try:
+        return json.loads(prev_path.read_text()), prev_date
+    except (json.JSONDecodeError, OSError):
+        return None, None
+
+
+def render_report(results, asof=None, unicorn_funnel=None, comparison=None, previous_date=None):
     asof = asof or datetime.date.today().isoformat()
     lines = [f"COMITATO MULTI-AGENTE — Report operativo {asof}", "=" * 70]
+
+    if comparison is not None:
+        lines.append(f"\nCONFRONTO CON IL RUN PRECEDENTE ({previous_date})")
+        lines.append("-" * 70)
+        lines.append("Nuovi BUY oggi: " + (", ".join(comparison["new_buys"]) or "nessuno"))
+        lines.append("BUY confermati da ieri: " + (", ".join(comparison["confirmed_buys"]) or "nessuno"))
+        lines.append("Non più consigliati (erano BUY, ora no): "
+                      + (", ".join(comparison["dropped_buys"]) or "nessuno"))
+        if comparison["level_changes"]:
+            lines.append("Livelli aggiornati per i BUY confermati (rivedi stop/target se hai già una posizione):")
+            for lc in comparison["level_changes"]:
+                parts = ", ".join(f"{label} {c['was']:.2f}→{c['now']:.2f}"
+                                   for label, c in lc["changes"].items())
+                lines.append(f"  {lc['ticker']}: {parts}")
+        else:
+            lines.append("Livelli (stop/T1/T2/T3) invariati per tutti i BUY confermati.")
+        lines.append("=" * 70)
 
     for r in results:
         candidate = r.get("candidate", {}) or {}
@@ -340,7 +428,9 @@ def render_report(results, asof=None, unicorn_funnel=None):
         final = r["final"]
         is_unicorn = candidate.get("universe") == "unicorn"
         tag = " [UNICORNO]" if is_unicorn else ""
-        lines.append(f"\n{r['ticker']}{tag}: {final['action']}")
+        company = _company_name(r["ticker"])
+        label = f"{r['ticker']} ({company})" if company != r["ticker"] else r["ticker"]
+        lines.append(f"\n{label}{tag}: {final['action']}")
 
         entry = candidate.get("entry_price")
         if entry is not None:
@@ -502,6 +592,7 @@ def _signal_json(r):
     plan = r.get("trade_plan") if final["action"] == "BUY" else None
     return {
         "ticker": r["ticker"],
+        "company_name": _company_name(r["ticker"]),
         "universe": candidate.get("universe", "mega_cap"),
         "market": candidate.get("market"),
         "regime_gate": candidate.get("regime_gate"),
@@ -540,7 +631,8 @@ def _json_safe(obj):
     return obj
 
 
-def export_frontend_json(results, asof, unicorn_funnel=None, frontend_dir=None):
+def export_frontend_json(results, asof, unicorn_funnel=None, frontend_dir=None,
+                          comparison=None, previous_date=None):
     """Scrive il payload JSON per la dashboard Astro (frontend/):
       - frontend/public/data/runs/<asof>.json  (snapshot immutabile della nottata)
       - frontend/public/data/manifest.json     (indice di TUTTE le notti, per l'archivio storico)
@@ -573,6 +665,7 @@ def export_frontend_json(results, asof, unicorn_funnel=None, frontend_dir=None):
             "buy": sum(1 for s in signals if s["universe"] == "unicorn" and s["action"] == "BUY"),
             "skip": sum(1 for s in signals if s["universe"] == "unicorn" and s["action"] == "SKIP"),
         },
+        "comparison": ({"previous_date": previous_date, **comparison} if comparison else None),
     }
     payload = _json_safe(payload)
 
@@ -672,13 +765,17 @@ def main():
     results = [orch.run_committee(c) for c in candidates]
     asof = datetime.date.today().isoformat()
     unicorn_funnel = _unicorn_funnel()
-    report = render_report(results, asof, unicorn_funnel=unicorn_funnel)
+    previous_results, previous_date = _load_previous_results(asof)
+    comparison = compare_with_previous(results, previous_results) if previous_results else None
+    report = render_report(results, asof, unicorn_funnel=unicorn_funnel,
+                            comparison=comparison, previous_date=previous_date)
     data_dir = REPO_ROOT / "data"
     data_dir.mkdir(exist_ok=True)
     (data_dir / f"COMMITTEE_REPORT_{asof}.txt").write_text(report)
     (data_dir / f"committee_output_{asof}.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False))
-    export_frontend_json(results, asof, unicorn_funnel=unicorn_funnel)
+    export_frontend_json(results, asof, unicorn_funnel=unicorn_funnel,
+                          comparison=comparison, previous_date=previous_date)
     export_chart_data(results)
     print(report)
 

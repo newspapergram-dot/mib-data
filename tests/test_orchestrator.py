@@ -14,7 +14,7 @@ import pandas as pd
 
 from orchestrator import (NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent,
                            render_report, export_frontend_json, export_chart_data,
-                           _operational_plan_json)
+                           _operational_plan_json, compare_with_previous, _load_previous_results)
 from tests.fakes import FakeClient
 
 
@@ -487,3 +487,98 @@ def test_skip_result_does_not_expose_hypothetical_trade_plan_in_json():
     report = render_report([result], asof="2026-07-01")
     assert "Stop-Loss:" not in report
     assert "Take Profit:" not in report
+
+
+def test_company_name_returns_ticker_when_unresolvable(tmp_path, monkeypatch):
+    """Mai un nome inventato: se non risolvibile (nessuna cache, nessun dato SEC),
+    _company_name ritorna il ticker cosi' com'e'."""
+    monkeypatch.chdir(tmp_path)
+    from orchestrator import _company_name
+    assert _company_name("ZZZNONMAPPATO") == "ZZZNONMAPPATO"
+
+
+def test_company_name_reads_local_cache_without_network(tmp_path, monkeypatch):
+    """_company_name non deve MAI fare una chiamata di rete durante il rendering
+    del report — usa solo la cache locale gia' scritta da company_names.py."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "ticker_names.csv").write_text("ticker,name\nAMAT,Applied Materials\n")
+    from orchestrator import _company_name
+    assert _company_name("AMAT") == "Applied Materials"
+
+
+def test_render_report_shows_company_name_next_to_ticker(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "ticker_names.csv").write_text("ticker,name\nSTMMI.MI,STMicroelectronics N.V.\n")
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+    report = render_report([result], asof="2026-07-01")
+    assert "STMMI.MI (STMicroelectronics N.V.)" in report
+
+
+def _result(ticker, action, stop=None, t1=None, t2=None, t3=None):
+    plan = {"stop": stop, "t1": t1, "t2": t2, "t3": t3} if stop is not None else None
+    return {"ticker": ticker, "final": {"action": action, "rationale": ""}, "trade_plan": plan}
+
+
+def test_compare_with_previous_detects_new_and_dropped_buys():
+    today = [_result("AAA", "BUY", 90, 100, 110, 120), _result("BBB", "SKIP")]
+    previous = [_result("BBB", "BUY", 45, 50, 55, 60), _result("AAA", "SKIP")]
+    cmp = compare_with_previous(today, previous)
+    assert cmp["new_buys"] == ["AAA"]
+    assert cmp["dropped_buys"] == ["BBB"]
+    assert cmp["confirmed_buys"] == []
+
+
+def test_compare_with_previous_flags_level_changes_for_confirmed_buys():
+    today = [_result("AAA", "BUY", 91, 100, 110, 120)]
+    previous = [_result("AAA", "BUY", 90, 100, 110, 120)]
+    cmp = compare_with_previous(today, previous)
+    assert cmp["confirmed_buys"] == ["AAA"]
+    assert len(cmp["level_changes"]) == 1
+    assert cmp["level_changes"][0]["ticker"] == "AAA"
+    assert cmp["level_changes"][0]["changes"] == {"stop": {"was": 90, "now": 91}}
+
+
+def test_compare_with_previous_reports_no_changes_when_levels_identical():
+    today = [_result("AAA", "BUY", 90, 100, 110, 120)]
+    previous = [_result("AAA", "BUY", 90, 100, 110, 120)]
+    cmp = compare_with_previous(today, previous)
+    assert cmp["confirmed_buys"] == ["AAA"]
+    assert cmp["level_changes"] == []
+
+
+def test_compare_with_previous_with_no_prior_run_data_is_empty_but_safe():
+    today = [_result("AAA", "BUY", 90, 100, 110, 120)]
+    cmp = compare_with_previous(today, [])
+    assert cmp["new_buys"] == ["AAA"]
+    assert cmp["dropped_buys"] == []
+    assert cmp["confirmed_buys"] == []
+
+
+def test_load_previous_results_finds_most_recent_prior_run(tmp_path):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "committee_output_2026-06-28.json").write_text(json.dumps([{"ticker": "OLD"}]))
+    (data_dir / "committee_output_2026-06-30.json").write_text(json.dumps([{"ticker": "RECENT"}]))
+    results, date = _load_previous_results("2026-07-01", data_dir=data_dir)
+    assert date == "2026-06-30"
+    assert results == [{"ticker": "RECENT"}]
+
+
+def test_load_previous_results_returns_none_when_no_prior_run_exists(tmp_path):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    results, date = _load_previous_results("2026-07-01", data_dir=data_dir)
+    assert results is None
+    assert date is None
+
+
+def test_render_report_includes_comparison_section_when_provided():
+    result = _result("AAA", "SKIP")
+    comparison = {"new_buys": ["AAA"], "dropped_buys": [], "confirmed_buys": [], "level_changes": []}
+    report = render_report([result], asof="2026-07-01", comparison=comparison, previous_date="2026-06-30")
+    assert "CONFRONTO CON IL RUN PRECEDENTE (2026-06-30)" in report
+    assert "Nuovi BUY oggi: AAA" in report

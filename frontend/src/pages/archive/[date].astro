@@ -5,6 +5,7 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import TradingTable from '../../components/TradingTable.astro';
 import AnalystCards from '../../components/AnalystCards.astro';
+import ComparisonPanel from '../../components/ComparisonPanel.astro';
 
 // Lo storico vive in public/data/runs/*.json (scritto ogni notte da
 // orchestrator.py::export_frontend_json). public/ non passa da Vite/Astro.glob,
@@ -34,7 +35,11 @@ const { payload } = Astro.props;
   <main class="max-w-7xl mx-auto px-6 py-8">
     <a href="/archive/" class="text-xs text-blue-300 hover:text-blue-200">← Torna all'archivio</a>
 
-    <div class="my-6">
+    <div class="mt-6">
+      <ComparisonPanel comparison={payload.comparison} />
+    </div>
+
+    <div class="mb-6">
       <TradingTable signals={payload.signals} />
     </div>
 

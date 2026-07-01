@@ -16,6 +16,9 @@ const fmtNum = (v: number | null | undefined, digits = 1) =>
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-bold font-mono m-0 p-0 bg-transparent border-0">
           {s.ticker}
+          {s.company_name && s.company_name !== s.ticker && (
+            <span class="text-sm font-normal text-gray-400 ml-2">{s.company_name}</span>
+          )}
           <span class="text-xs font-normal text-gray-500 ml-2">
             {s.universe === "unicorn" ? "unicorno · satellite high-beta" : "mega-cap"} · {s.market}
           </span>

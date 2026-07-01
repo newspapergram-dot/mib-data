@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import TradingTable from '../components/TradingTable.astro';
 import AnalystCards from '../components/AnalystCards.astro';
+import ComparisonPanel from '../components/ComparisonPanel.astro';
 import latestData from '../../public/data/latest.json';
 ---
 <Layout title="MIB-DATA // Terminale di Controllo Quantitativo">
@@ -12,6 +13,8 @@ import latestData from '../../public/data/latest.json';
     unicornCount={latestData.unicorns.gate_passed}
   />
   <main class="max-w-7xl mx-auto px-6 py-8">
+    <ComparisonPanel comparison={latestData.comparison} />
+
     <div class="mb-8">
       <TradingTable signals={latestData.signals} />
     </div>

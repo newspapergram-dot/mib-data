@@ -1,0 +1,71 @@
+---
+interface LevelChange {
+  ticker: string;
+  changes: Record<string, { was: number; now: number }>;
+}
+interface Comparison {
+  previous_date: string;
+  new_buys: string[];
+  dropped_buys: string[];
+  confirmed_buys: string[];
+  level_changes: LevelChange[];
+}
+interface Props {
+  comparison: Comparison | null;
+}
+const { comparison } = Astro.props;
+---
+{comparison ? (
+  <div class="mb-8 bg-[#0f172a] border border-[#1e293b] rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 m-0 p-0 bg-transparent border-0">
+      Confronto con il run precedente <span class="text-gray-500 font-normal normal-case">({comparison.previous_date})</span>
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mb-4">
+      <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+        <h3 class="text-emerald-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Nuovi BUY oggi</h3>
+        {comparison.new_buys.length > 0 ? (
+          <ul class="space-y-1 text-gray-300 list-none p-0 m-0 font-mono">
+            {comparison.new_buys.map((t) => <li><a href={`#${t}`} class="hover:text-blue-400">{t}</a></li>)}
+          </ul>
+        ) : <p class="text-gray-500 m-0">nessuno</p>}
+      </div>
+      <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+        <h3 class="text-blue-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">BUY confermati</h3>
+        {comparison.confirmed_buys.length > 0 ? (
+          <ul class="space-y-1 text-gray-300 list-none p-0 m-0 font-mono">
+            {comparison.confirmed_buys.map((t) => <li><a href={`#${t}`} class="hover:text-blue-400">{t}</a></li>)}
+          </ul>
+        ) : <p class="text-gray-500 m-0">nessuno</p>}
+      </div>
+      <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b]">
+        <h3 class="text-rose-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">Non più consigliati</h3>
+        {comparison.dropped_buys.length > 0 ? (
+          <ul class="space-y-1 text-gray-300 list-none p-0 m-0 font-mono">
+            {comparison.dropped_buys.map((t) => <li>{t}</li>)}
+          </ul>
+        ) : <p class="text-gray-500 m-0">nessuno</p>}
+      </div>
+    </div>
+    <div class="bg-[#111827] rounded-lg p-4 border border-[#1e293b] text-xs">
+      <h3 class="text-amber-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">
+        Livelli aggiornati (stop / T1 / T2 / T3)
+      </h3>
+      {comparison.level_changes.length > 0 ? (
+        <ul class="space-y-1.5 text-gray-300 list-none p-0 m-0 font-mono">
+          {comparison.level_changes.map((lc) => (
+            <li>
+              <a href={`#${lc.ticker}`} class="hover:text-blue-400 font-bold">{lc.ticker}</a>:{" "}
+              {Object.entries(lc.changes).map(([label, c], i) => (
+                <span>{i > 0 && ", "}{label} {c.was.toFixed(2)}→{c.now.toFixed(2)}</span>
+              ))}
+            </li>
+          ))}
+        </ul>
+      ) : <p class="text-gray-500 m-0">invariati per tutti i BUY confermati</p>}
+    </div>
+  </div>
+) : (
+  <div class="mb-8 bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 text-xs text-gray-500">
+    Nessun run precedente disponibile per il confronto.
+  </div>
+)}

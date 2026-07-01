@@ -4,6 +4,7 @@ Fonti (in ordine): SEC entity (data/fundamentals_pit.csv, USA), Yahoo v8 meta lo
 (EU e mancanti). Cache su data/ticker_names.csv per non rifare le chiamate ogni sessione.
 """
 import os
+import re
 import csv
 
 CACHE = "data/ticker_names.csv"
@@ -50,8 +51,11 @@ def _from_sec():
 
 
 def _titlecase(s):
-    """SEC scrive in MAIUSCOLO (MICROSOFT CORPORATION) -> Title Case leggibile."""
-    return s.title() if s.isupper() else s
+    """SEC scrive in MAIUSCOLO (MICROSOFT CORPORATION) -> Title Case leggibile.
+    Rimuove anche il suffisso di stato di incorporazione (es. 'Inc /De' -> 'Inc'),
+    un artefatto del filing SEC senza valore informativo per l'utente."""
+    s = s.title() if s.isupper() else s
+    return re.sub(r"\s*/\s*[A-Za-z]{2,3}$", "", s).strip()
 
 
 def _from_yahoo(tickers):

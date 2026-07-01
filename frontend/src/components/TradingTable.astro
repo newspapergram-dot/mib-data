@@ -1,6 +1,7 @@
 ---
 interface Signal {
   ticker: string;
+  company_name: string;
   universe: string;
   action: string;
   entry: number | null;
@@ -42,9 +43,12 @@ const fmt = (v: number | null, digits = 2) => (v === null || v === undefined ? "
       <tbody class="divide-y divide-[#1e293b]">
         {signals.map((trade, index) => (
           <tr class={`${index % 2 === 0 ? "bg-transparent" : "bg-[#111827]/40"} ${trade.action !== "BUY" ? "opacity-50" : ""}`}>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold font-mono border-0">
-              <a href={`#${trade.ticker}`} class="hover:text-blue-400">{trade.ticker}</a>
+            <td class="px-6 py-4 whitespace-nowrap text-sm border-0">
+              <a href={`#${trade.ticker}`} class="hover:text-blue-400 font-bold font-mono">{trade.ticker}</a>
               {trade.universe === "unicorn" && <span class="ml-1 text-amber-400" title="Unicorno">★</span>}
+              {trade.company_name && trade.company_name !== trade.ticker && (
+                <div class="text-xs text-gray-500 font-normal">{trade.company_name}</div>
+              )}
             </td>
             <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-500 border-0">
               {trade.universe === "unicorn" ? "unicorno" : "mega-cap"}
