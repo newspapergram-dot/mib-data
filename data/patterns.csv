@@ -22,6 +22,7 @@ BMED.MI,rialzista,moderato,mista,flag/pennant rialzista (consolidamento dopo imp
 BMPS.MI,rialzista,forte,mista,flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle,,False,,dentro le bande,
 BN.PA,rialzista,moderato,HH-HL (rialzista),,,False,,dentro le bande,
 BNP.PA,laterale,debole,HH-HL (rialzista),flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle,,False,,dentro le bande,
+BPE.MI,rialzista,moderato,HH-HL (rialzista),flag/pennant rialzista (consolidamento dopo impulso),,False,,dentro le bande,
 BZU.MI,laterale,debole,mista,flag/pennant rialzista (consolidamento dopo impulso) | ascending triangle,,False,,dentro le bande,
 CA.PA,laterale,debole,LH-LL (ribassista),,,False,"bullish (prezzo nuovo min, RSI no)",dentro le bande,
 CAP.PA,laterale,debole,LH-LL (ribassista), | descending triangle,,False,,dentro le bande,

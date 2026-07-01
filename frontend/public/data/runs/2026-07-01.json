@@ -1,6 +1,6 @@
 {
   "date": "2026-07-01",
-  "last_updated": "2026-07-01T15:36:02+00:00",
+  "last_updated": "2026-07-01T15:47:04+00:00",
   "market_regime": {
     "US": "TREND_UP"
   },
@@ -11,7 +11,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "Setup tecnico forte: breakout confermato sopra 708.99 con volume 1.3x, trend rialzista ADX 35, struttura HH-HL intatta e prezzo ben sopra SMA20/50/200, nonostante RSI 74.6 in ipercomprato non estremo. Fondamentali solidi (debt/equity 0.68, EBITDA margin 28.6%, FCF ~8B) e contesto macro favorevole (TREND_UP, rotazione settoriale positiva sui semiconduttori). Data l'estensione del titolo (mom6m +176%, walk upper band) si restringe leggermente lo stop rispetto al tetto massimo per gestire il rischio di pullback.",
+      "rationale": "Trend rialzista forte con ADX 35 e prezzo sopra tutte le medie mobili in struttura HH-HL, confermato da breakout su volume 1.3x; RSI a 74.6 elevato ma sostenuto da momentum, non da esaurimento. Fondamentali solidi (leva contenuta, FCF ~8B, margini 28.6%) e contesto macro TREND_UP favorevole ai ciclici tech senza segnali restrittivi Fed. Vista l'estensione tecnica (RSI/ATR elevati), si applica uno stop più stringente rispetto al tetto massimo indicato dall'auditor.",
       "entry": 723.0,
       "stop": 686.85,
       "stop_pct": 0.05,
@@ -51,29 +51,29 @@
         "ticker": "AMAT",
         "verdict": "favorable",
         "reasons": [
-          "RSI a 74.6 è elevato ma non estremo (<75) ed è supportato da un breakout confermato con volume 1.3x",
-          "ADX 35 indica trend rialzista forte e ben direzionale, non un movimento esaurito",
-          "Struttura HH-HL intatta, prezzo sopra tutte le medie mobili (SMA20>SMA50>SMA200) con momentum a 6 mesi molto forte (+176%)",
-          "Nessuna divergenza RSI ribassista rilevata che segnali un deterioramento"
+          "RSI a 74.6 è elevato ma non estremo (<75) ed è confermato da breakout rialzista con volume 1.3x",
+          "ADX 35 indica trend forte e direzionale, non un eccesso instabile",
+          "Prezzo sopra tutte le medie mobili (SMA20>50>200) in struttura HH-HL rialzista, nessuna divergenza RSI rilevata",
+          "ATR% 4.49 segnala volatilità sostenuta: gestire size ed eventuale stop stretto"
         ],
-        "setup_read": "Trend rialzista forte (ADX 35) con prezzo ben sopra SMA20/50/200 e RSI in zona di ipercomprato ma non estremo, coerente con un breakout appena confermato; ATR% 4.49 segnala volatilità sostenuta da gestire con stop adeguati.",
-        "candlestick_read": "Breakout rialzista sopra 708.99 con volume 1.3x e prezzo che cammina sulla banda superiore di Bollinger, pattern di continuazione del trend in atto."
+        "setup_read": "Trend rialzista forte (ADX 35) con prezzo allineato sopra SMA20/50/200 e momentum 6m molto elevato; RSI ipercomprato ma supportato da breakout volumetrico, non da esaurimento.",
+        "candlestick_read": "Breakout rialzista sopra 708.99 con volume 1.3x e prezzo che cammina lungo la banda superiore di Bollinger, senza segnali di pullback o divergenza."
       },
       "company_analyst": {
         "ticker": "AMAT",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity 0.68 ben sotto soglia 2.5",
-          "ebitda_margin positivo e solido al 28.6%",
-          "free_cash_flow ampiamente positivo (~8.0B)",
-          "eps_growth_q_on_q modesto (0.58%) ma non compromette il quadro data l'assenza di leva eccessiva o margini negativi"
+          "Debt_to_equity 0.68 ben sotto soglia 2.5, leva contenuta",
+          "EBITDA margin positivo (28.6%), redditività solida",
+          "Free cash flow ampiamente positivo (~8.0B), buona generazione di cassa",
+          "EPS growth q/q modesto (0.58%) ma non negativo, non compromette il quadro complessivo"
         ],
         "debt_flag": false
       },
       "finance_guy": {
         "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Nessuna decisione Fed/BCE segnalata entro 10 giorni, quindi il kill switch non si applica. Regime gate US in TREND_UP, coerente con fase di easing/pausa prolungata che storicamente favorisce i ciclici come i semiconduttori (AMAT). Nessun dato su divergenza Fed/BCE fornito per questo caso."
+        "notes": "Nessuna decisione Fed entro 10 giorni risulta segnalata, quindi il kill switch non si attiva. Il regime_gate US è TREND_UP, condizione necessaria per dichiarare rotazione favorevole. AMAT è un titolo ciclico (semiconduttori/tech), storicamente favorito in fasi di easing o pausa prolungata dei tassi Fed; in assenza di segnali di restringimento monetario attivo, il contesto macro risulta compatibile con una rotazione verso ciclici. Nessun dato fornito su decisione BCE imminente o divergenza esplicita tra le due banche centrali da segnalare in questo caso (mercato US)."
       }
     },
     {
@@ -82,7 +82,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "Quadro tecnico neutro-costruttivo: prezzo sopra SMA200 con ADX basso e RSI neutro, in fase di compressione (Bollinger squeeze) con divergenza RSI bullish che mitiga la struttura ribassista di breve LH-LL. Fondamentali eccellenti (D/E 0.47, EBITDA margin 38.4%, EPS growth 34.45%, FCF ~174B) e contesto macro favorevole (TREND_UP, sector rotation positiva per tech) supportano l'ingresso. Stop-loss impostato al 10% come da audit, coerente con ATR% contenuto (1.78%).",
+      "rationale": "Fondamentali solidi (D/E 0.47, EBITDA margin 38.4%, EPS growth q/q 34.45%, FCF ~174B) e regime macro TREND_UP favorevole alla rotazione tech. Quadro tecnico laterale con ADX debole (19.2) e RSI neutro (46.1), prezzo compresso tra SMA20/50 e SMA200 con Bollinger in squeeze: setup di attesa breakout più che deterioramento, coerente con ingresso prudente. Stop impostato al tetto regolamentare del 15% data la bassa volatilità attuale (ATR% 1.78).",
       "entry": 357.37,
       "stop": 344.6476,
       "stop_pct": 0.0356,
@@ -122,29 +122,31 @@
         "ticker": "GOOGL",
         "verdict": "favorable",
         "reasons": [
-          "RSI a 46.1 in zona neutra, nessun eccesso ipercomprato",
-          "ADX 19.2 indica trend debole/laterale, non un contesto di breakdown conclamato",
-          "Prezzo sopra SMA200 (315) e vicino a SMA20/50, struttura di medio termine ancora costruttiva nonostante LH-LL di breve",
-          "Divergenza RSI rilevata è bullish, non ribassista, quindi non soddisfa il criterio di unfavorable"
+          "RSI a 46.1 in zona neutra, nessun eccesso ipercomprato che giustifichi un verdetto negativo",
+          "ADX a 19.2 indica trend debole/laterale, non un deterioramento direzionale marcato",
+          "Prezzo sopra SMA200 (315) ma sotto SMA20/50 (358/370), momentum 6m ancora positivo (+14%)",
+          "Divergenza RSI rilevata è bullish (non ribassista), quindi non rientra nei criteri di unfavorable",
+          "Struttura LH-LL segnala cautela ma coesiste con squeeze Bollinger, contesto di incertezza più che di breakdown confermato"
         ],
-        "setup_read": "Quadro tecnico neutro-costruttivo: RSI centrale, ADX basso segnala fase laterale senza direzionalità forte, prezzo mantiene le medie mobili a supporto con ATR% contenuto (1.78%) che indica bassa volatilità.",
-        "candlestick_read": "Bollinger in squeeze suggerisce compressione pre-mossa, con struttura di breve LH-LL ma divergenza RSI bullish che mitiga il segnale ribassista; nessun breakout ancora confermato."
+        "setup_read": "Quadro tecnico laterale con trend debole (ADX 19.2), RSI neutro a 46.1 e prezzo compresso tra le medie mobili (sopra SMA200, sotto SMA20/50); ATR% contenuto (1.78%) e Bollinger in squeeze suggeriscono bassa volatilità in attesa di un movimento direzionale.",
+        "candlestick_read": "Struttura di prezzo mostra pattern LH-LL potenzialmente ribassista ma con divergenza RSI bullish e compressione Bollinger, configurazione che segnala incertezza in attesa di breakout piuttosto che un chiaro segnale di deterioramento."
       },
       "company_analyst": {
         "ticker": "GOOGL",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity 0.47 ben sotto soglia 2.5, leva contenuta",
-          "ebitda_margin solido al 38.4%, nessun segnale di stress operativo",
-          "eps_growth_q_on_q 34.45% eccezionale, supera soglia 30%",
-          "free_cash_flow fortemente positivo (~174.4B), ottima generazione di cassa"
+          "Debt-to-equity basso (0.47), ben lontano dalla soglia di rigetto",
+          "EBITDA margin solido e positivo (38.4%)",
+          "EPS growth q/q eccezionale (34.45%), sopra la soglia del 30%",
+          "Free cash flow molto elevato e positivo (~174B)",
+          "Nessun segnale di leva eccessiva o marginalità negativa"
         ],
         "debt_flag": false
       },
       "finance_guy": {
         "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni di calendario, quindi il kill switch FOMC/BCE non si applica. Regime gate US = TREND_UP, coerente con fase di pausa/easing monetario in cui i ciclici (tech, discrezionale) sono storicamente favoriti rispetto ai difensivi. GOOGL rientra nel settore tech/ciclico, quindi la rotazione settoriale risulta favorevole in questo contesto macro. Valutazione basata solo su regime tecnico e vincoli macro, indipendente da sentiment o fondamentali specifici del titolo."
+        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni, quindi il kill switch non si applica. Il regime_gate US è TREND_UP, che secondo le linee guida supporta una rotazione favorevole; il settore tech (ciclico) tende a beneficiare in fasi di pausa/easing monetario più che in fasi di restringimento attivo. Non essendo fornita informazione esplicita sulla fase attuale Fed/BCE, la valutazione si basa esclusivamente sul regime tecnico USA, in linea con l'isolamento richiesto dal ruolo macro."
       }
     },
     {
@@ -153,7 +155,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "LIN mostra un quadro tecnico costruttivo con prezzo sopra tutte le medie mobili (513>508>469) e momentum a 6 mesi forte (+22.2%), anche se ADX basso (12.1) segnala trend ancora laterale e in attesa di conferma direzionale (ascending triangle senza breakout). I fondamentali sono solidi (FCF ~10.4B, D/E 1.2, margine EBITDA 26.5%) e il contesto macro è favorevole con regime TREND_UP senza segnali di rotazione avversa. Si procede con ingresso long, stop-loss al 12% per bilanciare la bassa volatilità (ATR 0.97%) con la fase di consolidamento ancora non confermata.",
+      "rationale": "LIN mostra un quadro tecnico costruttivo: prezzo sopra SMA20/50/200 con mom6m +22.2% e RSI neutro (52.4), anche se ADX basso (12.1) segnala trend ancora poco direzionale, in fase di consolidamento tipo ascending triangle senza breakout confermato. I fondamentali sono solidi (D/E 1.2, margine EBITDA 26.5%, FCF ~10.4B) e il contesto macro (TREND_UP, rotazione settoriale favorevole verso industriali/materiali difensivi) supporta l'ingresso. Si procede con BUY mantenendo lo stop-loss al 15% come validato dall'auditor, senza ulteriori restrizioni data la bassa volatilità recente (ATR% 0.97%).",
       "entry": 518.94,
       "stop": 508.8726,
       "stop_pct": 0.0194,
@@ -194,28 +196,28 @@
         "verdict": "favorable",
         "reasons": [
           "RSI a 52.4 in zona neutra, nessun eccesso di ipercomprato",
-          "Prezzo sopra SMA20/50/200 con struttura di medie allineata rialzista (513>508>469), momentum a 6 mesi solido (+22.2%)",
-          "ADX basso (12.1) indica trend laterale/debole, movimento non ancora direzionale confermato",
-          "Nessuna divergenza RSI ribassista rilevata; pattern ascending triangle suggerisce possibile continuazione ma senza breakout confermato"
+          "Prezzo sopra SMA20/50/200 con struttura di medio termine rialzista (mom6m +22.2%)",
+          "ADX a 12.1 indica trend debole/laterale, quindi il momentum non è confermato da forza direzionale forte",
+          "Nessuna divergenza RSI ribassista né breakdown di struttura rilevati"
         ],
-        "setup_read": "Prezzo sopra tutte le medie mobili con trend di fondo rialzista e momentum a 6 mesi forte, ma ADX basso segnala fase di consolidamento laterale a bassa direzionalità; RSI neutro lascia spazio in entrambe le direzioni; ATR% contenuto (0.97%) indica volatilità bassa.",
-        "candlestick_read": "Struttura mista con pattern ascending triangle in formazione dentro le bande di Bollinger, ma senza breakout confermato né pullback, quindi il segnale resta ancora in attesa di conferma direzionale."
+        "setup_read": "Prezzo sopra tutte le medie mobili (20/50/200) con RSI neutro e ATR% contenuto (0.97%), ma ADX basso segnala fase di consolidamento laterale più che trend forte in atto.",
+        "candlestick_read": "Struttura mista con pattern di continuazione tipo ascending triangle dentro le bande di Bollinger, senza breakout confermato né pullback in corso."
       },
       "company_analyst": {
         "ticker": "LIN",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity 1.2 ben sotto la soglia critica di 2.5",
+          "debt_to_equity a 1.2, ben sotto la soglia di rigetto di 2.5",
           "ebitda_margin solido al 26.5%, ampiamente positivo",
-          "free_cash_flow molto robusto (~10.4B), a supporto della struttura patrimoniale",
-          "eps_growth_q_on_q positivo (7.27%), seppur non eccezionale, coerente con crescita stabile"
+          "free_cash_flow molto robusto (~10.4B), a supporto della struttura di debito moderata",
+          "eps_growth_q_on_q modesta (7.3%) ma positiva, coerente con azienda mega cap matura"
         ],
         "debt_flag": false
       },
       "finance_guy": {
         "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Nessuna informazione su decisione Fed/BCE imminente entro 10 giorni fornita nel contesto, quindi il kill switch non risulta attivato in base ai dati disponibili. Il regime_gate per il mercato US è TREND_UP, condizione necessaria (non sufficiente da sola) per dichiarare rotazione favorevole, e non viola il vincolo di esclusione previsto per TREND_DOWN. LIN opera nel settore industrial/materials (gas industriali) con caratteristiche quasi-difensive per domanda stabile, ma senza dati espliciti sulla fase del ciclo tassi Fed (restringimento vs easing) non posso confermare se il posizionamento ciclico/difensivo sia ottimale in questo momento — mi limito a validare il gate tecnico. Nessuna indicazione di divergenza Fed/BCE fornita nei dati ricevuti."
+        "notes": "Regime tecnico USA in TREND_UP, non TREND_DOWN, quindi non si applica il vincolo di blocco automatico. Nessuna informazione fornita su decisioni Fed imminenti entro 10 giorni: in assenza di conferma di un meeting FOMC a breve, il kill switch non risulta attivabile con i dati disponibili. LIN opera nel settore dei gas industriali, ibrido tra ciclico (industriali) e difensivo (domanda stabile, contratti a lungo termine simili a utility) — in un contesto di trend rialzista e assenza di stretta monetaria imminente dichiarata, la rotazione settoriale verso industriali/materiali con caratteristiche difensive risulta coerente. Nessuna divergenza Fed/BCE rilevabile dai dati forniti (mercato di riferimento: US)."
       }
     },
     {
@@ -224,7 +226,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "SKIP",
-      "rationale": "[company_analyst] Leva finanziaria estrema: debt_to_equity = 6.28, più del doppio della soglia di allerta (2.5), anche se il free_cash_flow è positivo e evita il rigetto automatico meccanico; EBITDA margin molto debole (4.19%), segnale di marginalità operativa risicata per un mega cap; EPS in contrazione trimestre su trimestre (-14.7%), nessuna crescita eccezionale che compensi i rischi di leva e marginalità; Il combinato di leva molto elevata, margine sottile e utili in calo delinea un profilo fondamentale fragile nonostante il FCF positivo (23.15B)",
+      "rationale": "[company_analyst] debt_to_equity a 6.28 è estremamente elevato, ben oltre la soglia di rischio (2.5), anche se il FCF positivo (23.15B) evita il rigetto automatico; ebitda_margin di appena 4.19% indica marginalità operativa molto debole per un mega cap; eps_growth_q_on_q negativo (-14.7%) segnala deterioramento della redditività, aggravando il quadro di leva elevata e margini sottili; la combinazione di leva finanziaria estrema, margini risicati e crescita EPS negativa rappresenta un profilo fondamentale fragile nonostante il FCF positivo",
       "entry": 415.63,
       "stop": null,
       "stop_pct": null,
@@ -264,22 +266,21 @@
         "ticker": "UNH",
         "verdict": "favorable",
         "reasons": [
-          "Prezzo sopra SMA20/50/200 con trend rialzista di forza moderata e ADX 36.8 che conferma un trend direzionale solido",
-          "RSI 51.8 neutro, non ipercomprato, con divergenza bullish (nuovo minimo di prezzo non confermato da RSI) che è un segnale di supporto, non di deterioramento",
-          "Momentum a 6 mesi molto forte (+25.3%) e ATR% basso (1.24) indicano trend ordinato con bassa volatilità",
-          "La struttura 'LH-LL ribassista' rilevata è in apparente contrasto con il trend rialzista sulle medie mobili: segnalo questa ambiguità ma non costituisce un chiaro breakdown di supporto confermato"
+          "Trend di fondo rialzista con medie mobili in allineamento perfetto (SMA20>SMA50>SMA200) e ADX 36.8 che conferma un trend forte e direzionale",
+          "Momentum a 6 mesi molto solido (+25.3%) e RSI neutrale a 51.8, quindi nessun eccesso di ipercomprato che giustifichi un verdetto negativo",
+          "La struttura LH-LL di breve termine è in apparente contrasto col trend primario, ma la divergenza RSI rialzista (prezzo su nuovi minimi, RSI no) suggerisce esaurimento della pressione ribassista piuttosto che un deterioramento strutturale"
         ],
-        "setup_read": "Il titolo mantiene un trend rialzista strutturale (prezzo sopra SMA20/50/200, ADX 36.8) con RSI neutro e volatilità contenuta (ATR% 1.24), configurazione tecnica solida ma non incombente in ipercomprato.",
-        "candlestick_read": "Bollinger in squeeze suggerisce imminente espansione di volatilità; la divergenza RSI bullish supporta il quadro rialzista, mentre la struttura LH-LL segnalata appare in contrasto con il trend di fondo e va monitorata come possibile segnale di indebolimento di breve termine."
+        "setup_read": "Trend primario rialzista e ben strutturato (medie allineate, ADX forte), volatilità compressa (ATR% 1.24, Bollinger in squeeze) e RSI neutro lasciano spazio per un movimento direzionale imminente, mentre la debolezza di brevissimo termine (LH-LL) appare più correttiva che di inversione.",
+        "candlestick_read": "Pattern misto: struttura di breve LH-LL ribassista ma accompagnata da divergenza RSI rialzista e Bollinger squeeze, segnale di possibile ripresa del trend principale piuttosto che breakdown confermato."
       },
       "company_analyst": {
         "ticker": "UNH",
         "verdict": "reject",
         "reasons": [
-          "Leva finanziaria estrema: debt_to_equity = 6.28, più del doppio della soglia di allerta (2.5), anche se il free_cash_flow è positivo e evita il rigetto automatico meccanico",
-          "EBITDA margin molto debole (4.19%), segnale di marginalità operativa risicata per un mega cap",
-          "EPS in contrazione trimestre su trimestre (-14.7%), nessuna crescita eccezionale che compensi i rischi di leva e marginalità",
-          "Il combinato di leva molto elevata, margine sottile e utili in calo delinea un profilo fondamentale fragile nonostante il FCF positivo (23.15B)"
+          "debt_to_equity a 6.28 è estremamente elevato, ben oltre la soglia di rischio (2.5), anche se il FCF positivo (23.15B) evita il rigetto automatico",
+          "ebitda_margin di appena 4.19% indica marginalità operativa molto debole per un mega cap",
+          "eps_growth_q_on_q negativo (-14.7%) segnala deterioramento della redditività, aggravando il quadro di leva elevata e margini sottili",
+          "la combinazione di leva finanziaria estrema, margini risicati e crescita EPS negativa rappresenta un profilo fondamentale fragile nonostante il FCF positivo"
         ],
         "debt_flag": true
       },
@@ -291,7 +292,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "SKIP",
-      "rationale": "[technical_analyst] RSI a 78.3 indica ipercomprato estremo senza un breakout confermato che lo giustifichi; ADX a 38.1 conferma trend forte ma il prezzo è già molto esteso sopra le medie (SMA20 345 vs SMA200 308); Momentum 6 mesi molto elevato (+18.6%) aumenta il rischio di correzione/consolidamento a breve",
+      "rationale": "[technical_analyst] RSI a 78.3, ipercomprato estremo, senza breakout confermato che ne giustifichi la persistenza; ADX 38.1 conferma trend forte ma in fase già matura, aumentando il rischio di correzione/consolidamento; Prezzo ben sopra SMA20/50/200: estensione elevata rispetto alle medie, tipica di condizioni di eccesso",
       "entry": 373.73,
       "stop": null,
       "stop_pct": null,
@@ -331,12 +332,12 @@
         "ticker": "GE",
         "verdict": "unfavorable",
         "reasons": [
-          "RSI a 78.3 indica ipercomprato estremo senza un breakout confermato che lo giustifichi",
-          "ADX a 38.1 conferma trend forte ma il prezzo è già molto esteso sopra le medie (SMA20 345 vs SMA200 308)",
-          "Momentum 6 mesi molto elevato (+18.6%) aumenta il rischio di correzione/consolidamento a breve"
+          "RSI a 78.3, ipercomprato estremo, senza breakout confermato che ne giustifichi la persistenza",
+          "ADX 38.1 conferma trend forte ma in fase già matura, aumentando il rischio di correzione/consolidamento",
+          "Prezzo ben sopra SMA20/50/200: estensione elevata rispetto alle medie, tipica di condizioni di eccesso"
         ],
-        "setup_read": "Trend rialzista strutturale confermato da SMA20>SMA50>SMA200 e ADX elevato, ma RSI ipercomprato estremo (78.3) senza breakout segnala rischio di pullback imminente; ATR% contenuto (1.46%) indica comunque bassa volatilità attuale.",
-        "candlestick_read": "Pattern di continuazione flag/pennant rialzista in consolidamento dentro le bande di Bollinger, senza breakout né divergenze RSI rilevate."
+        "setup_read": "Trend rialzista strutturale confermato da ADX elevato e allineamento delle medie mobili (SMA20>SMA50>SMA200), ma RSI a 78.3 segnala ipercomprato estremo con rischio di pullback nel breve; ATR% contenuto (1.46%) indica volatilità gestibile ma non compensa l'eccesso di momentum.",
+        "candlestick_read": "Pattern di continuazione flag/pennant rialzista dopo impulso, con prezzo dentro le bande di Bollinger: consolidamento tecnico che non conferma nuova forza, in un contesto già ipercomprato."
       },
       "company_analyst": null,
       "finance_guy": null
@@ -347,7 +348,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "Trend di fondo rialzista con prezzo sopra SMA50/200, RSI neutro (49.1) e ADX moderato (25.6) indicano volatilità gestibile nonostante la struttura di breve LH-LL segnalata dal Technical Analyst, letta come consolidamento più che deterioramento. Fondamentali solidi (FCF 140.2B, EBITDA margin 32.6%, crescita EPS 22.7%) mitigano il debt/equity elevato, e il regime macro TREND_UP conferma il contesto favorevole senza rischi di kill switch imminenti. Ingresso operativo con stop tecnico al 15%, coerente con la policy validata.",
+      "rationale": "Quadro tecnico neutro-costruttivo: RSI 49 e ADX 25.6 indicano trend di moderata forza con prezzo sopra SMA200 (270.03) pur restando vicino alle medie brevi in struttura LH-LL non ancora confermata come breakdown. Fondamentali solidi (EBITDA margin 32.6%, EPS growth 22.7%, FCF 140.2B) compensano un debt/equity elevato, mentre il regime macro TREND_UP e la rotazione settoriale favorevole al tech supportano l'ingresso. Si adotta uno stop più stretto rispetto al tetto per gestire il rischio di falso segnale legato alla debolezza di breve termine.",
       "entry": 289.36,
       "stop": 280.2162,
       "stop_pct": 0.0316,
@@ -387,29 +388,29 @@
         "ticker": "AAPL",
         "verdict": "favorable",
         "reasons": [
-          "RSI a 49.1 è neutrale, nessun eccesso di ipercomprato/ipervenduto",
-          "ADX 25.6 indica un trend con forza moderata, non estrema",
-          "Prezzo sopra SMA20/50/200 (295.93/292.25/270.03) mantiene bias di fondo positivo nonostante struttura LH-LL di breve",
-          "Nessuna divergenza RSI rilevata, quindi non scatta il criterio di unfavorable"
+          "RSI a 49.1 è neutrale, senza ipercomprato né ipervenduto estremo",
+          "ADX a 25.6 indica un trend di moderata forza, ma senza divergenze RSI ribassiste confermate",
+          "Prezzo sopra SMA200 (270.03) e vicino a SMA20/50, struttura LH-LL ribassista ma non un breakdown conclamato",
+          "ATR% contenuto (1.58%) segnala volatilità gestibile"
         ],
-        "setup_read": "RSI neutro e ADX moderato descrivono un mercato in trend non estremo, con ATR% contenuto (1.58%) che segnala volatilità gestibile; le medie mobili restano allineate al rialzo (20>50>200) pur con struttura di breve ribassista.",
-        "candlestick_read": "Struttura di breve LH-LL con trend ribassista moderato ma prezzo dentro le bande di Bollinger, senza breakout né divergenza RSI confermati, quindi il quadro resta di consolidamento più che di deterioramento."
+        "setup_read": "Il titolo mostra un momentum neutro (RSI 49, ADX 25.6) con prezzo sopra la SMA200 ma vicino alle medie brevi, in un contesto di volatilità moderata (ATR 1.58%); il trend di breve è ribassista ma non ancora in chiara rottura strutturale.",
+        "candlestick_read": "Struttura LH-LL con trend ribassista moderato, prezzo dentro le Bollinger senza breakout né pullback confermato, quindi il quadro grafico resta di transizione più che di svolta netta."
       },
       "company_analyst": {
         "ticker": "AAPL",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity 2.48 sotto soglia 2.5, non triggera rigetto automatico",
-          "free_cash_flow fortemente positivo (140.2B) mitiga il rischio di leva elevata",
-          "ebitda_margin solido al 32.6%, ben sopra soglia di allarme",
-          "eps_growth_q_on_q positivo (22.7%) conferma crescita sana"
+          "debt_to_equity 2.48 sotto soglia 2.5, e comunque free_cash_flow fortemente positivo (140.2B) mitiga il rischio leva",
+          "ebitda_margin solido al 32.6%, ben lontano da territorio negativo",
+          "eps_growth_q_on_q 22.7% robusta, coerente con crescita sostenibile",
+          "free cash flow molto elevato conferma solidità dei fondamentali"
         ],
         "debt_flag": true
       },
       "finance_guy": {
         "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Regime gate US = TREND_UP, coerente con favore verso ciclici/tech in assenza di segnali di kill switch (nessuna decisione Fed/BCE segnalata entro 10 giorni). Nessuna divergenza Fed/BCE indicata nei dati forniti; valutazione limitata al contesto macro US, indipendente da sentiment o fondamentali specifici del titolo."
+        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni di calendario nel contesto fornito, quindi il kill switch non si applica. Il regime_gate US è TREND_UP, condizione necessaria per un giudizio favorevole. AAPL appartiene al comparto tech/ciclico, tipicamente favorito in fasi di easing monetario o pausa prolungata dei tassi; in assenza di segnali di restringimento monetario esplicito, la rotazione settoriale verso ciclici/tech resta coerente con il regime tecnico rilevato. Non essendo fornito lo stato comparato Fed/BCE, non è possibile segnalare eventuale divergenza di ciclo tra le due banche centrali in questa valutazione."
       }
     },
     {
@@ -418,7 +419,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "SKIP",
-      "rationale": "[technical_analyst] RSI 62.5 in trend rialzista maturo (prezzo sopra SMA20/50/200) con divergenza ribassista RSI conclamata: nuovo massimo di prezzo non confermato da nuovo massimo RSI; Momentum 6 mesi negativo (-0.2) nonostante il trend di breve rialzista, segnale di perdita di spinta; Struttura ascending triangle con pullback in corso ma senza breakout confermato: il pattern resta irrisolto e vulnerabile a un cedimento",
+      "rationale": "[company_analyst] debt_to_equity di 12.46 supera la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole; ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa; eps_growth_q_on_q di 1.37% è marginale e non compensa il rischio di leva/FCF negativo",
       "entry": 327.33,
       "stop": null,
       "stop_pct": null,
@@ -456,16 +457,27 @@
       },
       "technical_analyst": {
         "ticker": "JPM",
-        "verdict": "unfavorable",
+        "verdict": "favorable",
         "reasons": [
-          "RSI 62.5 in trend rialzista maturo (prezzo sopra SMA20/50/200) con divergenza ribassista RSI conclamata: nuovo massimo di prezzo non confermato da nuovo massimo RSI",
-          "Momentum 6 mesi negativo (-0.2) nonostante il trend di breve rialzista, segnale di perdita di spinta",
-          "Struttura ascending triangle con pullback in corso ma senza breakout confermato: il pattern resta irrisolto e vulnerabile a un cedimento"
+          "RSI a 62.5 indica momentum positivo ma non ipercomprato estremo, quindi non scatta il filtro RSI>75",
+          "ADX a 28 conferma un trend direzionale moderato, non ancora maturo/esausto",
+          "Prezzo sopra SMA20/50/200 in allineamento rialzista (321>311.8>308.2), struttura HH-HL con ascending triangle in formazione",
+          "La divergenza RSI ribassista è presente ma in un contesto di trend solo moderato (non ipercomprato/maturo), quindi va monitorata ma non giustifica da sola un verdetto negativo",
+          "ATR% basso (1.28%) indica volatilità contenuta, pullback in corso appare fisiologico dentro le bande di Bollinger"
         ],
-        "setup_read": "Prezzo sopra tutte le medie mobili (SMA20>SMA50>SMA200) con ADX 28 che indica un trend moderato e ATR% basso (1.28%) quindi volatilità contenuta, ma RSI a 62.5 con momentum 6 mesi negativo suggerisce un trend che sta perdendo forza.",
-        "candlestick_read": "Struttura HH-HL in ascending triangle con pullback in atto, ma la divergenza ribassista RSI (nuovo massimo di prezzo non confermato) segnala un possibile esaurimento del trend rialzista prima di un breakout confermato."
+        "setup_read": "Trend rialzista strutturale con prezzo sopra tutte le medie mobili e ADX 28 a supporto della direzionalità; RSI 62.5 e ATR% 1.28% suggeriscono spazio residuo senza eccessi di ipercomprato o volatilità.",
+        "candlestick_read": "Struttura HH-HL con ascending triangle in continuazione e pullback in corso dentro le bande di Bollinger, ma attenzione alla divergenza RSI ribassista sui nuovi massimi che va monitorata nelle prossime sedute."
       },
-      "company_analyst": null,
+      "company_analyst": {
+        "ticker": "JPM",
+        "verdict": "reject",
+        "reasons": [
+          "debt_to_equity di 12.46 supera la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole",
+          "ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa",
+          "eps_growth_q_on_q di 1.37% è marginale e non compensa il rischio di leva/FCF negativo"
+        ],
+        "debt_flag": true
+      },
       "finance_guy": null
     },
     {
@@ -474,7 +486,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "TXN mostra un trend di fondo rialzista solido (prezzo ben sopra SMA20/50/200, momentum 6m +68.5%) ma in fase di consolidamento laterale con ADX debole, Bollinger squeeze e divergenza ribassista RSI da monitorare come segnali di cautela a breve termine. Fondamentali robusti (D/E 1.05, EBITDA margin 35%, FCF ~7.8B) e contesto macro favorevole ai ciclici tech in fase di pausa/easing supportano l'ingresso. Si adotta lo stop-loss al tetto massimo validato dall'auditor senza allargarlo, vista la presenza di segnali tecnici di possibile falsa rottura.",
+      "rationale": "TXN mostra fondamentali solidi (D/E 1.05, margine EBITDA 35.3%, FCF ~7.8B) e regime macro TREND_UP favorevole ai semiconduttori senza eventi Fed/BCE imminenti. Il quadro tecnico è positivo ma con cautela: prezzo sopra tutte le medie mobili e momentum a 6 mesi forte, tuttavia ADX debole (20.5) e RSI neutro segnalano un mercato laterale, mentre lo squeeze Bollinger e la divergenza ribassista RSI richiedono uno stop più stretto per contenere il rischio di inversione. Si procede con BUY e stop-loss al 10%, come da indicazione dell'Auditor.",
       "entry": 298.07,
       "stop": 283.1665,
       "stop_pct": 0.05,
@@ -514,30 +526,29 @@
         "ticker": "TXN",
         "verdict": "favorable",
         "reasons": [
-          "RSI a 53 è neutro, ben lontano da ipercomprato estremo (>75), quindi non scatta il criterio di esclusione",
-          "Prezzo saldamente sopra SMA20/50/200 (301 vs 214 la SMA200) a conferma di un uptrend di medio-lungo periodo intatto, con momentum 6m molto forte (+68.5%)",
-          "ADX a 20.5 e trend definito 'laterale/debole' indicano assenza di spinta direzionale forte nel breve, quindi il trend non è ancora 'maturo' in senso tecnico stretto nonostante la divergenza rialzista dei prezzi",
-          "Presente una divergenza ribassista RSI (prezzo nuovi massimi, RSI no) che va monitorata come segnale di cautela, ma in un contesto di trend debole/laterale non configura da sola condizione di unfavorable",
-          "Bollinger in squeeze segnala compressione di volatilità e possibile breakout imminente, ma la direzione non è ancora confermata: incertezza legittima, non motivo di giudizio negativo preventivo"
+          "RSI a 53 è neutrale, nessun eccesso di ipercomprato che giustifichi un giudizio negativo",
+          "Prezzo sopra SMA20/50/200 in struttura di fondo rialzista, anche se ADX a 20.5 segnala trend attualmente debole/laterale",
+          "Divergenza RSI ribassista presente ma in un contesto di trend non maturo (ADX basso), quindi da monitorare non da bloccare",
+          "Bollinger in squeeze indica compressione della volatilità: possibile breakout imminente ma direzione non ancora confermata"
         ],
-        "setup_read": "RSI neutro (53) e ADX debole (20.5) descrivono un mercato in consolidamento laterale dopo un forte rally, con prezzo comunque ben sopra tutte le medie mobili (SMA20/50/200) a conferma del trend di fondo rialzista; ATR% al 3.76% indica volatilità storica moderata.",
-        "candlestick_read": "Struttura mista in trend laterale debole con Bollinger squeeze (compressione pre-breakout) e una divergenza ribassista RSI da tenere sotto osservazione, ma senza breakout o breakdown confermati al momento."
+        "setup_read": "Prezzo saldamente sopra tutte le medie mobili con forte momentum a 6 mesi (+68.5%), ma ADX debole (20.5) e RSI neutro (53) indicano un mercato in fase laterale/di consolidamento più che un trend direzionale forte; ATR% al 3.76% suggerisce volatilità moderata.",
+        "candlestick_read": "Struttura mista con squeeze delle Bollinger che segnala compressione della volatilità in vista di un possibile breakout, accompagnata da una divergenza ribassista dell'RSI da monitorare per un eventuale cambio di momentum."
       },
       "company_analyst": {
         "ticker": "TXN",
         "verdict": "pass",
         "reasons": [
-          "Debt/equity 1.05, ben sotto la soglia di rigetto 2.5",
-          "EBITDA margin solido al 35.3%, nessun segnale di rigetto",
-          "FCF positivo e robusto (~7.8B), rafforza la solidità del bilancio",
-          "EPS growth q/q modesto (4.8%) ma non negativo, coerente con profilo mega cap maturo"
+          "Debt_to_equity 1.05, ben sotto soglia di rigetto 2.5",
+          "Ebitda margin solido al 35.3%",
+          "Free cash flow positivo e robusto (~7.8B)",
+          "Eps growth q/q modesta (4.8%) ma positiva, coerente con qualità dei fondamentali"
         ],
         "debt_flag": false
       },
       "finance_guy": {
-        "macro_regime": "TREND_UP - fase di pausa prolungata / possibile easing, contesto favorevole ai ciclici",
+        "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Nessuna decisione Fed/BCE segnalata entro i 10 giorni, quindi il kill switch non si applica. Regime gate US = TREND_UP, non TREND_DOWN, quindi la rotazione settoriale può essere dichiarata favorevole. TXN appartiene al comparto tech/semiconduttori, ciclico per definizione: in fase di pausa prolungata o easing dei tassi Fed, i ciclici tendono a sovraperformare rispetto ai difensivi. Nessun dato fornito su divergenza Fed/BCE per questo ticker US, quindi non applicabile."
+        "notes": "Nessuna decisione Fed/BCE segnalata entro 10 giorni, quindi kill switch non applicabile. Regime gate US è TREND_UP, coerente con fase di easing/pausa prolungata che favorisce settori ciclici come tecnologia/semiconduttori (TXN). Nessuna divergenza Fed/BCE rilevata nei dati forniti."
       }
     },
     {
@@ -546,7 +557,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "CSCO mostra fondamentali solidi (FCF ~13B, D/E 1.57, margine EBITDA 23.4%) in un regime macro TREND_UP favorevole al comparto tech. Il quadro tecnico è misto: prezzo sopra SMA20/50/200 con RSI neutro e ADX moderato a supporto del trend di fondo, ma struttura di breve ribassista (LH-LL, descending triangle) in compressione Bollinger suggerisce cautela tattica sull'ingresso. Si procede con size regolare ma stop-loss stretto per gestire il rischio di breakdown di breve termine.",
+      "rationale": "CSCO mantiene un allineamento rialzista di medio termine (prezzo sopra SMA20/50/200, ADX 25.5) pur mostrando nel breve una struttura LH-LL con descending triangle e squeeze bollinger, quindi ingresso da gestire con cautela in attesa di conferma breakout. Fondamentali solidi (FCF 13B, debt/equity 1.57, EBITDA margin 23.4%) e contesto macro TREND_UP favorevole al settore tech supportano l'operazione. Stop loss stretto al 10% per contenere il rischio legato alla configurazione tecnica mista di breve periodo.",
       "entry": 117.46,
       "stop": 113.8657,
       "stop_pct": 0.0306,
@@ -586,29 +597,29 @@
         "ticker": "CSCO",
         "verdict": "favorable",
         "reasons": [
-          "RSI 44.3 neutro, non ipercomprato: nessun eccesso da correggere",
-          "ADX 25.5 indica trend con forza moderata ma non estrema",
-          "Prezzo sopra SMA20/50/200 (allineamento rialzista di medio-lungo periodo) nonostante struttura di breve ribassista",
-          "Struttura LH-LL e descending triangle segnalano cautela di breve, ma nessun breakdown confermato né divergenza RSI ribassista che giustifichino un giudizio negativo"
+          "RSI 44.3 neutro, nessun ipercomprato estremo",
+          "ADX 25.5 indica trend moderato ma non forte deterioramento",
+          "Prezzo sopra SMA20/50/200 (allineamento rialzista di medio termine) nonostante struttura di breve ribassista",
+          "Nessuna divergenza RSI rilevata, quindi manca il segnale tecnico esplicito di unfavorable"
         ],
-        "setup_read": "RSI neutro e ADX moderato descrivono un mercato senza eccessi, con prezzo ancora sopra tutte le medie mobili (SMA20/50/200) a supporto del trend di fondo; ATR% basso (1.53%) indica volatilità contenuta.",
-        "candlestick_read": "Pattern di breve ribassista (LH-LL, descending triangle) in fase di compressione Bollinger (squeeze), senza breakout né divergenza RSI confermati: segnale di attesa più che di deterioramento strutturale."
+        "setup_read": "RSI neutro e ADX moderato suggeriscono un trend non direzionale forte; le medie mobili (SMA20>SMA50>SMA200) restano in configurazione rialzista di fondo, con ATR% contenuto (1.53%) che indica bassa volatilità operativa.",
+        "candlestick_read": "Struttura di breve mostra LH-LL con descending triangle e Bollinger in squeeze, segnale di possibile compressione pre-breakout ma senza breakout confermato né divergenza RSI."
       },
       "company_analyst": {
         "ticker": "CSCO",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity 1.57 sotto soglia critica 2.5",
-          "ebitda_margin positivo (23.4%), marginalità solida",
-          "free_cash_flow robusto (~13B), copre ampiamente il debito",
-          "eps_growth_q_on_q marginale (0.39%) ma non motivo di rigetto in assenza di leva eccessiva"
+          "Debt_to_equity 1.57 sotto la soglia critica di 2.5",
+          "EBITDA margin positivo (23.4%), nessun segnale di distress operativo",
+          "Free cash flow robusto (13.0B USD), a supporto della sostenibilità del debito",
+          "Crescita EPS q/q marginale (0.39%) ma non negativa, non compromette il quadro"
         ],
         "debt_flag": false
       },
       "finance_guy": {
         "macro_regime": "TREND_UP",
         "sector_rotation_favorable": true,
-        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni, quindi il kill switch non si applica. Il regime_gate per il mercato US è TREND_UP, condizione necessaria per considerare favorevole la rotazione settoriale. In fase di easing o pausa prolungata i settori ciclici (tech, discrezionale) sono favoriti rispetto ai difensivi; CSCO rientra nel comparto tech/ciclico, coerente con il regime attuale. Nessun dato fornito su divergenza Fed/BCE per l'EUR/USD in questo contesto US-centrico."
+        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni, quindi il kill switch non si attiva. Regime gate US in TREND_UP, coerente con fase di pausa/easing del ciclo monetario, favorevole ai ciclici (tech, discrezionali) come CSCO. Nessuna divergenza Fed/BCE rilevata da segnalare in questo contesto US-only."
       }
     },
     {
@@ -617,7 +628,7 @@
       "market": "US",
       "regime_gate": "TREND_UP",
       "action": "BUY",
-      "rationale": "Quadro tecnico neutro-laterale con RSI 41.5 e ADX 16.6 (trend debole), ma prezzo sopra SMA50/SMA200 mantiene l'impostazione di fondo costruttiva nonostante struttura di breve LH-LL dentro un flag di consolidamento. Fondamentali con leva elevata ed eps in calo trimestrale sono mitigati da FCF robusto e margini solidi, mentre il regime macro TREND_UP e la rotazione settoriale favorevole supportano l'ingresso. Data la volatilità (ATR% 4.68%) e il trend non ancora confermato, si restringe lo stop al 12% rispetto al 15% massimo consentito dall'auditor per gestione prudente del rischio.",
+      "rationale": "QCOM mostra un quadro tecnico laterale con RSI neutro (41.5) e ADX debole (16.6), ma il prezzo resta sopra le medie a 50 e 200 giorni con struttura di consolidamento tipo flag/pennant, non un breakdown confermato. I fondamentali reggono grazie a un FCF robusto (14.3B) e margini EBITDA solidi (25.5%) che compensano il debt/equity elevato e il calo EPS q/q, mentre il contesto macro US resta in TREND_UP senza eventi Fed/BCE imminenti che possano invalidare il setup. Si procede con size prudente e stop stretto per gestire l'ATR% relativamente elevato.",
       "entry": 184.79,
       "stop": 175.5505,
       "stop_pct": 0.05,
@@ -657,29 +668,28 @@
         "ticker": "QCOM",
         "verdict": "favorable",
         "reasons": [
-          "RSI a 41.5 è neutro, senza ipercomprato né segnali estremi",
-          "ADX a 16.6 indica trend debole/laterale, non un deterioramento attivo",
-          "Prezzo sopra SMA50 e SMA200 (struttura di medio-lungo periodo ancora costruttiva) nonostante la struttura di breve LH-LL",
-          "Nessuna divergenza RSI o breakout ribassista confermato che giustifichi un giudizio negativo"
+          "RSI 41.5 neutrale, senza ipercomprato né divergenze ribassiste",
+          "ADX 16.6 indica trend debole/laterale, non un deterioramento strutturale conclamato",
+          "Prezzo sopra SMA50 e SMA200 (200.78/168.19), struttura di medio-lungo termine ancora costruttiva nonostante LH-LL di breve"
         ],
-        "setup_read": "Quadro tecnico neutro-laterale: RSI a metà range e ADX basso segnalano assenza di momentum direzionale forte, ma il prezzo resta sopra SMA50/SMA200, mantenendo intatta l'impostazione di fondo; ATR% al 4.68% indica volatilità moderata-alta da gestire con size adeguata.",
-        "candlestick_read": "Struttura di breve termine mostra LH-LL ribassista dentro un consolidamento a flag/pennant rialzista, con prezzo dentro le bande di Bollinger e nessun breakout o divergenza RSI confermati."
+        "setup_read": "Quadro laterale con momentum neutro (RSI 41.5) e trend debole (ADX 16.6); ATR% 4.68 segnala volatilità moderata-alta, prezzo comunque sopra le medie a 50 e 200 giorni.",
+        "candlestick_read": "Struttura di breve LH-LL con bias ribassista di corto periodo, ma in un contesto di consolidamento flag/pennant rialzista dentro le bande di Bollinger, quindi non un breakdown confermato."
       },
       "company_analyst": {
         "ticker": "QCOM",
         "verdict": "pass",
         "reasons": [
-          "debt_to_equity elevato (6.08) ma parzialmente mitigato da free_cash_flow positivo e consistente (14.285B)",
-          "ebitda_margin solido e positivo (25.5%), nessun segnale di marginalità negativa",
-          "eps_growth_q_on_q fortemente negativo (-44.15%) rappresenta un campanello d'allarme sulla crescita, ma non raggiunge la soglia di rigetto automatico legata a margine negativo",
-          "flusso di cassa libero robusto suggerisce capacità di servire il debito nonostante la leva elevata"
+          "Debt/equity elevato (6.08) ma compensato da free cash flow ampiamente positivo (14.29B), quindi non scatta il rigetto automatico",
+          "Ebitda margin solido al 25.5%, nessun segnale di marginalità negativa",
+          "EPS growth q/q negativo (-44.15%) è un segnale di debolezza ma non sufficiente da solo per il rigetto vista la generazione di cassa robusta",
+          "Il sentiment neutro del researcher non altera la valutazione fondamentale"
         ],
         "debt_flag": true
       },
       "finance_guy": {
-        "macro_regime": "TREND_UP",
+        "macro_regime": "US equities in TREND_UP regime, no FOMC/ECB decision flagged within the 10-day window",
         "sector_rotation_favorable": true,
-        "notes": "Regime gate US = TREND_UP, coerente con fase di espansione/ciclica favorevole ai tecnologici come QCOM. Nessuna indicazione di riunione Fed entro 10 giorni fornita nei dati ricevuti, quindi il kill switch FOMC non risulta attivato in base alle informazioni disponibili; se una decisione tassi Fed fosse imminente, questo giudizio andrebbe immediatamente ribaltato a false. Nessun dato su BCE fornito, quindi non si segnala divergenza di ciclo tra le due banche centrali in questa valutazione."
+        "notes": "Nessuna decisione Fed/BCE segnalata entro 10 giorni, quindi il kill switch non si attiva. Il regime_gate per il mercato US è TREND_UP, che è prerequisito necessario per dichiarare rotazione favorevole. QCOM appartiene al settore tech/semiconduttori (ciclico): storicamente favorito in fasi di easing monetario o pausa prolungata dei tassi, meno in fasi di restringimento attivo. In assenza di dati specifici sulla fase attuale del ciclo Fed (hiking vs pausa vs cutting) fornita in questo prompt, il giudizio si basa esclusivamente sul regime tecnico TREND_UP conforme al vincolo guidelines. Nessuna divergenza Fed/BCE rilevabile dai dati forniti (mercato è US, non EU)."
       }
     }
   ],
