@@ -131,4 +131,17 @@ jobs:
           git config --local user.email "actions@github.com"
           git add -A
           git commit -m "nightly: dati + report Comitato $(TZ=Europe/Rome date +%Y-%m-%d) [skip ci]" || true
-          git push
+          # Retry con rebase: un push nudo fallisce se main e' avanzato nel
+          # frattempo (es. un altro commit manuale in parallelo — successo il
+          # 1/7/2026: il Comitato aveva girato con successo ma il report e'
+          # andato perso perche' il semplice `git push` e' stato rifiutato senza
+          # nessun tentativo di recupero).
+          for i in 1 2 3 4 5; do
+            if git push; then
+              break
+            fi
+            echo "push rifiutato (probabile race su main), riprovo con rebase (tentativo $i)..."
+            git fetch origin main
+            git rebase origin/main
+            sleep 2
+          done
