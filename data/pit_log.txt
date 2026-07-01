@@ -1,5 +1,5 @@
-2026-06-26T05:27:20.589238Z
-[PIT] ticker->CIK: 10433 mappati
+2026-07-01T14:32:18.690044Z
+[PIT] ticker->CIK: 10426 mappati
 [PIT] AAPL: EPS=8.26 rev=451.4B nm=27.2% filed=2026-05-01 (68 obs)
 [PIT] MSFT: EPS=16.79 rev=318.3B nm=39.3% filed=2026-04-29 (66 obs)
 [PIT] NVDA: EPS=6.530000000000001 rev=26.9B nm=593.1% filed=2026-05-20 (68 obs)

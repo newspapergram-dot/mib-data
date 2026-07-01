@@ -1,0 +1,466 @@
+[
+  {
+    "ticker": "AMAT",
+    "stages": {
+      "researcher": {
+        "ticker": "AMAT",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "AMAT",
+        "verdict": "pass",
+        "reasons": [
+          "Debt_to_equity basso (0.68), ben sotto soglia di rigetto 2.5",
+          "EBITDA margin solido e positivo (28.6%)",
+          "Free cash flow ampiamente positivo (~8.0B)",
+          "EPS growth q/q debole (0.58%) ma non è motivo di rigetto in assenza di altri segnali negativi"
+        ],
+        "debt_flag": false
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna indicazione di decisione Fed/BCE entro 10 giorni, quindi il kill switch non si attiva. Il regime_gate per il mercato US è TREND_UP, non TREND_DOWN, quindi la regola di esclusione non si applica. In assenza di dati specifici sul ciclo dei tassi, si presume una fase di pausa/easing prolungato, che favorisce i settori ciclici come il tech/semiconduttori (AMAT). Nessuna divergenza Fed/BCE rilevata da segnalare in questo contesto isolato."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.15,
+        "risk_notes": [
+          "regime_gate = TREND_UP, quindi il gate di regime non blocca l'apertura della posizione",
+          "Stop-loss impostato al 15% (limite massimo validato in Run #40, mai superare -0.15)",
+          "Fondamentali solidi (D/E 0.68, EBITDA margin 28.6%, FCF ~8B) e sentiment neutro senza eventi avversi imminenti",
+          "Company Analyst=pass e Finance Guy=favorevole già verificati a monte",
+          "Nessun segnale di rischio idiosincratico aggiuntivo rilevato (no earnings call imminente, no eventi chiave)"
+        ]
+      },
+      "ceo": {
+        "ticker": "AMAT",
+        "action": "BUY",
+        "rationale": "AMAT mostra fondamentali solidi (D/E 0.68, EBITDA margin 28.6%, FCF ~8B) in regime TREND_UP con rotazione settoriale favorevole al tech/semiconduttori. Nessun evento di rischio imminente o segnale avverso rilevato dal sentiment neutro. Ingresso a 723.0 USD con stop-loss al 15% come da validazione auditor.",
+        "final_stop_loss_pct": 0.15
+      }
+    },
+    "final": {
+      "ticker": "AMAT",
+      "action": "BUY",
+      "rationale": "AMAT mostra fondamentali solidi (D/E 0.68, EBITDA margin 28.6%, FCF ~8B) in regime TREND_UP con rotazione settoriale favorevole al tech/semiconduttori. Nessun evento di rischio imminente o segnale avverso rilevato dal sentiment neutro. Ingresso a 723.0 USD con stop-loss al 15% come da validazione auditor.",
+      "final_stop_loss_pct": 0.15
+    }
+  },
+  {
+    "ticker": "GOOGL",
+    "stages": {
+      "researcher": {
+        "ticker": "GOOGL",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "GOOGL",
+        "verdict": "pass",
+        "reasons": [
+          "Debt_to_equity basso (0.47), ben sotto la soglia di rigetto di 2.5",
+          "Ebitda_margin solido e positivo (38.4%)",
+          "Eps_growth_q_on_q eccellente (34.45%), superiore alla soglia del 30% richiesta per compensare eventuali criticità",
+          "Free_cash_flow molto robusto (~174.4B USD), a conferma della solidità finanziaria"
+        ],
+        "debt_flag": false
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni, quindi il kill switch non si applica. Il regime_gate US è TREND_UP, condizione necessaria per dichiarare rotazione favorevole. In assenza di indicazioni di un ciclo di restringimento monetario in corso, il contesto è compatibile con settori ciclici/tech in fase di pausa o easing prolungato. Non emergono dati su divergenza Fed/BCE da segnalare in questo caso."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.1,
+        "risk_notes": [
+          "regime_gate = TREND_UP: condizione necessaria per apertura posizione rispettata, coerente col gate come fonte dell'edge",
+          "Stop-loss impostato al 10%, entro il tetto massimo non negoziabile del 15% validato in Run #40",
+          "Fondamentali solidi (debt/equity 0.47, EBITDA margin 38.4%, FCF ~174B) e momentum_score positivo (0.547) supportano l'ingresso",
+          "Sizing e uscite gestiti dal motore held-portfolio: max 10% capitale per posizione, holding fisso 10gg operativi, nessuna leva implicita",
+          "Nessun evento chiave o sentiment negativo dal researcher che giustifichi uno stop più stretto"
+        ]
+      },
+      "ceo": {
+        "ticker": "GOOGL",
+        "action": "BUY",
+        "rationale": "GOOGL supera tutti i filtri: fondamentali solidi (debt/equity 0.47, EBITDA margin 38.4%, FCF ~174B), momentum positivo (0.547) e regime di mercato TREND_UP favorevole. Nessun evento negativo o sentiment critico rilevato. Ingresso a 357.37 USD con stop-loss al 10%.",
+        "final_stop_loss_pct": 0.1
+      }
+    },
+    "final": {
+      "ticker": "GOOGL",
+      "action": "BUY",
+      "rationale": "GOOGL supera tutti i filtri: fondamentali solidi (debt/equity 0.47, EBITDA margin 38.4%, FCF ~174B), momentum positivo (0.547) e regime di mercato TREND_UP favorevole. Nessun evento negativo o sentiment critico rilevato. Ingresso a 357.37 USD con stop-loss al 10%.",
+      "final_stop_loss_pct": 0.1
+    }
+  },
+  {
+    "ticker": "LIN",
+    "stages": {
+      "researcher": {
+        "ticker": "LIN",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "LIN",
+        "verdict": "pass",
+        "reasons": [
+          "debt_to_equity 1.2 ben sotto soglia 2.5",
+          "ebitda_margin positivo e solido (26.5%)",
+          "free_cash_flow ampiamente positivo (~10.4B)",
+          "eps_growth_q_on_q moderata ma positiva (7.27%)"
+        ],
+        "debt_flag": false
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna informazione su decisione tassi Fed/BCE entro 10 giorni fornita nel contesto: kill switch non attivabile con i dati disponibili. Il regime_gate per il mercato US è TREND_UP, condizione necessaria per dichiarare rotazione settoriale favorevole. LIN opera nel comparto industrial gases/materials, settore con caratteristiche ibride cicliche-difensive; in assenza di segnali di stretta monetaria aggressiva o kill switch attivo, il contesto tecnico di trend positivo supporta una rotazione settoriale favorevole. Nessun dato su divergenza Fed/BCE fornito per valutare impatto EUR/USD, non applicabile per ticker US."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.1,
+        "risk_notes": [
+          "regime_gate TREND_UP: coerente con apertura nuove posizioni",
+          "Stop-loss impostato al 10%, entro il tetto massimo del 15% da regola",
+          "Fondamentali solidi (D/E 1.2, EBITDA margin 26.5%, FCF ~10.4B) confermati da Company Analyst",
+          "Finance Guy favorevole, nessun kill switch attivo",
+          "Nessun evento avverso rilevato dal researcher (sentiment neutro)"
+        ]
+      },
+      "ceo": {
+        "ticker": "LIN",
+        "action": "BUY",
+        "rationale": "Fondamentali solidi (D/E 1.2, EBITDA margin 26.5%, FCF ~10.4B), regime di mercato TREND_UP favorevole e sentiment neutro senza eventi avversi. Ingresso a 518.94 USD con stop-loss impostato al 10% per contenere il rischio.",
+        "final_stop_loss_pct": 0.1
+      }
+    },
+    "final": {
+      "ticker": "LIN",
+      "action": "BUY",
+      "rationale": "Fondamentali solidi (D/E 1.2, EBITDA margin 26.5%, FCF ~10.4B), regime di mercato TREND_UP favorevole e sentiment neutro senza eventi avversi. Ingresso a 518.94 USD con stop-loss impostato al 10% per contenere il rischio.",
+      "final_stop_loss_pct": 0.1
+    }
+  },
+  {
+    "ticker": "UNH",
+    "stages": {
+      "researcher": {
+        "ticker": "UNH",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "UNH",
+        "verdict": "pass",
+        "reasons": [
+          "Debt_to_equity elevato (6.28) ma esente da rigetto automatico grazie a free_cash_flow fortemente positivo (23.15B)",
+          "ebitda_margin molto sottile (4.19%) ma non negativo, quindi non scatta la regola di rigetto per marginalità",
+          "eps_growth_q_on_q negativo (-14.7%) segnala debolezza nella crescita degli utili, ma non è un criterio di rigetto automatico",
+          "Il forte free cash flow positivo controbilancia la leva elevata, giustificando il pass ma con attenzione al rischio di debito"
+        ],
+        "debt_flag": true
+      },
+      "finance_guy": {
+        "macro_regime": "US equities in TREND_UP regime; nessuna decisione Fed/BCE nota entro i prossimi 10 giorni segnalata nell'input, quindi kill switch non applicato",
+        "sector_rotation_favorable": true,
+        "notes": "Regime tecnico USA TREND_UP consente rotazione settoriale positiva. UNH appartiene al settore sanitario/farmaceutico, tipicamente difensivo e favorito in fasi di restringimento monetario o incertezza sui tassi; anche in fase di pausa prolungata mantiene supporto relativo per natura anticiclica. Nessuna informazione esplicita su FOMC/BCE imminente entro 10 giorni, quindi il kill switch non scatta secondo le regole rigide. Nessun dato su divergenza Fed/BCE fornito nel contesto, quindi non applicabile."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.15,
+        "risk_notes": [
+          "Regime_gate = TREND_UP: nessun conflitto con la regola di go-flat su TREND_DOWN, apertura posizione consentita",
+          "Debt_to_equity elevato (6.28) e ebitda_margin molto sottile (4.19%) aumentano il rischio idiosincratico: mantenere lo stop-loss al tetto massimo consentito (15%) invece di stringerlo, come da regola non negoziabile validata in Run #40",
+          "eps_growth_q_on_q negativo (-14.7%) è un segnale di deterioramento fondamentale da monitorare nei prossimi trimestri, ma non blocca l'operazione a livello di rischio di portafoglio",
+          "Free cash flow fortemente positivo (23.15B) mitiga il rischio di leva e supporta la tenuta della posizione fino a fine holding period (10gg operativi)",
+          "Sizing e mark-to-market da gestire secondo le regole standard del backtester (max 10% del capitale, cap posizioni, no leva implicita)"
+        ]
+      },
+      "ceo": {
+        "ticker": "UNH",
+        "action": "BUY",
+        "rationale": "UNH mostra momentum positivo in regime TREND_UP con settore sanitario difensivo favorevole; nonostante leva elevata e margini sottili, il forte free cash flow (23.15B) supporta la posizione. Ingresso a 415.63 con stop-loss al 15% come da valutazione auditor, monitorando il deterioramento EPS nei prossimi trimestri.",
+        "final_stop_loss_pct": 0.15
+      }
+    },
+    "final": {
+      "ticker": "UNH",
+      "action": "BUY",
+      "rationale": "UNH mostra momentum positivo in regime TREND_UP con settore sanitario difensivo favorevole; nonostante leva elevata e margini sottili, il forte free cash flow (23.15B) supporta la posizione. Ingresso a 415.63 con stop-loss al 15% come da valutazione auditor, monitorando il deterioramento EPS nei prossimi trimestri.",
+      "final_stop_loss_pct": 0.15
+    }
+  },
+  {
+    "ticker": "GE",
+    "stages": {
+      "researcher": {
+        "ticker": "GE",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "GE",
+        "verdict": "pass",
+        "reasons": [
+          "debt_to_equity 6.1 supera 2.5 ma free_cash_flow positivo (8.85B) evita il rigetto automatico",
+          "ebitda_margin ampiamente positivo (112%)",
+          "eps_growth_q_on_q 0.359 solido, ben oltre la soglia compensativa",
+          "free cash flow robusto a supporto della leva elevata"
+        ],
+        "debt_flag": true
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna indicazione di riunione Fed/BCE entro 10 giorni fornita nei dati ricevuti: kill switch non applicabile. Il regime_gate US è TREND_UP, quindi non ricade nel divieto per TREND_DOWN. GE è titolo industriale/ciclico: favorevole in fase di easing o pausa prolungata dei tassi; sfavorito in fase di restringimento monetario 'higher for longer'. Non ho dati specifici sulla fase attuale del ciclo Fed né su eventuale divergenza Fed/BCE, quindi non posso confermare con certezza la fase monetaria — il giudizio si basa solo sul regime tecnico disponibile (TREND_UP) e sull'assenza di trigger di kill switch espliciti nei dati forniti."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.15,
+        "risk_notes": [
+          "regime_gate TREND_UP: nessun blocco da regime filter",
+          "Stop-loss impostato a 15% (max consentito dalla regola validata in Run #40), non stringere ulteriormente nonostante debt_to_equity elevato (6.1x)",
+          "Debt_to_equity 6.1x è alto ma compensato da FCF positivo (8.85B) e EPS growth solido, già validato da Company Analyst",
+          "Sizing da gestire secondo regole standard portfolio_backtester: max 10% capitale per posizione, mai a leva"
+        ]
+      },
+      "ceo": {
+        "ticker": "GE",
+        "action": "BUY",
+        "rationale": "GE mostra momentum positivo in regime TREND_UP, con EPS growth solido e FCF robusto a compensare un debt/equity elevato (6.1x). Nessun trigger macro di blocco rilevato; ingresso a mercato con size max 10% del capitale, no leva.",
+        "final_stop_loss_pct": 0.15
+      }
+    },
+    "final": {
+      "ticker": "GE",
+      "action": "BUY",
+      "rationale": "GE mostra momentum positivo in regime TREND_UP, con EPS growth solido e FCF robusto a compensare un debt/equity elevato (6.1x). Nessun trigger macro di blocco rilevato; ingresso a mercato con size max 10% del capitale, no leva.",
+      "final_stop_loss_pct": 0.15
+    }
+  },
+  {
+    "ticker": "AAPL",
+    "stages": {
+      "researcher": {
+        "ticker": "AAPL",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "AAPL",
+        "verdict": "pass",
+        "reasons": [
+          "debt_to_equity 2.48 è sotto la soglia di rigetto automatico (2.5) e comunque supportato da free_cash_flow fortemente positivo (140.2B)",
+          "ebitda_margin positivo e solido al 32.6%, ben lontano da margini negativi",
+          "eps_growth_q_on_q 22.7% indica crescita robusta degli utili trimestrali",
+          "free_cash_flow ampiamente positivo rafforza la sostenibilità della leva finanziaria"
+        ],
+        "debt_flag": true
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna decisione Fed/BCE segnalata entro i prossimi 10 giorni di calendario, quindi il kill switch non si attiva per il mercato US. Il regime_gate è TREND_UP, condizione necessaria per dichiarare rotazione favorevole secondo le guidelines. In assenza di dati specifici sulla fase attuale del ciclo Fed (easing vs tightening), non posso confermare se il contesto favorisca titoli ciclici come tech; si raccomanda verifica esplicita della fase Fed corrente prima di procedere. Nessuna divergenza Fed/BCE valutabile per mercato US-only."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.15,
+        "risk_notes": [
+          "regime_gate TREND_UP: coerente con l'apertura di nuove posizioni, nessun conflitto col gate",
+          "Stop-loss impostato al 15%, in linea con il valore validato in Run #40 (mai superare -0.15)",
+          "debt_to_equity 2.48 è sotto soglia di rigetto ma vicino al limite: monitorare in caso di deterioramento futuro",
+          "Company Analyst=pass e Finance Guy=favorevole confermati a monte, controllo di rischio finale positivo"
+        ]
+      },
+      "ceo": {
+        "ticker": "AAPL",
+        "action": "BUY",
+        "rationale": "AAPL in regime TREND_UP con momentum positivo, crescita EPS trimestrale del 22.7% e FCF robusto (140.2B) nonostante un debt/equity elevato ma sotto soglia di rigetto. Auditor ha approvato l'operazione con stop-loss al 15%; si consiglia di monitorare il livello di indebitamento nelle prossime trimestrali. Eseguire acquisto su Fineco impostando stop-loss al -15% dal prezzo di ingresso 289.36.",
+        "final_stop_loss_pct": 0.15
+      }
+    },
+    "final": {
+      "ticker": "AAPL",
+      "action": "BUY",
+      "rationale": "AAPL in regime TREND_UP con momentum positivo, crescita EPS trimestrale del 22.7% e FCF robusto (140.2B) nonostante un debt/equity elevato ma sotto soglia di rigetto. Auditor ha approvato l'operazione con stop-loss al 15%; si consiglia di monitorare il livello di indebitamento nelle prossime trimestrali. Eseguire acquisto su Fineco impostando stop-loss al -15% dal prezzo di ingresso 289.36.",
+      "final_stop_loss_pct": 0.15
+    }
+  },
+  {
+    "ticker": "JPM",
+    "stages": {
+      "researcher": {
+        "ticker": "JPM",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "JPM",
+        "verdict": "reject",
+        "reasons": [
+          "debt_to_equity=12.46 supera ampiamente la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole",
+          "ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa",
+          "eps_growth_q_on_q molto contenuta (1.37%), non sufficiente a compensare il profilo di leva/cash flow negativo"
+        ],
+        "debt_flag": true
+      }
+    },
+    "final": {
+      "ticker": "JPM",
+      "action": "SKIP",
+      "rationale": "[company_analyst] debt_to_equity=12.46 supera ampiamente la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole; ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa; eps_growth_q_on_q molto contenuta (1.37%), non sufficiente a compensare il profilo di leva/cash flow negativo",
+      "final_stop_loss_pct": null
+    }
+  },
+  {
+    "ticker": "TXN",
+    "stages": {
+      "researcher": {
+        "ticker": "TXN",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "TXN",
+        "verdict": "pass",
+        "reasons": [
+          "Debt-to-equity 1.05 è ben sotto la soglia di rigetto 2.5",
+          "EBITDA margin positivo e solido (35.3%)",
+          "Free cash flow ampiamente positivo (~7.82B)",
+          "Crescita EPS q/q modesta ma positiva (4.81%), coerente con profilo maturo e stabile"
+        ],
+        "debt_flag": false
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna indicazione di decisione Fed/BCE entro 10 giorni fornita nel contesto, quindi il kill switch non risulta applicabile in base ai dati disponibili. Il regime_gate US è TREND_UP, non TREND_DOWN, quindi non si applica il vincolo di esclusione automatica. TXN opera nel settore tech/semiconduttori, categoria ciclica: favorevole in fase di easing monetario o pausa prolungata dei tassi, meno in fase di restringimento monetario attivo. Mancano dati specifici sulla fase attuale del ciclo Fed (rialzo/pausa/taglio) per confermare pienamente la rotazione settoriale verso i ciclici; il giudizio si basa quindi principalmente sul regime tecnico TREND_UP fornito."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.1,
+        "risk_notes": [
+          "regime_gate = TREND_UP: nessun conflitto con la regola di esclusione TREND_DOWN",
+          "Stop-loss impostato al 10%, entro il tetto massimo del 15% validato in Run #40",
+          "Fondamentali solidi (D/E 1.05, EBITDA margin 35.3%, FCF ampiamente positivo) confermati da Company Analyst",
+          "Finance Guy favorevole: macro_regime TREND_UP, sector rotation favorevole, nessun kill switch attivo",
+          "Nessun evento di rischio imminente (earnings_call_flag false, sentiment neutrale, nessun key event)",
+          "Momentum score moderato (0.132): posizione non estrema, coerente con dimensionamento standard 10% cap"
+        ]
+      },
+      "ceo": {
+        "ticker": "TXN",
+        "action": "BUY",
+        "rationale": "TXN mostra fondamentali solidi (D/E 1.05, EBITDA margin 35.3%, FCF ~7.82B) in regime tecnico TREND_UP con rotazione settoriale favorevole e nessun evento di rischio imminente. Ingresso a 298.07 con stop-loss al 10%; nessuna criticità da news o eventi societari.",
+        "final_stop_loss_pct": 0.1
+      }
+    },
+    "final": {
+      "ticker": "TXN",
+      "action": "BUY",
+      "rationale": "TXN mostra fondamentali solidi (D/E 1.05, EBITDA margin 35.3%, FCF ~7.82B) in regime tecnico TREND_UP con rotazione settoriale favorevole e nessun evento di rischio imminente. Ingresso a 298.07 con stop-loss al 10%; nessuna criticità da news o eventi societari.",
+      "final_stop_loss_pct": 0.1
+    }
+  },
+  {
+    "ticker": "CSCO",
+    "stages": {
+      "researcher": {
+        "ticker": "CSCO",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "CSCO",
+        "verdict": "pass",
+        "reasons": [
+          "Debt-to-equity 1.57 sotto la soglia critica di 2.5",
+          "EBITDA margin positivo al 23.4%, marginalità solida",
+          "Free cash flow ampiamente positivo (13.0B)",
+          "Crescita EPS q/q modesta (0.39%) ma non negativa, non compromette il quadro complessivo"
+        ],
+        "debt_flag": false
+      },
+      "finance_guy": {
+        "macro_regime": "TREND_UP",
+        "sector_rotation_favorable": true,
+        "notes": "Nessuna decisione Fed/BCE segnalata entro 10 giorni dai dati forniti, quindi il kill switch non si applica al mercato US. Il regime_gate è TREND_UP, coerente con una fase di easing/pausa prolungata in cui i titoli ciclici/tech (come CSCO) sono storicamente favoriti dalla rotazione settoriale. Non essendo TREND_DOWN, non c'è vincolo che blocchi la rotazione favorevole. Nessuna divergenza Fed/BCE rilevata nei dati disponibili da segnalare."
+      },
+      "auditor": {
+        "approved": true,
+        "stop_loss_pct": 0.15,
+        "risk_notes": [
+          "Regime gate TREND_UP: apertura nuove posizioni consentita, nessun conflitto con il gate di regime",
+          "Stop-loss impostato al 15%, coerente con la soglia validata in Run #40 (mai superare -0.15)",
+          "Debt/Equity 1.57 sotto soglia critica, FCF ampiamente positivo: profilo fondamentale solido a supporto della size standard",
+          "Nessun evento chiave o earnings call imminente che aumenti il rischio idiosincratico a breve termine",
+          "Sizing da gestire secondo regola standard (max 10% capitale totale per posizione, cap invariato)"
+        ]
+      },
+      "ceo": {
+        "ticker": "CSCO",
+        "action": "BUY",
+        "rationale": "Quadro fondamentale solido (D/E 1.57, EBITDA margin 23.4%, FCF 13B), regime di mercato TREND_UP favorevole alla rotazione su tech/ciclici e nessun evento di rischio imminente. Procedere con acquisto a size standard (max 10% capitale) impostando stop-loss al 15% dal prezzo di ingresso di 117.46$.",
+        "final_stop_loss_pct": 0.15
+      }
+    },
+    "final": {
+      "ticker": "CSCO",
+      "action": "BUY",
+      "rationale": "Quadro fondamentale solido (D/E 1.57, EBITDA margin 23.4%, FCF 13B), regime di mercato TREND_UP favorevole alla rotazione su tech/ciclici e nessun evento di rischio imminente. Procedere con acquisto a size standard (max 10% capitale) impostando stop-loss al 15% dal prezzo di ingresso di 117.46$.",
+      "final_stop_loss_pct": 0.15
+    }
+  },
+  {
+    "ticker": "QCOM",
+    "stages": {
+      "researcher": {
+        "ticker": "QCOM",
+        "news_sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "key_events": [],
+        "earnings_call_flag": false
+      },
+      "company_analyst": {
+        "ticker": "QCOM",
+        "verdict": "reject",
+        "reasons": [
+          "debt_to_equity 6.08 supera la soglia 2.5",
+          "free_cash_flow positivo ma non compensa la leva eccessiva secondo la regola (serve FCF positivo per evitare rigetto, ma il livello di debito resta estremo e va valutato con cautela)",
+          "eps_growth_q_on_q fortemente negativo (-44.15%), nessuna crescita eccezionale che possa giustificare deroghe",
+          "ebitda_margin positivo (25.5%) ma non sufficiente a bilanciare il rischio di leva e il calo EPS"
+        ],
+        "debt_flag": true
+      }
+    },
+    "final": {
+      "ticker": "QCOM",
+      "action": "SKIP",
+      "rationale": "[company_analyst] debt_to_equity 6.08 supera la soglia 2.5; free_cash_flow positivo ma non compensa la leva eccessiva secondo la regola (serve FCF positivo per evitare rigetto, ma il livello di debito resta estremo e va valutato con cautela); eps_growth_q_on_q fortemente negativo (-44.15%), nessuna crescita eccezionale che possa giustificare deroghe; ebitda_margin positivo (25.5%) ma non sufficiente a bilanciare il rischio di leva e il calo EPS",
+      "final_stop_loss_pct": null
+    }
+  }
+]

@@ -1,0 +1,40 @@
+COMITATO MULTI-AGENTE — Report operativo 2026-07-01
+======================================================================
+
+AMAT: BUY
+  Motivazione: AMAT mostra fondamentali solidi (D/E 0.68, EBITDA margin 28.6%, FCF ~8B) in regime TREND_UP con rotazione settoriale favorevole al tech/semiconduttori. Nessun evento di rischio imminente o segnale avverso rilevato dal sentiment neutro. Ingresso a 723.0 USD con stop-loss al 15% come da validazione auditor.
+  Stop-Loss: -15.0%
+
+GOOGL: BUY
+  Motivazione: GOOGL supera tutti i filtri: fondamentali solidi (debt/equity 0.47, EBITDA margin 38.4%, FCF ~174B), momentum positivo (0.547) e regime di mercato TREND_UP favorevole. Nessun evento negativo o sentiment critico rilevato. Ingresso a 357.37 USD con stop-loss al 10%.
+  Stop-Loss: -10.0%
+
+LIN: BUY
+  Motivazione: Fondamentali solidi (D/E 1.2, EBITDA margin 26.5%, FCF ~10.4B), regime di mercato TREND_UP favorevole e sentiment neutro senza eventi avversi. Ingresso a 518.94 USD con stop-loss impostato al 10% per contenere il rischio.
+  Stop-Loss: -10.0%
+
+UNH: BUY
+  Motivazione: UNH mostra momentum positivo in regime TREND_UP con settore sanitario difensivo favorevole; nonostante leva elevata e margini sottili, il forte free cash flow (23.15B) supporta la posizione. Ingresso a 415.63 con stop-loss al 15% come da valutazione auditor, monitorando il deterioramento EPS nei prossimi trimestri.
+  Stop-Loss: -15.0%
+
+GE: BUY
+  Motivazione: GE mostra momentum positivo in regime TREND_UP, con EPS growth solido e FCF robusto a compensare un debt/equity elevato (6.1x). Nessun trigger macro di blocco rilevato; ingresso a mercato con size max 10% del capitale, no leva.
+  Stop-Loss: -15.0%
+
+AAPL: BUY
+  Motivazione: AAPL in regime TREND_UP con momentum positivo, crescita EPS trimestrale del 22.7% e FCF robusto (140.2B) nonostante un debt/equity elevato ma sotto soglia di rigetto. Auditor ha approvato l'operazione con stop-loss al 15%; si consiglia di monitorare il livello di indebitamento nelle prossime trimestrali. Eseguire acquisto su Fineco impostando stop-loss al -15% dal prezzo di ingresso 289.36.
+  Stop-Loss: -15.0%
+
+JPM: SKIP
+  Motivazione: [company_analyst] debt_to_equity=12.46 supera ampiamente la soglia di 2.5 e il free_cash_flow è negativo (-107.7B), condizione di rigetto automatico secondo le regole; ebitda_margin non disponibile (NaN), impossibile validare la marginalità operativa; eps_growth_q_on_q molto contenuta (1.37%), non sufficiente a compensare il profilo di leva/cash flow negativo
+
+TXN: BUY
+  Motivazione: TXN mostra fondamentali solidi (D/E 1.05, EBITDA margin 35.3%, FCF ~7.82B) in regime tecnico TREND_UP con rotazione settoriale favorevole e nessun evento di rischio imminente. Ingresso a 298.07 con stop-loss al 10%; nessuna criticità da news o eventi societari.
+  Stop-Loss: -10.0%
+
+CSCO: BUY
+  Motivazione: Quadro fondamentale solido (D/E 1.57, EBITDA margin 23.4%, FCF 13B), regime di mercato TREND_UP favorevole alla rotazione su tech/ciclici e nessun evento di rischio imminente. Procedere con acquisto a size standard (max 10% capitale) impostando stop-loss al 15% dal prezzo di ingresso di 117.46$.
+  Stop-Loss: -15.0%
+
+QCOM: SKIP
+  Motivazione: [company_analyst] debt_to_equity 6.08 supera la soglia 2.5; free_cash_flow positivo ma non compensa la leva eccessiva secondo la regola (serve FCF positivo per evitare rigetto, ma il livello di debito resta estremo e va valutato con cautela); eps_growth_q_on_q fortemente negativo (-44.15%), nessuna crescita eccezionale che possa giustificare deroghe; ebitda_margin positivo (25.5%) ma non sufficiente a bilanciare il rischio di leva e il calo EPS

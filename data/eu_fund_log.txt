@@ -1,4 +1,4 @@
-2026-06-26T16:45:18.741289Z
+2026-07-01T14:32:41.518589Z
 [EU] A2A.MI     nm=5% cr=1.05 roe=13% end=2025-12-31 (4 anni)
 [EU] AMP.MI     nm=4% cr=0.61 roe=9% end=2025-12-31 (4 anni)
 [EU] AZM.MI     nm=37% cr=0.53 roe=26% end=2025-12-31 (4 anni)
@@ -21,7 +21,7 @@
 [EU] INW.MI     nm=34% cr=0.59 roe=10% end=2025-12-31 (4 anni)
 [EU] IVG.MI     nm=2% cr=1.81 roe=10% end=2025-12-31 (4 anni)
 [EU] LDO.MI     nm=6% cr=0.98 roe=13% end=2025-12-31 (4 anni)
-[EU] MB.MI      nm=N/A cr=None roe=12% end=2025-06-30 (5 anni)
+[EU] MB.MI      nm=N/A cr=None roe=12% end=2025-06-30 (4 anni)
 [EU] MONC.MI    nm=20% cr=2.42 roe=16% end=2025-12-31 (4 anni)
 [EU] NEXI.MI    nm=-54% cr=1.08 roe=-48% end=2025-12-31 (4 anni)
 [EU] PIRC.MI    nm=7% cr=1.45 roe=8% end=2025-12-31 (4 anni)
@@ -79,5 +79,5 @@
 [EU] VIV.PA     nm=7% cr=0.16 roe=0% end=2025-12-31 (4 anni)
 [EU] WLN.PA     nm=-128% cr=1.1 roe=-159% end=2025-12-31 (4 anni)
 [EU] scritto data/fundamentals_eu.csv (79 ticker)
-[EU] scritto data/fundamentals_eu_history.csv (317 osservazioni, filed = fine periodo + 120gg)
+[EU] scritto data/fundamentals_eu_history.csv (316 osservazioni, filed = fine periodo + 120gg)
 [EU] senza dati (1): ['BPSO.MI']
