@@ -362,6 +362,20 @@ def render_report(results, asof=None, unicorn_funnel=None):
                 f"  Take Profit: T1 {trade_plan['t1']:.2f} (R/R {trade_plan['rr1']}:1) | "
                 f"T2 {trade_plan['t2']:.2f} (R/R {trade_plan['rr2']}:1) | "
                 f"T3 {trade_plan['t3']:.2f} (R/R {trade_plan['rr3']}:1, runner)")
+            binding = f" {trade_plan['binding']}" if trade_plan.get("binding") else ""
+            lines.append(
+                f"  Strategia operativa: confidenza {trade_plan['confidence']} | "
+                f"regime x{trade_plan['regime_mult']}, convinzione x{trade_plan['size_mult']}")
+            lines.append(
+                f"    Sizing (su capitale nozionale {COMMITTEE_CAPITAL:,.0f}, NON il tuo capitale reale — "
+                f"usa la % di portafoglio su qualunque capitale): {trade_plan['shares']} azioni = "
+                f"{trade_plan['pos_value']:,.0f} ({trade_plan['pos_pct']}% portafoglio){binding}")
+            lines.append(f"    Rischio massimo posizione: {trade_plan['risk_eur']:,.0f} "
+                          f"| Costo round-trip stimato: {trade_plan['cost_pct']:.2f}%"
+                          + ("" if trade_plan["cost_efficient"] else " [!] poco efficiente per conti piccoli"))
+            lines.append(
+                f"    Guadagno atteso (riferimento storico, ai vecchi target validati): "
+                f"{trade_plan['net_exp_pct']:+.2f}% = {trade_plan['eur_exp']:+,.0f}")
         elif final["action"] == "BUY" and final.get("final_stop_loss_pct") is not None:
             lines.append(f"  Stop-Loss: -{final['final_stop_loss_pct']*100:.1f}% "
                           f"(trade plan non calcolabile: dati ATR mancanti per questo ticker)")
@@ -405,6 +419,35 @@ def _unicorn_funnel():
     return {"screened": screened, "gate_passed": gate_passed}
 
 
+def _operational_plan_json(plan):
+    """Strategia operativa completa (sizing, rischio, costi, guadagno atteso), non
+    solo i livelli di prezzo — calcolata in codice da modules/trade_proposal.py,
+    mai chiesta all'LLM (stesso principio del trade plan). Il capitale
+    (COMMITTEE_CAPITAL) e' NOZIONALE: shares/EUR sono illustrativi su quel
+    capitale di riferimento, la % di portafoglio (position_pct) e' la cifra
+    portabile su qualunque capitale reale dell'utente."""
+    return {
+        "confidence": plan["confidence"],
+        "notional_capital": COMMITTEE_CAPITAL,
+        "shares": plan["shares"],
+        "position_value": plan["pos_value"],
+        "position_pct": plan["pos_pct"],
+        "max_risk": plan["risk_eur"],
+        "cost_pct_round_trip": plan["cost_pct"],
+        "cost_efficient": plan["cost_efficient"],
+        "sizing_note": plan["binding"] or None,
+        "regime_mult": plan["regime_mult"],
+        "size_mult": plan["size_mult"],
+        "expected_net_pct_legacy_targets": plan["net_exp_pct"],
+        "expected_eur_legacy_targets": plan["eur_exp"],
+        "targets_gain": {
+            "t1": {"pct": plan["g1_pct"], "eur": plan["g1_eur"]},
+            "t2": {"pct": plan["g2_pct"], "eur": plan["g2_eur"]},
+            "t3": {"pct": plan["g3_pct"], "eur": plan["g3_eur"]},
+        },
+    }
+
+
 def _signal_json(r):
     """Normalizza un risultato del Comitato nella forma consumata dalla dashboard
     Astro (frontend/). Un solo posto dove lo shape esportato e' definito, cosi'
@@ -430,6 +473,7 @@ def _signal_json(r):
         "rr1": plan["rr1"] if plan else None,
         "rr2": plan["rr2"] if plan else None,
         "rr3": plan["rr3"] if plan else None,
+        "operational_plan": _operational_plan_json(plan) if plan else None,
         "fundamentals": candidate.get("fundamentals"),
         "technical": candidate.get("technical"),
         "candlestick": candidate.get("candlestick"),

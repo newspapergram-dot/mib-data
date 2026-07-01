@@ -73,6 +73,40 @@ const fmtNum = (v: number | null | undefined, digits = 1) =>
           )}
         </div>
       </div>
+
+      {s.operational_plan && (
+        <div class="mt-4 bg-[#111827] rounded-lg p-4 border border-[#1e293b] text-xs">
+          <h4 class="text-amber-400 uppercase tracking-wider font-semibold mb-2 m-0 bg-transparent border-0">
+            Strategia operativa — confidenza {s.operational_plan.confidence}
+          </h4>
+          <p class="text-gray-500 mb-2">
+            Sizing su capitale nozionale {s.operational_plan.notional_capital.toLocaleString("it-IT")}
+            (non il tuo capitale reale — usa la % di portafoglio su qualunque importo)
+          </p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-gray-300">
+            <div>
+              <span class="text-gray-500 block">Sizing</span>
+              <span class="font-mono">{s.operational_plan.shares} az. = {s.operational_plan.position_pct}% portaf.</span>
+            </div>
+            <div>
+              <span class="text-gray-500 block">Rischio massimo</span>
+              <span class="font-mono">{s.operational_plan.max_risk.toLocaleString("it-IT")}</span>
+            </div>
+            <div>
+              <span class="text-gray-500 block">Costo round-trip</span>
+              <span class="font-mono">{fmtNum(s.operational_plan.cost_pct_round_trip, 2)}%</span>
+              {!s.operational_plan.cost_efficient && <span class="text-amber-400 ml-1">poco efficiente</span>}
+            </div>
+            <div>
+              <span class="text-gray-500 block">Attesa (rif. storico)</span>
+              <span class="font-mono">{s.operational_plan.expected_net_pct_legacy_targets > 0 ? "+" : ""}{s.operational_plan.expected_net_pct_legacy_targets}% = {s.operational_plan.expected_eur_legacy_targets > 0 ? "+" : ""}{s.operational_plan.expected_eur_legacy_targets.toLocaleString("it-IT")}</span>
+            </div>
+          </div>
+          {s.operational_plan.sizing_note && (
+            <p class="text-amber-400 mt-2">{s.operational_plan.sizing_note}</p>
+          )}
+        </div>
+      )}
     </div>
   ))}
 </div>

@@ -1,6 +1,6 @@
 {
   "date": "2026-07-01",
-  "last_updated": "2026-07-01T15:47:04+00:00",
+  "last_updated": "2026-07-01T15:55:38+00:00",
   "market_regime": {
     "US": "TREND_UP"
   },
@@ -21,6 +21,35 @@
       "rr1": 1.8,
       "rr2": 5.39,
       "rr3": 8.98,
+      "operational_plan": {
+        "confidence": "ALTA",
+        "notional_capital": 50000.0,
+        "shares": 6,
+        "position_value": 4338.0,
+        "position_pct": 8.7,
+        "max_risk": 216.9,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 58.66,
+        "targets_gain": {
+          "t1": {
+            "pct": 8.58,
+            "eur": 372.2
+          },
+          "t2": {
+            "pct": 26.54,
+            "eur": 1151.31
+          },
+          "t3": {
+            "pct": 44.5,
+            "eur": 1930.41
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 0.68,
         "ebitda_margin": 0.28593577728776187,
@@ -92,6 +121,35 @@
       "rr1": 1.2,
       "rr2": 3.0,
       "rr3": 5.0,
+      "operational_plan": {
+        "confidence": "ALTA",
+        "notional_capital": 50000.0,
+        "shares": 13,
+        "position_value": 4645.81,
+        "position_pct": 9.3,
+        "max_risk": 165.39,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 62.82,
+        "targets_gain": {
+          "t1": {
+            "pct": 3.87,
+            "eur": 179.89
+          },
+          "t2": {
+            "pct": 10.28,
+            "eur": 477.59
+          },
+          "t3": {
+            "pct": 17.4,
+            "eur": 808.37
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 0.47,
         "ebitda_margin": 0.38399779824471175,
@@ -165,6 +223,35 @@
       "rr1": 1.2,
       "rr2": 3.0,
       "rr3": 5.0,
+      "operational_plan": {
+        "confidence": "ALTA",
+        "notional_capital": 50000.0,
+        "shares": 9,
+        "position_value": 4670.46,
+        "position_pct": 9.3,
+        "max_risk": 90.61,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": false,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 63.16,
+        "targets_gain": {
+          "t1": {
+            "pct": 1.93,
+            "eur": 90.05
+          },
+          "t2": {
+            "pct": 5.42,
+            "eur": 253.14
+          },
+          "t3": {
+            "pct": 9.3,
+            "eur": 434.35
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 1.2,
         "ebitda_margin": 0.2648391285528784,
@@ -236,6 +323,7 @@
       "rr1": null,
       "rr2": null,
       "rr3": null,
+      "operational_plan": null,
       "fundamentals": {
         "debt_to_equity": 6.28,
         "ebitda_margin": 0.041882267134817096,
@@ -302,6 +390,7 @@
       "rr1": null,
       "rr2": null,
       "rr3": null,
+      "operational_plan": null,
       "fundamentals": {
         "debt_to_equity": 6.1,
         "ebitda_margin": 1.1216722340317846,
@@ -358,6 +447,35 @@
       "rr1": 1.2,
       "rr2": 3.0,
       "rr3": 5.0,
+      "operational_plan": {
+        "confidence": "ALTA",
+        "notional_capital": 50000.0,
+        "shares": 17,
+        "position_value": 4919.12,
+        "position_pct": 9.8,
+        "max_risk": 155.44,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 66.52,
+        "targets_gain": {
+          "t1": {
+            "pct": 3.39,
+            "eur": 166.86
+          },
+          "t2": {
+            "pct": 9.08,
+            "eur": 446.66
+          },
+          "t3": {
+            "pct": 15.4,
+            "eur": 757.54
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 2.48,
         "ebitda_margin": 0.32643396050876966,
@@ -429,6 +547,7 @@
       "rr1": null,
       "rr2": null,
       "rr3": null,
+      "operational_plan": null,
       "fundamentals": {
         "debt_to_equity": 12.46,
         "ebitda_margin": null,
@@ -496,6 +615,35 @@
       "rr1": 1.5,
       "rr2": 4.51,
       "rr3": 7.52,
+      "operational_plan": {
+        "confidence": "MEDIA",
+        "notional_capital": 50000.0,
+        "shares": 16,
+        "position_value": 4769.12,
+        "position_pct": 9.5,
+        "max_risk": 238.46,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 64.49,
+        "targets_gain": {
+          "t1": {
+            "pct": 7.12,
+            "eur": 339.56
+          },
+          "t2": {
+            "pct": 22.16,
+            "eur": 1056.84
+          },
+          "t3": {
+            "pct": 37.2,
+            "eur": 1774.11
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 1.05,
         "ebitda_margin": 0.35291246339082327,
@@ -567,6 +715,35 @@
       "rr1": 1.2,
       "rr2": 3.0,
       "rr3": 5.0,
+      "operational_plan": {
+        "confidence": "MEDIA",
+        "notional_capital": 50000.0,
+        "shares": 42,
+        "position_value": 4933.32,
+        "position_pct": 9.9,
+        "max_risk": 150.96,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 66.71,
+        "targets_gain": {
+          "t1": {
+            "pct": 3.27,
+            "eur": 161.42
+          },
+          "t2": {
+            "pct": 8.78,
+            "eur": 433.15
+          },
+          "t3": {
+            "pct": 14.9,
+            "eur": 735.06
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 1.57,
         "ebitda_margin": 0.23361208968491753,
@@ -638,6 +815,35 @@
       "rr1": 1.87,
       "rr2": 5.62,
       "rr3": 9.36,
+      "operational_plan": {
+        "confidence": "BASSA",
+        "notional_capital": 50000.0,
+        "shares": 27,
+        "position_value": 4989.33,
+        "position_pct": 10.0,
+        "max_risk": 249.47,
+        "cost_pct_round_trip": 0.4,
+        "cost_efficient": true,
+        "sizing_note": " (capped a 10% x conv)",
+        "regime_mult": 1.0,
+        "size_mult": 1.0,
+        "expected_net_pct_legacy_targets": 1.35,
+        "expected_eur_legacy_targets": 67.47,
+        "targets_gain": {
+          "t1": {
+            "pct": 8.96,
+            "eur": 447.04
+          },
+          "t2": {
+            "pct": 27.68,
+            "eur": 1381.05
+          },
+          "t3": {
+            "pct": 46.4,
+            "eur": 2315.05
+          }
+        }
+      },
       "fundamentals": {
         "debt_to_equity": 6.08,
         "ebitda_margin": 0.25527132131457086,

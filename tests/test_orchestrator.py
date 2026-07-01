@@ -10,7 +10,7 @@ import json
 from types import SimpleNamespace
 
 from orchestrator import (NativeOrchestrator, STOP_LOSS_FLOOR, invoke_isolated_agent,
-                           render_report, export_frontend_json)
+                           render_report, export_frontend_json, _operational_plan_json)
 from tests.fakes import FakeClient
 
 CANDIDATE = {
@@ -328,3 +328,26 @@ def test_export_frontend_json_sanitizes_nan_for_strict_json_parsers(tmp_path):
     assert "NaN" not in raw
     payload = json.loads(raw)
     assert payload["signals"][0]["fundamentals"]["ebitda_margin"] is None
+
+
+def test_report_and_json_include_full_operational_strategy_not_just_price_levels():
+    """La sola tripletta entry/stop/take-profit non e' la strategia operativa: mancano
+    sizing, rischio in valuta, confidenza e guadagno atteso gia' calcolati da
+    modules/trade_proposal.py. Devono comparire sia nel report testuale sia nel JSON."""
+    client = FakeClient(FULL_APPROVAL_SCRIPT)
+    orch = NativeOrchestrator(client=client)
+    result = orch.run_committee(CANDIDATE)
+
+    report = render_report([result], asof="2026-07-01")
+    assert "Strategia operativa" in report
+    assert "Sizing" in report
+    assert "Rischio massimo posizione" in report
+    assert "Guadagno atteso" in report
+
+    plan = result["trade_plan"]
+    op = _operational_plan_json(plan)
+    assert op["confidence"] in ("ALTA", "MEDIA", "BASSA")
+    assert op["shares"] > 0
+    assert op["position_pct"] > 0
+    assert op["max_risk"] > 0
+    assert op["notional_capital"] > 0
